@@ -1,5 +1,4 @@
 
-
 export default function Inicio() {
 
   return (
@@ -7,7 +6,7 @@ export default function Inicio() {
 
     <div className="Inicio">
 
-      <h1>Inicio</h1>
+      <h1>BIENVENIDO</h1>
 
       <p>
         Sistema de Gestión de Convenios

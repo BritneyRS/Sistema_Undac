@@ -1,45 +1,48 @@
+import React from "react";
 import logo from "../Image/undac_logo.png";
-import { Link } from "react-router-dom"
+import style from "../Styles/style.css"
+//import { Link } from "react-router-dom"
 import {FaHome} from "react-icons/fa"
-import { IoDocumentText } from "react-icons/io5";
+import { FaBookOpen } from "react-icons/fa6";
+const navItems = [
+  { id: "inicio", label: "Inicio", icon: <FaHome/> },
+  { id: "convenios", label: "Convenios", icon: <FaBookOpen/> },
+];
 
-export default function sidebar() {
+export default function Sidebar({ paginaActual, onNavegar }) {
   return (
-  <div className="sidebar">
+    <aside className="sidebar">
+      
+      {/* Logo */}
+      <div className="sidebar-header">
+        <div className="logo-container">
+          <img src={logo} alt="Logo de la universidad" ></img>
+        </div>
 
-      <div className="logo-container">
-        <img src={logo} alt="Logo de la universidad" ></img>
-        <h2>UNDAC</h2>
+        <span className="brand-name">UNDAC</span>
       </div>
-      <ul>
 
-        <li>
+      {/* Navegación */}
+      <nav className="sidebar-nav">
+        {navItems.map((item) => {
+          const activo = paginaActual === item.id;
 
-          <Link to="/">
+          return (
+            <div
+              key={item.id}
+              onClick={() => onNavegar(item.id)}
+              className={`nav-item ${activo ? "nav-item-activo" : ""}`}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+          );
+        })}
+      </nav>
 
-            <FaHome />
-
-            Inicio
-
-          </Link>
-
-        </li>
-
-        <li>
-
-          <Link to="/convenios">
-
-            <IoDocumentText/>
-
-            Convenios
-
-          </Link>
-
-        </li>
-
-      </ul>
-
-    </div>
-
-  )
+    </aside>
+  );
 }
+ 
+ 
+
