@@ -1,11 +1,11 @@
 
 
-export default function inicio() {
+export default function Inicio() {
 
   return (
     
 
-    <div className="inicio">
+    <div className="Inicio">
 
       <h1>Inicio</h1>
 

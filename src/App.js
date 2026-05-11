@@ -14,9 +14,7 @@ function App() {
 
         <Routes>
 
-          <Route path="/" element={<inicio />} />
-
-          
+          <Route path="/" element={<Inicio />} />
 
         </Routes>
 
