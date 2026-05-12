@@ -1,7 +1,6 @@
 import React from "react";
-import Style from "./Styles/style.css";
 import { calcularSemaforo } from "../utils/semaforo";
-
+import style from "../Styles/style.css";
 
 export default function SemaforoP({ fechaFin }) {
 

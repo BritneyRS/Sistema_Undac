@@ -1,13 +1,12 @@
-import React from "react";
-//import semaforop from "./SemaforoP";
+import React, { useState } from "react";
+import SemaforoP from "./SemaforoP";
 import { formatearFecha } from "../utils/semaforo";
-import "../Styles/style.css"
+import style from "../Styles/style.css";
 
-//import { conveniosData } from "../data/convenios";
-
+/* SECCION TIPO */
 function TipoBadge({ tipo }) {
 
-  const estilos = {
+  const mapa = {
 
     "CONVENIO MARCO": {
       bg: "#eff6ff",
@@ -21,9 +20,15 @@ function TipoBadge({ tipo }) {
       label: "Específico",
     },
 
+    MEMORANDO: {
+      bg: "#f5f3ff",
+      color: "#6d28d9",
+      label: "Memorando",
+    },
+
   };
 
-  const e = estilos[tipo] || {
+  const e = mapa[tipo] || {
     bg: "#f3f4f6",
     color: "#374151",
     label: tipo,
@@ -41,104 +46,138 @@ function TipoBadge({ tipo }) {
     </span>
   );
 }
+/*SECCION AMBITO*/
+function AmbitoBadge({ ambito }) {
 
-export default function TableConvenios({ convenios }) {
-
-  if (convenios.length === 0) {
-
-    return (
-      <div className="tabla-vacia">
-        No hay convenios para mostrar.
-      </div>
-    );
-  }
+  const es =
+    ambito === "nacional"
+      ? {
+          bg: "#f0fdf4",
+          color: "#15803d",
+          label: "Nacional",
+        }
+      : {
+          bg: "#fff7ed",
+          color: "#c2410c",
+          label: "Internacional",
+        };
 
   return (
-    <div className="tabla-wrapper">
+    <span
+      className="ambito-badge"
+      style={{
+        background: es.bg,
+        color: es.color,
+      }}
+    >
+      {es.label}
+    </span>
+  );
+}
+/*SECCION OPORTUNIDAD*/
+function OportunidadCell({ convenio, onEditarOtros }) {
 
-      <table className="tabla-convenios">
+  const activas = OPORTUNIDADES.filter(
+    (o) => convenio[o.key]
+  );
 
-        <thead>
+  return (
+    <div className="oportunidad-container">
 
-          <tr>
+      {activas.map((o) => (
 
-            {[
-              "N°",
-              "Nombre del Convenio",
-              "Tipo",
-              "Ámbito",
-              "Inicio",
-              "Fin",
-              "Duración",
-              "Resolución",
-              "Semáforo",
-            ].map((col) => (
+        <span
+          key={o.key}
+          className="op-tag"
+        >
+          {o.label}
+        </span>
 
-              <th
-                key={col}
-                className="tabla-th"
-              >
-                {col}
-              </th>
+      ))}
 
-            ))}
+      {convenio.otros ? (
 
-          </tr>
+        <span
+          title={convenio.otros}
+          onClick={() => onEditarOtros(convenio.id)}
+          className="op-tag op-otros"
+        >
+          Otros ✎
+        </span>
 
-        </thead>
+      ) : (
 
-        <tbody>
+        <span
+          onClick={() => onEditarOtros(convenio.id)}
+          className="op-tag op-agregar"
+        >
+          + Otros
+        </span>
 
-          {convenios.map((c, i) => (
+      )}
 
-            <tr
-              key={c.id}
-              className={i % 2 === 0 ? "fila-par" : "fila-impar"}
-            >
+      {activas.length === 0 && !convenio.otros && (
+        <span className="sin-registro">
+          —
+        </span>
+      )}
 
-              <td className="tabla-td numero-columna">
-                {i + 1}
-              </td>
+    </div>
+  );
+}
+/*SECCION MODAL*/
+function ModalOtros({
+  convenioId,
+  valorActual,
+  onGuardar,
+  onCerrar,
+}) {
 
-              <td className="tabla-td nombre-columna">
-                {c.nombre}
-              </td>
+  const [texto, setTexto] = useState(valorActual || "");
 
-              <td className="tabla-td">
-                <TipoBadge tipo={c.tipo} />
-              </td>
+  return (
+    <div className="modal-bg">
 
-              <td className="tabla-td ambito-columna">
-                {c.ambito}
-              </td>
+      <div className="modal-caja">
 
-              <td className="tabla-td fecha-columna">
-                {formatearFecha(c.inicio)}
-              </td>
+        <p className="modal-titulo">
+          Campo "Otros" — tipo de oportunidad
+        </p>
 
-              <td className="tabla-td fecha-columna">
-                {formatearFecha(c.fin)}
-              </td>
+        <label className="modal-label">
+          Describe el tipo de oportunidad adicional
+        </label>
 
-              <td className="tabla-td fecha-columna">
-                {c.duracion}
-              </td>
+        <textarea
+          className="modal-textarea"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Ej: Intercambio cultural..."
+          rows={4}
+          autoFocus
+        />
 
-              <td className="tabla-td resolucion-columna">
-                {c.resolucion}
-              </td>
+        <div className="modal-btns">
 
-              <td className="tabla-td">
-                <calcularSemaforo fechaFin={c.fin} />
-              </td>
+          <button
+            className="btn-cancelar"
+            onClick={onCerrar}
+          >
+            Cancelar
+          </button>
 
-            </tr>
+          <button
+            className="btn-guardar"
+            onClick={() =>
+              onGuardar(convenioId, texto.trim())
+            }
+          >
+            Guardar
+          </button>
 
-          ))}
+        </div>
 
-        </tbody>
-
-      </table>
+      </div>
 
     </div>
   );

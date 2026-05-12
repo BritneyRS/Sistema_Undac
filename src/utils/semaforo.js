@@ -1,3 +1,4 @@
+
 export function calcularSemaforo(fechaFin) {
   const hoy = new Date();
   const fin = new Date(fechaFin);
