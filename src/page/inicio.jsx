@@ -1,20 +1,20 @@
+import React from "react";
+import style from "../Styles/style.css";
 
 export default function Inicio() {
 
   return (
-    
+    <div className="inicio-contenedor">
 
-    <div className="Inicio">
+      <h1 className="inicio-titulo">
+        BIENVENIDOS
+      </h1>
 
-      <h1>BIENVENIDO</h1>
-
-      <p>
-        Sistema de Gestión de Convenios
+      <p className="inicio-subtitulo">
+        Universidad Nacional Daniel Alcides Carrión
       </p>
 
     </div>
-    
-
   )
 
 }

@@ -22,10 +22,6 @@ export default function Topbar() {
           Administrador
         </span>
         <IoMdArrowDropdown />
-      
-          
-        
-
       </div>
 
     </header>

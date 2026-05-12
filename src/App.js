@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Components/Sidebar";
 import Inicio from "./page/inicio";
+import convenios from "./page/convenios";
 import Style from "./Styles/style.css";
 import Topbar from "./Components/Topbar";
 
@@ -12,9 +13,9 @@ export default function App() {
 
   // Renderizar páginas
   function renderizarPagina() {
-
     switch (paginaActual) {
-
+      case "convenios":
+        return <convenios />
       case "inicio":
       default:
         return <Inicio />;
