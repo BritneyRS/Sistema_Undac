@@ -3,16 +3,20 @@ import SemaforoP from "./SemaforoP";
 import { formatearFecha } from "../utils/semaforo";
 import style from "../Styles/style.css";
 
+const OPORTUNIDADES = [
+  { key: "practicas",       label: "Prácticas" },
+  { key: "investigaciones", label: "Investigaciones" },
+  { key: "proyeccion",      label: "Proyección social" },
+  { key: "capacitacion",    label: "Capacitación" },
+  { key: "laboral",         label: "Oportunidad laboral" },
+  { key: "movilidad",       label: "Movilidad y pasantías" },
+];
 /* SECCION TIPO */
 function TipoBadge({ tipo }) {
 
   const mapa = {
 
-    "CONVENIO MARCO": {
-      bg: "#eff6ff",
-      color: "#1d4ed8",
-      label: "Marco",
-    },
+    "CONVENIO MARCO": {bg: "#eff6ff",color: "#1d4ed8",label: "Marco"},
 
     "CONVENIO ESPECÍFICO": {
       bg: "#fffbeb",
@@ -180,5 +184,198 @@ function ModalOtros({
       </div>
 
     </div>
+  );
+}
+
+// ─── Componente principal ───────────────────────────────
+
+export default function Tableconvenios({
+  convenios: conveniosProp,
+}) {
+
+  const [datos, setDatos] =
+    useState(conveniosProp);
+
+  const [modalId, setModalId] =
+    useState(null);
+
+
+  React.useEffect(() => {
+
+    setDatos(conveniosProp);
+
+  }, [conveniosProp]);
+
+
+  function abrirModal(id) {
+    setModalId(id);
+  }
+
+  function cerrarModal() {
+    setModalId(null);
+  }
+
+  function guardarOtros(id, texto) {
+
+    setDatos((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, otros: texto }
+          : c
+      )
+    );
+
+    cerrarModal();
+  }
+
+
+  const convenioEditando =
+    datos.find((c) => c.id === modalId);
+
+
+  if (datos.length === 0) {
+
+    return (
+      <div className="vacio">
+        No hay convenios para mostrar.
+      </div>
+    );
+
+  }
+
+
+  return (
+
+    <>
+
+      <div className="wrapper">
+
+        <table className="tabla">
+
+          <thead>
+
+            <tr>
+
+              {[
+                "N°",
+                "Nombre del convenio",
+                "Ámbito",
+                "Tipo de oportunidad",
+                "Tipo de convenio",
+                "Inicio",
+                "Fin",
+                "Duración",
+                "Resolución",
+                "Semáforo",
+                "Resultados obtenidos",
+              ].map((col) => (
+
+                <th
+                  key={col}
+                  className="th"
+                >
+                  {col}
+                </th>
+
+              ))}
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {datos.map((c, i) => (
+
+              <tr
+                key={c.id}
+                className={
+                  i % 2 === 0
+                    ? "tr-par"
+                    : "tr-impar"
+                }
+              >
+
+                <td className="td td-numero">
+                  {i + 1}
+                </td>
+
+                <td className="td">
+                  {c.nombre}
+                </td>
+
+                <td className="td">
+                  <AmbitoBadge ambito={c.ambito} />
+                </td>
+
+                <td className="td">
+                  <OportunidadCell
+                    convenio={c}
+                    onEditarOtros={abrirModal}
+                  />
+                </td>
+
+                <td className="td">
+                  <TipoBadge tipo={c.tipo} />
+                </td>
+
+                <td className="td td-fecha">
+                  {formatearFecha(c.inicio)}
+                </td>
+
+                <td className="td td-fecha">
+                  {formatearFecha(c.fin)}
+                </td>
+
+                <td className="td td-fecha">
+                  {c.duracion}
+                </td>
+
+                <td className="td td-resolucion">
+                  {c.resolucion}
+                </td>
+
+                <td className="td">
+                  <SemaforoP fechaFin={c.fin} />
+                </td>
+
+                <td className="td td-resultados">
+
+                  {c.resultados || (
+
+                    <span className="sin-registro">
+                      Sin registro
+                    </span>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      {modalId !== null &&
+        convenioEditando && (
+
+          <ModalOtros
+            convenioId={modalId}
+            valorActual={convenioEditando.otros}
+            onGuardar={guardarOtros}
+            onCerrar={cerrarModal}
+          />
+
+      )}
+
+    </>
+
   );
 }
