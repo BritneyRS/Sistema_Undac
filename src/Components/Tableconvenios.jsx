@@ -9,7 +9,8 @@ const OPORTUNIDADES = [
   { key: "proyeccion",      label: "Proyección social" },
   { key: "capacitacion",    label: "Capacitación" },
   { key: "laboral",         label: "Oportunidad laboral" },
-  { key: "movilidad",       label: "Movilidad y pasantías" },
+  { key: "movilidad",       label: "Movilidad" },
+  { key: "pasantia",       label: "Pasantías" },
 ];
 /* SECCION TIPO */
 function TipoBadge({ tipo }) {

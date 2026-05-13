@@ -15,7 +15,7 @@ export function calcularSemaforo(fechaFin) {
     };
   }
 
-  if (difDias <= 31) {
+  if (difDias <= 30) {
     // menos de un mes
     return {
       color: "amarillo",
