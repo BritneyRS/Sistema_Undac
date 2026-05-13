@@ -284,7 +284,7 @@
 .td-resolucion {
   font-size: 11px;
 
-  color: #9ca3af;
+  color: #6b7280;
 
   white-space: nowrap;
 }
@@ -351,24 +351,15 @@
 }
 
 .op-otros {
-  border-color: #4a90c4;
+  border-color: #e5e7eb;
 
-  color: #4a90c4;
+  color: #6b7280;
 
   background: #eff6ff;
 
   cursor: pointer;
 }
 
-.op-agregar {
-  border-style: dashed;
-
-  color: #9ca3af;
-
-  background: transparent;
-
-  cursor: pointer;
-}
 
 
 /* modal */

@@ -10,7 +10,7 @@ export const conveniosData = [
         laboral:false,
         pasantia:true,
         movilidad:true,
-        Otros:"",
+        Otros:"intercambio cultural",  
         tipo:"Internacional",
         inicio:"2019-01-30",
         fin:"2026-05-29",
@@ -33,7 +33,7 @@ export const conveniosData = [
         inicio:"2020-01-30",
         fin:"2024-01-18",
         duracion: "5 años",
-        resolucion: "N° 0695-2019-UNDAC-CU",
+        resolucion: "N° 0696-2019-UNDAC-CU",
         Resultados: "",
     },
     {
@@ -51,7 +51,7 @@ export const conveniosData = [
         inicio:"2022-01-30",
         fin:"2028-01-18",
         duracion: "7 años",
-        resolucion: "N° 0695-2019-UNDAC-CU",
+        resolucion: "N° 0697-2019-UNDAC-CU",
         Resultados: "",
     },
 

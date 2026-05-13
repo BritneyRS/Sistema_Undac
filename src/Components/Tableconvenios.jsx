@@ -74,11 +74,13 @@ function AmbitoBadge({ ambito }) {
   );
 }
 /*SECCION OPORTUNIDAD*/
-function OportunidadCell({ convenio, onEditarOtros }) {
+function OportunidadCell({ convenio, onVerOtros }) {
 
   const activas = OPORTUNIDADES.filter(
     (o) => convenio[o.key]
   );
+
+  const otros = convenio.otros || convenio.Otros;
 
   return (
     <div className="oportunidad-container">
@@ -94,23 +96,14 @@ function OportunidadCell({ convenio, onEditarOtros }) {
 
       ))}
 
-      {convenio.otros ? (
+      {otros && (
 
         <span
-          title={convenio.otros}
-          onClick={() => onEditarOtros(convenio.id)}
+          onClick={() => onVerOtros(convenio.id)}
           className="op-tag op-otros"
+          style={{ cursor: "pointer" }}
         >
-          Otros ✎
-        </span>
-
-      ) : (
-
-        <span
-          onClick={() => onEditarOtros(convenio.id)}
-          className="op-tag op-agregar"
-        >
-          + Otros
+          Otros
         </span>
 
       )}
@@ -126,13 +119,9 @@ function OportunidadCell({ convenio, onEditarOtros }) {
 }
 /*SECCION MODAL*/
 function ModalOtros({
-  convenioId,
   valorActual,
-  onGuardar,
   onCerrar,
 }) {
-
-  const [texto, setTexto] = useState(valorActual || "");
 
   return (
     <div className="modal-bg">
@@ -140,38 +129,20 @@ function ModalOtros({
       <div className="modal-caja">
 
         <p className="modal-titulo">
-          Campo "Otros" — tipo de oportunidad
+          Tipo de oportunidad: 
         </p>
 
-        <label className="modal-label">
-          Describe el tipo de oportunidad adicional
-        </label>
-
-        <textarea
-          className="modal-textarea"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder="Ej: Intercambio cultural..."
-          rows={4}
-          autoFocus
-        />
+        <div className="modal-texto">
+          {valorActual}
+        </div>
 
         <div className="modal-btns">
 
           <button
-            className="btn-cancelar"
+            className="btn-cerrar"
             onClick={onCerrar}
           >
-            Cancelar
-          </button>
-
-          <button
-            className="btn-guardar"
-            onClick={() =>
-              onGuardar(convenioId, texto.trim())
-            }
-          >
-            Guardar
+            Cerrar
           </button>
 
         </div>
@@ -209,20 +180,6 @@ export default function Tableconvenios({
   function cerrarModal() {
     setModalId(null);
   }
-
-  function guardarOtros(id, texto) {
-
-    setDatos((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, otros: texto }
-          : c
-      )
-    );
-
-    cerrarModal();
-  }
-
 
   const convenioEditando =
     datos.find((c) => c.id === modalId);
@@ -307,7 +264,7 @@ export default function Tableconvenios({
                 <td className="td">
                   <OportunidadCell
                     convenio={c}
-                    onEditarOtros={abrirModal}
+                    onVerOtros={abrirModal}
                   />
                 </td>
 
@@ -362,9 +319,7 @@ export default function Tableconvenios({
         convenioEditando && (
 
           <ModalOtros
-            convenioId={modalId}
-            valorActual={convenioEditando.otros}
-            onGuardar={guardarOtros}
+            valorActual={convenioEditando.otros || convenioEditando.Otros}
             onCerrar={cerrarModal}
           />
 
