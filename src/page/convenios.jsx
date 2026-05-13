@@ -26,9 +26,13 @@ export default function Convenios() {
   const [filtroSemaforo,  setFiltroSemaforo]  = useState("todos");
   const [busqueda,        setBusqueda]        = useState("");
   const conveniosFiltrados = conveniosData.filter((c) => {
-    const porAmbito    = filtroAmbito   === "todos" || c.ambito === filtroAmbito;
-    const porSemaforo  = filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
-    const porBusqueda  = busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const ambitoNormalizado = c.ambito?.toLowerCase();
+    const porAmbito =
+      filtroAmbito === "todos" || ambitoNormalizado === filtroAmbito;
+    const porSemaforo =
+      filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
+    const porBusqueda =
+      busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase());
     return porAmbito && porSemaforo && porBusqueda;
   });
   return (

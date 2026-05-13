@@ -268,6 +268,7 @@ export default function Tableconvenios({
                 "Resolución",
                 "Semáforo",
                 "Resultados obtenidos",
+                "Año",
               ].map((col) => (
 
                 <th
