@@ -15,8 +15,8 @@ export function calcularSemaforo(fechaFin) {
     };
   }
 
-  if (difDias <= 180) {
-    // menos de 6 meses
+  if (difDias <= 31) {
+    // menos de un mes
     return {
       color: "amarillo",
       hex: "#d97706",

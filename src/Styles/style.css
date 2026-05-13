@@ -514,14 +514,11 @@
 
   margin-bottom: 4px;
 }
-
 .subtitulo {
   font-size: 13px;
 
   color: #9ca3af;
 }
-
-
 /* ─── Leyenda ─────────────────────────────────────── */
 
 .leyenda {
@@ -662,18 +659,31 @@
   overflow: hidden;
 }
 
-.tabla-header {
-  padding: 13px 18px;
 
-  border-bottom: 1px solid #f3f4f6;
 
-  background: #fafafa;
+
+
+/* ─── Filtro select ───────────────────────────────── */
+
+.filtro-select {
+  display: flex;
+  align-items: center;
 }
 
-.tabla-header-titulo {
+.select-año {
+  padding: 8px 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 13px;
-
-  font-weight: 600;
-
   color: #374151;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
 }
+
+.select-año:focus {
+  border-color: #4a90c4;
+  box-shadow: 0 0 0 2px rgba(74, 144, 196, 0.1);
+}
+

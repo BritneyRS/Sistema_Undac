@@ -4,6 +4,7 @@ import Tableconvenios from  "../Components/Tableconvenios";
 import { calcularSemaforo } from "../utils/semaforo";
 import style from "../Styles/style.css"
 
+
 /*Opcion de filtro */
 
 const TABS_AMBITO = [
@@ -19,11 +20,30 @@ const TABS_SEMAFORO = [
   { id: "rojo",     label: "Vencidos",   color: "#dc2626" },
 ];
 
+// Extraer años únicos de los datos
+const obtenerAñosUnicos = () => {
+  const años = new Set();
+  conveniosData.forEach((c) => {
+    const año = new Date(c.inicio).getFullYear();
+    años.add(año);
+  });
+  return Array.from(años).sort((a, b) => b - a);
+};
+
+const TABS_AÑOS = [
+  { id: "todos", label: "Todos los años" },
+  ...obtenerAñosUnicos().map((año) => ({
+    id: año.toString(),
+    label: año.toString(),
+  })),
+];
+
 /*COMPONENTE PRINCIPAL PRUEBA */
 
 export default function Convenios() {
   const [filtroAmbito,    setFiltroAmbito]    = useState("todos");
   const [filtroSemaforo,  setFiltroSemaforo]  = useState("todos");
+  const [filtroAño,       setFiltroAño]       = useState("todos");
   const [busqueda,        setBusqueda]        = useState("");
   const conveniosFiltrados = conveniosData.filter((c) => {
     const ambitoNormalizado = c.ambito?.toLowerCase();
@@ -33,7 +53,10 @@ export default function Convenios() {
       filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
     const porBusqueda =
       busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase());
-    return porAmbito && porSemaforo && porBusqueda;
+    const año = new Date(c.inicio).getFullYear();
+    const porAño =
+      filtroAño === "todos" || año.toString() === filtroAño;
+    return porAmbito && porSemaforo && porBusqueda && porAño;
   });
   return (
 
@@ -48,9 +71,8 @@ export default function Convenios() {
           <h2 className="titulo">
             Gestión de Convenios
           </h2>
-
           <p className="subtitulo">
-            Año 2019 — Universidad Nacional Daniel Alcides Carrión
+            Convenios con instituciones públicas y privadas, nacionales e internacionales, suscritos por el titular del pliego
           </p>
 
         </div>
@@ -67,8 +89,8 @@ export default function Convenios() {
         </span>
 
         {[
-          { color: "#16a34a", label: "Vigente (más de 6 meses)" },
-          { color: "#d97706", label: "Por vencer (menos de 6 meses)" },
+          { color: "#16a34a", label: "Vigente" },
+          { color: "#d97706", label: "Por vencer (menos de un mes)" },
           { color: "#dc2626", label: "Vencido" },
         ].map((l) => (
 
@@ -149,6 +171,25 @@ export default function Convenios() {
         </div>
 
 
+        {/* Filtro año */}
+
+        <div className="filtro-select">
+
+          <select
+            value={filtroAño}
+            onChange={(e) => setFiltroAño(e.target.value)}
+            className="select-año"
+          >
+            {TABS_AÑOS.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+
+        </div>
+
+
         {/* Buscador */}
 
         <input
@@ -174,14 +215,6 @@ export default function Convenios() {
       {/* ─── Tabla ───────────────────────────────────────────────── */}
 
       <div className="tabla-card">
-
-        <div className="tabla-header">
-
-          <span className="tabla-header-titulo">
-            Convenios suscritos por el titular del pliego
-          </span>
-
-        </div>
 
         <Tableconvenios convenios={conveniosFiltrados} />
 

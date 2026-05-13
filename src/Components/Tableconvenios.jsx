@@ -24,12 +24,6 @@ function TipoBadge({ tipo }) {
       label: "Específico",
     },
 
-    MEMORANDO: {
-      bg: "#f5f3ff",
-      color: "#6d28d9",
-      label: "Memorando",
-    },
-
   };
 
   const e = mapa[tipo] || {
@@ -54,7 +48,7 @@ function TipoBadge({ tipo }) {
 function AmbitoBadge({ ambito }) {
 
   const es =
-    ambito === "nacional"
+    ambito === "Nacional"
       ? {
           bg: "#f0fdf4",
           color: "#15803d",
@@ -268,7 +262,6 @@ export default function Tableconvenios({
                 "Resolución",
                 "Semáforo",
                 "Resultados obtenidos",
-                "Año",
               ].map((col) => (
 
                 <th
@@ -343,7 +336,7 @@ export default function Tableconvenios({
 
                 <td className="td td-resultados">
 
-                  {c.resultados || (
+                  {c.Resultados || (
 
                     <span className="sin-registro">
                       Sin registro
