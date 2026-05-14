@@ -211,7 +211,7 @@ export default function Tableconvenios({
               {[
                 "N°",
                 "Nombre del convenio",
-                "Ámbito",
+                "Convenio",
                 "Tipo de oportunidad",
                 "Tipo de convenio",
                 "Inicio",

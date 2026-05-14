@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import {conveniosData} from "../data/convenios";
 import Tableconvenios from  "../Components/Tableconvenios";
 import { calcularSemaforo } from "../utils/semaforo";
-import style from "../Styles/style.css"
+//import style from "../Styles/style.css"
 
 
-/*Opcion de filtro */
+/* Opcion de filtro */
 
 const TABS_AMBITO = [
   { id: "todos",           label: "Todos" },
@@ -20,7 +20,7 @@ const TABS_SEMAFORO = [
   { id: "rojo",     label: "Vencidos",   color: "#dc2626" },
 ];
 
-// Extraer años únicos de los datos
+/*Extraer años unicos */
 const obtenerAñosUnicos = () => {
   const años = new Set();
   conveniosData.forEach((c) => {
@@ -38,7 +38,7 @@ const TABS_AÑOS = [
   })),
 ];
 
-/*COMPONENTE PRINCIPAL PRUEBA */
+/*SECCION PRINCIPAL - PRUEBA */
 
 export default function Convenios() {
   const [filtroAmbito,    setFiltroAmbito]    = useState("todos");
@@ -51,8 +51,8 @@ export default function Convenios() {
       filtroAmbito === "todos" || ambitoNormalizado === filtroAmbito;
     const porSemaforo =
       filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
-    const porBusqueda =
-      busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const porBusqueda =busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || c.resolucion?.toLowerCase().includes(busqueda.toLowerCase());
+      
     const año = new Date(c.inicio).getFullYear();
     const porAño =
       filtroAño === "todos" || año.toString() === filtroAño;
@@ -113,7 +113,7 @@ export default function Convenios() {
       </div>
 
 
-      {/* ─── Filtros ─────────────────────────────────────────────── */}
+      {/* ----- Filtros -------- */}
 
       <div className="filtros-row">
 
