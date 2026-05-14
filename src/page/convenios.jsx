@@ -17,7 +17,7 @@ const TABS_SEMAFORO = [
   { id: "todos",    label: "Todos",      color: "#4a90c4" },
   { id: "verde",    label: "Vigentes",   color: "#16a34a" },
   { id: "amarillo", label: "Por vencer", color: "#d97706" },
-  { id: "rojo",     label: "Vencidos",   color: "#dc2626" },
+  { id: "rojo",     label: "Finalizados",   color: "#dc2626" },
 ];
 
 /*Extraer años unicos */
@@ -38,12 +38,32 @@ const TABS_AÑOS = [
   })),
 ];
 
+/*Extraer tipos unicos de convenios */
+const obtenerTiposUnicos = () => {
+  const tipos = new Set();
+  conveniosData.forEach((c) => {
+    if (c.tipo) {
+      tipos.add(c.tipo);
+    }
+  });
+  return Array.from(tipos).sort();
+};
+
+const TABS_TIPO = [
+  { id: "todos", label: "Todos los tipos" },
+  ...obtenerTiposUnicos().map((tipo) => ({
+    id: tipo.toLowerCase().replace(/\s+/g, '-'),
+    label: tipo,
+  })),
+];
+
 /*SECCION PRINCIPAL - PRUEBA */
 
 export default function Convenios() {
   const [filtroAmbito,    setFiltroAmbito]    = useState("todos");
   const [filtroSemaforo,  setFiltroSemaforo]  = useState("todos");
   const [filtroAño,       setFiltroAño]       = useState("todos");
+  const [filtroTipo,      setFiltroTipo]      = useState("todos");
   const [busqueda,        setBusqueda]        = useState("");
   const conveniosFiltrados = conveniosData.filter((c) => {
     const ambitoNormalizado = c.ambito?.toLowerCase();
@@ -52,11 +72,16 @@ export default function Convenios() {
     const porSemaforo =
       filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
     const porBusqueda =busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || c.resolucion?.toLowerCase().includes(busqueda.toLowerCase());
-      
+    
     const año = new Date(c.inicio).getFullYear();
     const porAño =
       filtroAño === "todos" || año.toString() === filtroAño;
-    return porAmbito && porSemaforo && porBusqueda && porAño;
+    
+    const tipoNormalizado = c.tipo?.toLowerCase().replace(/\s+/g, '-');
+    const porTipo =
+      filtroTipo === "todos" || tipoNormalizado === filtroTipo;
+    
+    return porAmbito && porSemaforo && porBusqueda && porAño && porTipo;
   });
   return (
 
@@ -91,7 +116,8 @@ export default function Convenios() {
         {[
           { color: "#16a34a", label: "Vigente" },
           { color: "#d97706", label: "Por vencer (menos de un mes)" },
-          { color: "#dc2626", label: "Vencido" },
+          { color: "#f59e0b", label: "Por vencer (menos de 2 meses)"}, //nuevo
+          { color: "#dc2626", label: "Finalizados" },
         ].map((l) => (
 
           <div
@@ -167,6 +193,25 @@ export default function Convenios() {
             </button>
 
           ))}
+
+        </div>
+
+
+        {/* Filtro tipo de convenio */}
+
+        <div className="filtro-select">
+
+          <select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            className="select-año"
+          >
+            {TABS_TIPO.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
 
         </div>
 

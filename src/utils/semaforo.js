@@ -10,7 +10,7 @@ export function calcularSemaforo(fechaFin) {
       color: "rojo",
       hex: "#dc2626",
       bg: "#fee2e2",
-      texto: "Vencido",
+      texto: "Finalizado",
       dias: difDias,
     };
   }
@@ -18,8 +18,19 @@ export function calcularSemaforo(fechaFin) {
   if (difDias <= 30) {
     // menos de un mes
     return {
-      color: "amarillo",
+      color: "naranja",
       hex: "#d97706",
+      bg: "#fef3c7",
+      texto: `${difDias} días restantes`,
+      dias: difDias,
+    };
+  }
+
+  if (difDias <= 60) {
+    // menos de dos meses
+    return {
+      color: "amarillo",
+      hex: "#b3b00c",
       bg: "#fef3c7",
       texto: `${difDias} días restantes`,
       dias: difDias,
