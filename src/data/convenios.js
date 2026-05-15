@@ -13,7 +13,7 @@ export const conveniosData = [
         Otros:"intercambio cultural",  
         tipo:"Convenio marco",
         inicio:"2019-01-30",
-        fin:"2026-05-16",
+        fin:"2026-07-15",
         duracion: "7 años",
         resolucion: "N° 0695-2019-UNDAC-CU",
         Resultados: "El vicerrector academicos, el vicerector de insvestigacion. La facultad de ingenieria de Minas y la Escuela de Posgrado, a traves del presente convenio vienen ejecutando actividades y proyectos en materia de investigacion",
