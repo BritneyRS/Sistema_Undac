@@ -14,10 +14,10 @@ const TABS_AMBITO = [
 ];
 
 const TABS_SEMAFORO = [
-  { id: "todos",    label: "Todos",      color: "#4a90c4" },
-  { id: "verde",    label: "Vigentes",   color: "#16a34a" },
-  { id: "amarillo", label: "Por vencer", color: "#d97706" },
-  { id: "rojo",     label: "Finalizados",   color: "#dc2626" },
+  { id: "todos",       label: "Todos",      color: "#4a90c4" },
+  { id: "verde",       label: "Vigentes",   color: "#16a34a" },
+  { id: "por-vencer",  label: "Por vencer", color: "#d97706" },
+  { id: "rojo",        label: "Finalizados",   color: "#dc2626" },
 ];
 
 /*Extraer años unicos */
@@ -69,8 +69,11 @@ export default function Convenios() {
     const ambitoNormalizado = c.ambito?.toLowerCase();
     const porAmbito =
       filtroAmbito === "todos" || ambitoNormalizado === filtroAmbito;
+    const semaforoColor = calcularSemaforo(c.fin).color;
     const porSemaforo =
-      filtroSemaforo === "todos" || calcularSemaforo(c.fin).color === filtroSemaforo;
+      filtroSemaforo === "todos" ||
+      (filtroSemaforo === "por-vencer" && ["naranja", "amarillo"].includes(semaforoColor)) ||
+      semaforoColor === filtroSemaforo;
     const porBusqueda =busqueda === "" || c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || c.resolucion?.toLowerCase().includes(busqueda.toLowerCase());
     
     const año = new Date(c.inicio).getFullYear();
