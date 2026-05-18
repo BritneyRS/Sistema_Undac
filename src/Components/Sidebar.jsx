@@ -1,6 +1,6 @@
 import React from "react";
 import logo from "../Image/undac_logo.png";
-import style from "../Styles/style.css"
+//import style from "../Styles/style.css"
 //import { Link } from "react-router-dom"
 import {FaHome} from "react-icons/fa"
 import { FaBookOpen } from "react-icons/fa6";

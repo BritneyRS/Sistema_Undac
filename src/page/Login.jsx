@@ -3,7 +3,6 @@ import logo from "../Image/undac_logo.png";
 
 const USUARIOS = [
   { usuario: "admin", password: "admin123", rol: "admin", nombre: "Administrador" },
-  { usuario: "convenio", password: "convenio123", rol: "convenio", nombre: "Responsable de Convenios" },
 ];
 
 export default function Login({ onLogin }) {
@@ -83,10 +82,6 @@ export default function Login({ onLogin }) {
           <div className="login-hint-item">
             <span className="login-hint-rol admin-badge">Admin</span>
             <span className="login-hint-cred">admin / admin123</span>
-          </div>
-          <div className="login-hint-item">
-            <span className="login-hint-rol convenio-badge">Convenio</span>
-            <span className="login-hint-cred">convenio / convenio123</span>
           </div>
         </div>
       </div>
