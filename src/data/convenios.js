@@ -32,7 +32,7 @@ export const conveniosData = [
         Otros:"",
         tipo:"Convenio marco",
         inicio:"2020-04-15",
-        fin:"2026-06-30",
+        fin:"2026-06-15",
         duracion: "5 años",
         resolucion: "N° 0696-2019-UNDAC-CU",
         Resultados: "",

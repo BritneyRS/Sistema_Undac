@@ -1,21 +1,33 @@
-//import { BrowserRouter, Routes, Route } from "react-router-dom"
 import React, { useState } from "react";
 import Sidebar from "./Components/Sidebar";
 import Inicio from "./page/inicio";
 import Convenios from "./page/convenios";
-import Style from "./Styles/style.css";
+import Login from "./page/Login";
 import Topbar from "./Components/Topbar";
+import "./Styles/style.css";
 
 export default function App() {
-
-  // Estado actual
+  const [usuario, setUsuario] = useState(null);
   const [paginaActual, setPaginaActual] = useState("inicio");
 
-  // Renderizar páginas
+  function handleLogin(user) {
+    setUsuario(user);
+    setPaginaActual("inicio");
+  }
+
+  function handleLogout() {
+    setUsuario(null);
+    setPaginaActual("inicio");
+  }
+
+  if (!usuario) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   function renderizarPagina() {
     switch (paginaActual) {
       case "convenios":
-        return <Convenios />
+        return <Convenios usuario={usuario} />;
       case "inicio":
       default:
         return <Inicio />;
@@ -24,24 +36,17 @@ export default function App() {
 
   return (
     <div className="layout">
-
-      {/* Sidebar */}
       <Sidebar
         paginaActual={paginaActual}
         onNavegar={setPaginaActual}
+        usuario={usuario}
       />
-
-      {/* Parte derecha */}
       <div className="columna">
-
-        <Topbar />
-
+        <Topbar usuario={usuario} onLogout={handleLogout} />
         <main className="contenido">
           {renderizarPagina()}
         </main>
-
       </div>
-
     </div>
   );
 }

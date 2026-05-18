@@ -1,14 +1,9 @@
 
 export function calcularSemaforo(fechaFin) {
   const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const [anio, mes, dia] = fechaFin.split("-");
-  const fin = new Date(Number(anio), Number(mes) - 1, Number(dia));
-  fin.setHours(0, 0, 0, 0);
-
+  const fin = new Date(fechaFin);
   const difMs = fin - hoy;
-  const difDias = Math.round(difMs / (1000 * 60 * 60 * 24));
+  const difDias = Math.floor(difMs / (1000 * 60 * 60 * 24));
 
   if (difDias < 0) {
     return {
