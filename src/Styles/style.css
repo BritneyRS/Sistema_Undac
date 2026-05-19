@@ -894,6 +894,32 @@
   background: #3b7bbf;
 }
 
+.btn-export {
+  padding: 9px 16px;
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-export:hover {
+  background: #e5e7eb;
+}
+
+.btn-export-pdf {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.btn-export-pdf:hover {
+  background: #fef2f2;
+}
+
 /* -------------------------ACCIONES EN TABLA (editar / eliminar)--------------------------*/
 .td-acciones {
   white-space: nowrap;

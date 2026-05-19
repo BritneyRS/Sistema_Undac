@@ -3,6 +3,7 @@ import { conveniosData as datosIniciales } from "../data/convenios";
 import Tableconvenios from "../Components/Tableconvenios";
 import ModalConvenio from "../Components/ModalConvenio";
 import { calcularSemaforo } from "../utils/semaforo";
+import { exportar } from "../utils/exportar";
 import { FaPlus } from "react-icons/fa";
 
 const TABS_AMBITO = [
@@ -127,12 +128,16 @@ export default function Convenios({ usuario }) {
           </p>
         </div>
 
-        {esAdmin && (
-          <button className="btn-nuevo" onClick={abrirNuevo}>
-            <FaPlus style={{ marginRight: 6 }} />
-            Nuevo convenio
-          </button>
-        )}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          {esAdmin && (
+            <button className="btn-nuevo" onClick={abrirNuevo}>
+              <FaPlus style={{ marginRight: 6 }} />
+              Nuevo convenio
+            </button>
+          )}
+          <button className="btn-export" onClick={() => exportar(conveniosFiltrados, "excel")}>Exportar Excel</button>
+          <button className="btn-export btn-export-pdf" onClick={() => exportar(conveniosFiltrados, "pdf")}>Exportar PDF</button>
+        </div>
       </div>
 
       {/* ─── Leyenda ─────────────────────────────────────────── */}
