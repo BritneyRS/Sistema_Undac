@@ -15,8 +15,8 @@ const OPORTUNIDADES = [
 
 function TipoBadge({ tipo }) {
   const mapa = {
-    "CONVENIO MARCO":      { bg: "#eff6ff", color: "#1d4ed8", label: "Marco" },
-    "CONVENIO ESPECÍFICO": { bg: "#fffbeb", color: "#92400e", label: "Específico" },
+    "CONVENIO MARCO":      { bg: "#eff6ff", color: "#1d4ed8", label: "Convenio Marco" },
+    "CONVENIO ESPECÍFICO": { bg: "#fffbeb", color: "#aa4b0f", label: "Específico" },
   };
   const e = mapa[tipo?.toUpperCase()] || { bg: "#f3f4f6", color: "#374151", label: tipo };
   return (

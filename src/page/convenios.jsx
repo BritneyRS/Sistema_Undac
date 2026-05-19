@@ -4,7 +4,7 @@ import Tableconvenios from "../Components/Tableconvenios";
 import ModalConvenio from "../Components/ModalConvenio";
 import { calcularSemaforo } from "../utils/semaforo";
 import { exportar } from "../utils/exportar";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaFileExcel, FaFilePdf } from "react-icons/fa";
 
 const TABS_AMBITO = [
   { id: "todos",         label: "Todos" },
@@ -135,8 +135,14 @@ export default function Convenios({ usuario }) {
               Nuevo convenio
             </button>
           )}
-          <button className="btn-export" onClick={() => exportar(conveniosFiltrados, "excel")}>Exportar Excel</button>
-          <button className="btn-export btn-export-pdf" onClick={() => exportar(conveniosFiltrados, "pdf")}>Exportar PDF</button>
+          <button className="btn-export btn-export-excel" onClick={() => exportar(conveniosFiltrados, "excel")}>
+            <FaFileExcel style={{ marginRight: 6 }} />
+            Excel
+          </button>
+          <button className="btn-export btn-export-pdf" onClick={() => exportar(conveniosFiltrados, "pdf")}>
+            <FaFilePdf style={{ marginRight: 6 }} />
+            PDF
+          </button>
         </div>
       </div>
 
