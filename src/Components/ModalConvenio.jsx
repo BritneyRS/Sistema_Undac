@@ -13,7 +13,7 @@ const OPORTUNIDADES = [
 const vacioConvenio = {
   nombre: "",
   ambito: "Nacional",
-  tipo: "CONVENIO MARCO",
+  tipo: "Convenio marco",
   inicio: "",
   fin: "",
   duracion: "",
@@ -97,8 +97,8 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
               value={form.tipo}
               onChange={(e) => cambiar("tipo", e.target.value)}
             >
-              <option value="CONVENIO MARCO">Convenio Marco</option>
-              <option value="CONVENIO ESPECÍFICO">Convenio Específico</option>
+              <option value="Convenio marco">Convenio Marco</option>
+              <option value="Convenio especifico">Convenio Específico</option>
             </select>
           </div>
 
