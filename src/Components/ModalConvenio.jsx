@@ -19,7 +19,7 @@ const vacioConvenio = {
   duracion: "",
   resolucion: "",
   Resultados: "",
-  otros: "",
+  Otros: "",
   practicas: false,
   investigaciones: false,
   proyeccion: false,
@@ -171,8 +171,8 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
             <input
               type="text"
               className="modal-input"
-              value={form.otros || ""}
-              onChange={(e) => cambiar("otros", e.target.value)}
+              value={form.Otros || ""}
+              onChange={(e) => cambiar("Otros", e.target.value)}
               placeholder="Ej: intercambio cultural"
             />
           </div>
