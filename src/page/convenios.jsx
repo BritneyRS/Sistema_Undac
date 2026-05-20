@@ -19,6 +19,17 @@ const TABS_SEMAFORO = [
   { id: "rojo",       label: "Finalizados", color: "#dc2626" },
 ];
 
+const OPORTUNIDADES = [
+  { id: "practicas",      label: "Prácticas" },
+  { id: "investigaciones", label: "Investigaciones" },
+  { id: "proyeccion",     label: "Proyección Social" },
+  { id: "capacitacion",   label: "Capacitación" },
+  { id: "laboral",        label: "Laboral" },
+  { id: "pasantia",       label: "Pasantía" },
+  { id: "movilidad",      label: "Movilidad" },
+  { id: "otros",          label: "Otros" },
+];
+
 const obtenerAñosUnicos = (datos) => {
   const años = new Set();
   datos.forEach((c) => años.add(new Date(c.inicio).getFullYear()));
@@ -35,11 +46,12 @@ export default function Convenios({ usuario }) {
   const esAdmin = usuario?.rol === "admin";
 
   const [datos, setDatos] = useState(datosIniciales);
-  const [filtroAmbito,   setFiltroAmbito]   = useState("todos");
-  const [filtroSemaforo, setFiltroSemaforo] = useState("todos");
-  const [filtroAño,      setFiltroAño]      = useState("todos");
-  const [filtroTipo,     setFiltroTipo]     = useState("todos");
-  const [busqueda,       setBusqueda]       = useState("");
+  const [filtroAmbito,      setFiltroAmbito]      = useState("todos");
+  const [filtroSemaforo,    setFiltroSemaforo]    = useState("todos");
+  const [filtroAño,         setFiltroAño]         = useState("todos");
+  const [filtroTipo,        setFiltroTipo]        = useState("todos");
+  const [filtroOportunidad, setFiltroOportunidad] = useState("todos");
+  const [busqueda,          setBusqueda]          = useState("");
 
   // Modal CRUD
   const [modalAbierto,    setModalAbierto]    = useState(false);
@@ -75,7 +87,10 @@ export default function Convenios({ usuario }) {
     const porAño = filtroAño === "todos" || año.toString() === filtroAño;
     const tipoNorm = c.tipo?.toLowerCase().replace(/\s+/g, "-");
     const porTipo = filtroTipo === "todos" || tipoNorm === filtroTipo;
-    return porAmbito && porSemaforo && porBusqueda && porAño && porTipo;
+    const porOportunidad = 
+      filtroOportunidad === "todos" || 
+      (filtroOportunidad === "otros" ? c.Otros && c.Otros.trim() !== "" : c[filtroOportunidad] === true);
+    return porAmbito && porSemaforo && porBusqueda && porAño && porTipo && porOportunidad;
   });
 
   // ─── CRUD handlers ───────────────────────────────────────
@@ -187,6 +202,19 @@ export default function Convenios({ usuario }) {
               {t.label}
             </button>
           ))}
+        </div>
+
+        <div className="filtro-select">
+          <select
+            value={filtroOportunidad}
+            onChange={(e) => setFiltroOportunidad(e.target.value)}
+            className="select-año"
+          >
+            <option value="todos">Todas las oportunidades</option>
+            {OPORTUNIDADES.map((o) => (
+              <option key={o.id} value={o.id}>{o.label}</option>
+            ))}
+          </select>
         </div>
 
         <div className="filtro-select">

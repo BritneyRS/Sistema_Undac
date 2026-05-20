@@ -102,7 +102,7 @@ export const conveniosData = [
         investigaciones:false,
         proyeccion:false,
         capacitacion:false,
-        laboral:false,
+        laboral:true,
         pasantia:false,
         movilidad:false,
         Otros:"",
