@@ -18,7 +18,9 @@ const vacioConvenio = {
   fin: "",
   duracion: "",
   resolucion: "",
+  resultados: "",
   Resultados: "",
+  otros: "",
   Otros: "",
   practicas: false,
   investigaciones: false,
@@ -34,14 +36,24 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
 
   useEffect(() => {
     if (convenio) {
-      setForm({ ...vacioConvenio, ...convenio });
+      setForm({
+        ...vacioConvenio,
+        ...convenio,
+        resultados: convenio?.resultados ?? convenio?.Resultados ?? "",
+        otros: convenio?.otros ?? convenio?.Otros ?? "",
+      });
     } else {
       setForm(vacioConvenio);
     }
   }, [convenio]);
 
   function cambiar(campo, valor) {
-    setForm((prev) => ({ ...prev, [campo]: valor }));
+    const cambios = { [campo]: valor };
+    if (campo === "resultados") cambios.Resultados = valor;
+    if (campo === "Resultados") cambios.resultados = valor;
+    if (campo === "otros") cambios.Otros = valor;
+    if (campo === "Otros") cambios.otros = valor;
+    setForm((prev) => ({ ...prev, ...cambios }));
   }
 
   function toggleOp(key) {
@@ -171,8 +183,8 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
             <input
               type="text"
               className="modal-input"
-              value={form.Otros || ""}
-              onChange={(e) => cambiar("Otros", e.target.value)}
+              value={form.otros || form.Otros || ""}
+              onChange={(e) => cambiar("otros", e.target.value)}
               placeholder="Ej: intercambio cultural"
             />
           </div>
@@ -183,8 +195,8 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
             <textarea
               className="modal-textarea"
               rows={3}
-              value={form.Resultados || ""}
-              onChange={(e) => cambiar("Resultados", e.target.value)}
+              value={form.resultados || form.Resultados || ""}
+              onChange={(e) => cambiar("resultados", e.target.value)}
               placeholder="Describa los resultados obtenidos..."
             />
           </div>

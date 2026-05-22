@@ -23,7 +23,7 @@ const crearDatosExportExcel = (convenios) =>
     "Pasantía": valorSiNo(c.pasantia),
     "Movilidad": valorSiNo(c.movilidad),
     "Otros": c.Otros || c.otros || "",
-    "Resultados": c.Resultados || "",
+    "Resultados": c.resultados || c.Resultados || "",
   }));
 
 // Función para obtener oportunidades seleccionadas
@@ -50,7 +50,7 @@ const crearDatosExportPDF = (convenios) =>
     "Duración": c.duracion || "",
     "Resolución": c.resolucion || "",
     "Tipo de oportunidad": obtenerOportunidades(c),
-    "Resultados obtenidos": c.Resultados || "",
+    "Resultados obtenidos": c.resultados || c.Resultados || "",
   }));
 
 export const exportar = (convenios, formato = "excel") => {

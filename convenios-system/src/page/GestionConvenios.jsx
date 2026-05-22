@@ -246,7 +246,7 @@ export default function GestionConvenios() {
           <table className="tabla">
             <thead>
               <tr>
-                {["N°", "Nombre del convenio", "Ámbito", "Tipo", "Inicio", "Fin", "Estado", "Resolución", "Acciones"].map((col) => (
+                {['N°', 'Nombre del convenio', 'Ámbito', 'Tipo', 'Inicio', 'Fin', 'Estado', 'Resolución', 'Resultados obtenidos', 'Acciones'].map((col) => (
                   <th key={col} className="th">{col}</th>
                 ))}
               </tr>
@@ -254,7 +254,7 @@ export default function GestionConvenios() {
             <tbody>
               {datosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="vacio">No hay convenios para mostrar.</td>
+                  <td colSpan={10} className="vacio">No hay convenios para mostrar.</td>
                 </tr>
               ) : (
                 datosFiltrados.map((c, i) => {
@@ -286,6 +286,9 @@ export default function GestionConvenios() {
                         }}>{semaforo.texto}</span>
                       </td>
                       <td className="td td-resolucion">{c.resolucion}</td>
+                      <td className="td td-resultados">
+                        {c.resultados || c.Resultados || <span className="sin-registro">Sin registro</span>}
+                      </td>
                       <td className="td">
                         <div style={{ display: "flex", gap: 6 }}>
                           <button className="btn-accion btn-editar" onClick={() => handleEditar(c)}>Editar</button>

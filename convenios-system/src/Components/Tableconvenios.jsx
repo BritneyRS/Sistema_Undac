@@ -120,7 +120,7 @@ export default function Tableconvenios({ convenios: conveniosProp, esAdmin, onEd
                 <td className="td td-resolucion">{c.resolucion}</td>
                 <td className="td"><SemaforoP fechaFin={c.fin} /></td>
                 <td className="td td-resultados">
-                  {c.Resultados || <span className="sin-registro">Sin registro</span>}
+                  {c.resultados || c.Resultados || <span className="sin-registro">Sin registro</span>}
                 </td>
                 {esAdmin && (
                   <td className="td td-acciones">
