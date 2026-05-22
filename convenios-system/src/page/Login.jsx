@@ -1,30 +1,30 @@
 import React, { useState } from "react";
 import logo from "../Image/undac_logo.png";
-
-const USUARIOS = [
-  { usuario: "admin", password: "admin123", rol: "admin", nombre: "Administrador" },
-];
+import { authAPI } from "../utils/api";
 
 export default function Login({ onLogin }) {
-  const [usuario, setUsuario] = useState("");
+  const [usuario,  setUsuario]  = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error,    setError]    = useState("");
   const [cargando, setCargando] = useState(false);
 
-  function handleLogin() {
+  async function handleLogin() {
     setError("");
+    if (!usuario.trim() || !password) {
+      setError("Ingresa usuario y contraseña.");
+      return;
+    }
     setCargando(true);
-    setTimeout(() => {
-      const encontrado = USUARIOS.find(
-        (u) => u.usuario === usuario.trim() && u.password === password
-      );
-      if (encontrado) {
-        onLogin(encontrado);
-      } else {
-        setError("Usuario o contraseña incorrectos.");
-      }
+    try {
+      const data = await authAPI.login(usuario.trim(), password);
+      // Guardar el token en localStorage
+      localStorage.setItem("token", data.token);
+      onLogin(data.usuario);
+    } catch (err) {
+      setError(err.message || "Usuario o contraseña incorrectos.");
+    } finally {
       setCargando(false);
-    }, 500);
+    }
   }
 
   function handleKeyDown(e) {
@@ -75,14 +75,6 @@ export default function Login({ onLogin }) {
           >
             {cargando ? "Ingresando..." : "Ingresar"}
           </button>
-        </div>
-
-        <div className="login-hints">
-          <p className="login-hint-titulo">Credenciales de acceso:</p>
-          <div className="login-hint-item">
-            <span className="login-hint-rol admin-badge">Admin</span>
-            <span className="login-hint-cred">admin / admin123</span>
-          </div>
         </div>
       </div>
     </div>
