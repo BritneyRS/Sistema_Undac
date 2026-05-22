@@ -49,6 +49,12 @@ export function calcularSemaforo(fechaFin) {
 
 export function formatearFecha(fechaISO) {
   if (!fechaISO) return "—";
-  const [y, m, d] = fechaISO.split("-");
+  const fecha = typeof fechaISO === "string" ? new Date(fechaISO) : fechaISO;
+  if (!(fecha instanceof Date) || Number.isNaN(fecha.getTime())) return "—";
+
+  const d = String(fecha.getDate()).padStart(2, "0");
+  const m = String(fecha.getMonth() + 1).padStart(2, "0");
+  const y = fecha.getFullYear();
+
   return `${d}/${m}/${y}`;
 }
