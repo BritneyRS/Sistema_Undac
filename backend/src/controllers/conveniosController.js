@@ -18,7 +18,13 @@ exports.listar = async (req, res) => {
     query += ` AND (nombre ILIKE $${params.length} OR resolucion ILIKE $${params.length})`;
   }
 
-  query += ' ORDER BY creado_en DESC';
+  query += ` ORDER BY
+    CASE
+      WHEN fin < CURRENT_DATE THEN 3
+      WHEN fin <= CURRENT_DATE + INTERVAL '60 days' THEN 1
+      ELSE 2
+    END ASC,
+    fin ASC`;
 
   try {
     const { rows } = await pool.query(query, params);

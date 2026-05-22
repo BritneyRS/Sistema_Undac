@@ -36,6 +36,8 @@ const obtenerOportunidades = (convenio) => {
   if (convenio.laboral) oportunidades.push("Oportunidad laboral");
   if (convenio.movilidad) oportunidades.push("Movilidad");
   if (convenio.pasantia) oportunidades.push("Pasantías");
+  const otros = (convenio.otros || convenio.Otros || "").toString().trim();
+  if (otros) oportunidades.push(`${otros}`);
   return oportunidades.length > 0 ? oportunidades.join(", ") : "Ninguna";
 };
 
@@ -140,7 +142,7 @@ export const exportar = (convenios, formato = "excel") => {
       },
       columnStyles: {
         0: { cellWidth: 7, halign: "center", fontStyle: "bold" },
-        1: { cellWidth: 35, halign: "left" },
+        1: { cellWidth: 40, halign: "left" },
         2: { cellWidth: 25, halign: "center" },
         3: { cellWidth: 30, halign: "center" },
         4: { cellWidth: 20, halign: "center" },

@@ -20,6 +20,18 @@ const TABS_SEMAFORO = [
   { id: "rojo",       label: "Finalizados", color: "#dc2626" },
 ];
 
+const TABS_OPORTUNIDADES = [
+  { id: "todos", label: "Todas las oportunidades" },
+  { id: "practicas", label: "Prácticas" },
+  { id: "investigaciones", label: "Investigaciones" },
+  { id: "proyeccion", label: "Proyección social" },
+  { id: "capacitacion", label: "Capacitación" },
+  { id: "laboral", label: "Oportunidad laboral" },
+  { id: "movilidad", label: "Movilidad" },
+  { id: "pasantia", label: "Pasantías" },
+  { id: "otros", label: "Otros" },
+];
+
 const obtenerAñosUnicos = (datos) => {
   const años = new Set();
   datos.forEach((c) => años.add(new Date(c.inicio).getFullYear()));
@@ -42,6 +54,7 @@ export default function Convenios({ usuario }) {
   const [filtroSemaforo, setFiltroSemaforo] = useState("todos");
   const [filtroAño,      setFiltroAño]      = useState("todos");
   const [filtroTipo,     setFiltroTipo]     = useState("todos");
+  const [filtroOportunidad, setFiltroOportunidad] = useState("todos");
   const [busqueda,       setBusqueda]       = useState("");
   const [modalAbierto,   setModalAbierto]   = useState(false);
   const [convenioEditar, setConvenioEditar] = useState(null);
@@ -99,7 +112,16 @@ export default function Convenios({ usuario }) {
     const porAño = filtroAño === "todos" || año.toString() === filtroAño;
     const tipoNorm = c.tipo?.toLowerCase().replace(/\s+/g, "-");
     const porTipo  = filtroTipo === "todos" || tipoNorm === filtroTipo;
-    return porAmbito && porSemaforo && porBusqueda && porAño && porTipo;
+    // Oportunidad filter: soporta banderas booleanas y el campo 'otros'
+    const porOportunidad = (() => {
+      if (filtroOportunidad === "todos") return true;
+      if (filtroOportunidad === "otros") {
+        const val = (c.otros || c.Otros || "").toString().trim();
+        return val !== "";
+      }
+      return !!c[filtroOportunidad];
+    })();
+    return porAmbito && porSemaforo && porBusqueda && porAño && porTipo && porOportunidad;
   });
 
   // ─── CRUD ────────────────────────────────────────────────
@@ -194,6 +216,11 @@ export default function Convenios({ usuario }) {
               {t.label}
             </button>
           ))}
+        </div>
+        <div className="filtro-select">
+          <select value={filtroOportunidad} onChange={(e) => setFiltroOportunidad(e.target.value)} className="select-año">
+            {TABS_OPORTUNIDADES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
         </div>
         <div className="filtro-select">
           <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} className="select-año">
