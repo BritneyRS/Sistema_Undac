@@ -33,14 +33,39 @@ const CONVENIO_VACIO = {
 
 function ModalForm({ convenio, onGuardar, onCerrar, titulo }) {
   const [form, setForm] = useState(convenio);
+  const [errores, setErrores] = useState({});
+  const errorStyle = { color: "#dc2626", fontSize: 12, marginTop: 6 };
 
   function handleChange(campo, valor) {
     setForm((prev) => ({ ...prev, [campo]: valor }));
+    setErrores((prev) => ({ ...prev, [campo]: undefined }));
+  }
+
+  function validarFormulario() {
+    const nuevosErrores = {};
+    if (!form.nombre.toString().trim()) {
+      nuevosErrores.nombre = "El nombre del convenio es obligatorio.";
+    }
+    if (!form.duracion.toString().trim()) {
+      nuevosErrores.duracion = "La duración es obligatoria.";
+    }
+    const tieneOportunidad = OPORTUNIDADES.some((op) => form[op.key]) || (form.Otros || "").toString().trim();
+    if (!tieneOportunidad) {
+      nuevosErrores.oportunidad = "Selecciona al menos un tipo de oportunidad o completa Otros.";
+    }
+    if (!form.inicio) {
+      nuevosErrores.inicio = "La fecha de inicio es obligatoria.";
+    }
+    if (!form.fin) {
+      nuevosErrores.fin = "La fecha de fin es obligatoria.";
+    }
+    return nuevosErrores;
   }
 
   function handleGuardar() {
-    if (!form.nombre.trim() || !form.inicio || !form.fin) {
-      alert("Por favor completa los campos obligatorios: nombre, fecha inicio y fecha fin.");
+    const nuevosErrores = validarFormulario();
+    if (Object.keys(nuevosErrores).length > 0) {
+      setErrores(nuevosErrores);
       return;
     }
     onGuardar(form);
@@ -66,6 +91,9 @@ function ModalForm({ convenio, onGuardar, onCerrar, titulo }) {
               onChange={(e) => handleChange("nombre", e.target.value)}
               placeholder="Nombre completo del convenio..."
             />
+            {errores.nombre && (
+              <p style={errorStyle}>{errores.nombre}</p>
+            )}
           </div>
 
           <div className="crud-row-2">
@@ -93,16 +121,19 @@ function ModalForm({ convenio, onGuardar, onCerrar, titulo }) {
             <div className="crud-field">
               <label className="crud-label">Fecha inicio <span className="crud-req">*</span></label>
               <input type="date" className="crud-input" value={form.inicio} onChange={(e) => handleChange("inicio", e.target.value)} />
+              {errores.inicio && <p style={errorStyle}>{errores.inicio}</p>}
             </div>
             {/* Fin */}
             <div className="crud-field">
               <label className="crud-label">Fecha fin <span className="crud-req">*</span></label>
               <input type="date" className="crud-input" value={form.fin} onChange={(e) => handleChange("fin", e.target.value)} />
+              {errores.fin && <p style={errorStyle}>{errores.fin}</p>}
             </div>
             {/* Duración */}
             <div className="crud-field">
-              <label className="crud-label">Duración</label>
+              <label className="crud-label">Duración <span className="crud-req">*</span></label>
               <input type="text" className="crud-input" value={form.duracion} onChange={(e) => handleChange("duracion", e.target.value)} placeholder="ej: 5 años" />
+              {errores.duracion && <p style={errorStyle}>{errores.duracion}</p>}
             </div>
           </div>
 
@@ -114,7 +145,7 @@ function ModalForm({ convenio, onGuardar, onCerrar, titulo }) {
 
           {/* Oportunidades */}
           <div className="crud-field">
-            <label className="crud-label">Tipo de oportunidades</label>
+            <label className="crud-label">Tipo de oportunidades <span className="crud-req">*</span></label>
             <div className="crud-checks">
               {OPORTUNIDADES.map((op) => (
                 <label key={op.key} className="crud-check-label">
@@ -127,6 +158,7 @@ function ModalForm({ convenio, onGuardar, onCerrar, titulo }) {
                 </label>
               ))}
             </div>
+            {errores.oportunidad && <p style={errorStyle}>{errores.oportunidad}</p>}
           </div>
 
           {/* Otros */}
