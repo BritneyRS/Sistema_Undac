@@ -1,5 +1,5 @@
 import React from "react";
-import style from "../Styles/style.css";
+//import style from "../Styles/style.css";
 
 export default function Inicio() {
 
