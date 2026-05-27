@@ -59,3 +59,25 @@ export const conveniosAPI = {
   actualizar: (id, datos) => request('/convenios/' + id, { method: 'PUT',    body: JSON.stringify(datos) }),
   eliminar:   (id)        => request('/convenios/' + id, { method: 'DELETE' }),
 };
+// Movilidades
+export const movilidadAPI = {
+  listar: (filtros = {}) => {
+    const params = new URLSearchParams();
+    
+    // Filtros opcionales para el backend (dirección y búsqueda)
+    if (filtros.direccion && filtros.direccion !== 'todos') {
+      params.set('direccion', filtros.direccion);
+    }
+    if (filtros.busqueda) {
+      params.set('busqueda', filtros.busqueda);
+    }
+    
+    const qs = params.toString();
+    return request('/movilidades' + (qs ? '?' + qs : ''));
+  },
+  obtener:    (id)        => request('/movilidades/' + id),
+  crear:      (datos)     => request('/movilidades',       { method: 'POST',   body: JSON.stringify(datos) }),
+  actualizar: (id, datos) => request('/movilidades/' + id, { method: 'PUT',    body: JSON.stringify(datos) }),
+  eliminar:   (id)        => request('/movilidades/' + id, { method: 'DELETE' }),
+};
+

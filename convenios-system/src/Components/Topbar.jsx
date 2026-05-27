@@ -10,7 +10,7 @@ export default function Topbar({ usuario, onLogout }) {
   return (
     <header className="topbar">
       <span className="topbar-titulo">
-        <FaGripLines />  SISTEMA DE CONVENIOS
+        <FaGripLines />  SISTEMA DE OCRI
       </span>
 
       <div style={{ position: "relative" }}>

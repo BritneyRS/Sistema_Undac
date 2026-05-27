@@ -4,9 +4,11 @@ import logo from "../Image/undac_logo.png";
 //import { Link } from "react-router-dom"
 import {FaHome} from "react-icons/fa"
 import { FaBookOpen } from "react-icons/fa6";
+import { TbBusFilled } from "react-icons/tb";
 const navItems = [
   { id: "inicio", label: "Inicio", icon: <FaHome/> },
   { id: "convenios", label: "Convenios", icon: <FaBookOpen/> },
+  { id: "movilidad", label: "Movilidad", icon: <TbBusFilled/> },
 ];
 
 export default function Sidebar({ paginaActual, onNavegar }) {

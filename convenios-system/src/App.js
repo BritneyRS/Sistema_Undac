@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar  from "./Components/Sidebar";
 import Inicio   from "./page/inicio";
 import Convenios from "./page/convenios";
+import Movilidad from "./page/movilidad";
 import Login    from "./page/Login";
 import Topbar   from "./Components/Topbar";
 import { authAPI } from "./utils/api";
@@ -51,6 +52,7 @@ export default function App() {
   function renderizarPagina() {
     switch (paginaActual) {
       case "convenios": return <Convenios usuario={usuario} />;
+      case "movilidad": return <Movilidad usuario={usuario} />;
       case "inicio":
       default:          return <Inicio />;
     }
