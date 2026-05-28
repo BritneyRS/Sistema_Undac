@@ -1,223 +1,221 @@
 import React, { useState, useEffect, useCallback } from "react";
 import TableMovilidades from "../Components/TableMovilidades";
 import ModalMovilidad from "../Components/ModalMovilidad";
-import { calcularSemaforo } from "../utils/semaforo";
 import { exportar } from "../utils/exportar";
-import { movilidadAPI } from "../utils/api";
-import { FaPlus, FaFileExcel, FaFilePdf } from "react-icons/fa";
+import { movilidadesAPI } from "../utils/api";
 
-const TABS_DIRECCION = [
-  { id: "todos", label: "Todos" },
-  { id: "saliente", label: "Salientes" },
-  { id: "entrante", label: "Entrantes" },
-];
+import {
+  FaPlus,
+  FaFileExcel,
+  FaFilePdf,
+} from "react-icons/fa";
 
-const TABS_SEMAFORO = [
-  { id: "todos", label: "Todos", color: "#4a90c4" },
-  { id: "verde", label: "En Curso", color: "#16a34a" },
-  { id: "por-vencer", label: "Por Culminar", color: "#d97706" },
-  { id: "rojo", label: "Culminados", color: "#dc2626" },
-];
-
-const obtenerAñosUnicos = (datos) => {
-  const años = new Set();
+const obtenerSemestresUnicos = (datos) => {
+  const semestres = new Set();
 
   datos.forEach((m) => {
-    if (m.fechaInicio) {
-      años.add(new Date(m.fechaInicio).getFullYear());
+    if (m.semestre) {
+      semestres.add(m.semestre);
     }
   });
 
-  return Array.from(años).sort((a, b) => b - a);
+  return Array.from(semestres).sort().reverse();
 };
 
-const obtenerFinanciamientosUnicos = (datos) => {
-  const tipos = new Set();
+const obtenerEscuelasUnicas = (datos) => {
+  const escuelas = new Set();
 
   datos.forEach((m) => {
-    if (m.financiamiento) {
-      tipos.add(m.financiamiento);
+    if (m.escuela) {
+      escuelas.add(m.escuela);
     }
   });
 
-  return Array.from(tipos).sort();
+  return Array.from(escuelas).sort();
 };
 
 export default function Movilidades({ usuario }) {
+
   const esAdmin = usuario?.rol === "admin";
 
   const [datos, setDatos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  const [filtroDireccion, setFiltroDireccion] = useState("todos");
-  const [filtroSemaforo, setFiltroSemaforo] = useState("todos");
-  const [filtroAño, setFiltroAño] = useState("todos");
-  const [filtroFinancia, setFiltroFinancia] = useState("todos");
-  const [filtroParticipante, setFiltroParticipante] = useState("todos");
+  const [filtroSemestre, setFiltroSemestre] =
+    useState("todos");
+
+  const [filtroEscuela, setFiltroEscuela] =
+    useState("todos");
 
   const [busqueda, setBusqueda] = useState("");
 
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [movilidadEditar, setMovilidadEditar] = useState(null);
+  const [modalAbierto, setModalAbierto] =
+    useState(false);
 
-  const [confirmarElim, setConfirmarElim] = useState(null);
+  const [movilidadEditar, setMovilidadEditar] =
+    useState(null);
+
+  const [confirmarElim, setConfirmarElim] =
+    useState(null);
 
   const [toast, setToast] = useState(null);
 
-  // ─────────────────────────────────────────────
-  // Cargar datos
-  // ─────────────────────────────────────────────
+  // ─── Cargar datos ───────────────────────────────
   const cargarDatos = useCallback(async () => {
-    setCargando(true);
-    setError(null);
 
-    try {
-      const filas = await movilidadAPI.listar();
-      setDatos(filas);
-    } catch (err) {
-      console.error(err);
-      setError("No se pudo conectar con el servidor.");
-    } finally {
-      setCargando(false);
-    }
+  setCargando(true);
+  setError(null);
+
+  try {
+
+    const filas = await movilidadesAPI.listar();
+
+    console.log("DATOS:", filas);
+
+    setDatos(filas);
+
+  } catch (err) {
+
+    console.error("ERROR:", err);
+
+    setError(
+      err.message ||
+      "No se pudo conectar con el servidor."
+    );
+
+  } finally {
+
+    setCargando(false);
+
+  }
+
   }, []);
-
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
-
-  // ─────────────────────────────────────────────
-  // Toast
-  // ─────────────────────────────────────────────
+  // ─── Toast ──────────────────────────────────────
   function mostrarToast(msg, tipo = "ok") {
+
     setToast({ msg, tipo });
 
     setTimeout(() => {
+
       setToast(null);
+
     }, 3000);
   }
 
-  // ─────────────────────────────────────────────
-  // Tabs dinámicos
-  // ─────────────────────────────────────────────
-  const TABS_AÑOS = [
-    { id: "todos", label: "Todos los años" },
-    ...obtenerAñosUnicos(datos).map((a) => ({
-      id: a.toString(),
-      label: a.toString(),
+  // ─── Filtros dinámicos ──────────────────────────
+  const TABS_SEMESTRE = [
+    {
+      id: "todos",
+      label: "Todos los semestres",
+    },
+
+    ...obtenerSemestresUnicos(datos).map((s) => ({
+      id: s,
+      label: s,
     })),
   ];
 
-  const TABS_FINANCIAMIENTO = [
-    { id: "todos", label: "Todos los financiamientos" },
-    ...obtenerFinanciamientosUnicos(datos).map((f) => ({
-      id: f.toLowerCase().replace(/\s+/g, "-"),
-      label: f,
+  const TABS_ESCUELA = [
+    {
+      id: "todos",
+      label: "Todas las escuelas",
+    },
+
+    ...obtenerEscuelasUnicas(datos).map((e) => ({
+      id: e,
+      label: e,
     })),
   ];
 
-  // ─────────────────────────────────────────────
-  // Filtrado
-  // ─────────────────────────────────────────────
+  // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
-    // Dirección
-    const dirNorm = m.direccion?.toLowerCase();
-
-    const porDireccion =
-      filtroDireccion === "todos" ||
-      dirNorm === filtroDireccion;
-
-    // Semáforo
-    const semaforoColor = calcularSemaforo(m.fechaFin).color;
-
-    const porSemaforo =
-      filtroSemaforo === "todos" ||
-      (filtroSemaforo === "por-vencer" &&
-        ["naranja", "amarillo"].includes(semaforoColor)) ||
-      semaforoColor === filtroSemaforo;
-
-    // Búsqueda
-    const textoBusqueda = busqueda.toLowerCase();
 
     const porBusqueda =
       busqueda === "" ||
-      m.participante?.toLowerCase().includes(textoBusqueda) ||
-      m.codigoDocumento?.toLowerCase().includes(textoBusqueda) ||
-      m.institucionOrigen?.toLowerCase().includes(textoBusqueda) ||
-      m.institucionDestino?.toLowerCase().includes(textoBusqueda);
 
-    // Año
-    const año = m.fechaInicio
-      ? new Date(m.fechaInicio).getFullYear()
-      : null;
+      m.nombres
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
 
-    const porAño =
-      filtroAño === "todos" ||
-      año?.toString() === filtroAño;
+      m.universidadOrigen
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
 
-    // Financiamiento
-    const finNorm = m.financiamiento
-      ?.toLowerCase()
-      .replace(/\s+/g, "-");
+      m.universidadDestino
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase());
 
-    const porFinancia =
-      filtroFinancia === "todos" ||
-      finNorm === filtroFinancia;
+    const porSemestre =
+      filtroSemestre === "todos" ||
+      m.semestre === filtroSemestre;
 
-    // Participante
-    const porParticipante =
-      filtroParticipante === "todos" ||
-      m.tipoParticipante === filtroParticipante;
+    const porEscuela =
+      filtroEscuela === "todos" ||
+      m.escuela === filtroEscuela;
 
     return (
-      porDireccion &&
-      porSemaforo &&
       porBusqueda &&
-      porAño &&
-      porFinancia &&
-      porParticipante
+      porSemestre &&
+      porEscuela
     );
+
   });
 
-  // ─────────────────────────────────────────────
-  // CRUD
-  // ─────────────────────────────────────────────
+  // ─── CRUD ──────────────────────────────────────
   function abrirNuevo() {
+
     setMovilidadEditar(null);
+
     setModalAbierto(true);
   }
 
   function abrirEditar(movilidad) {
+
     setMovilidadEditar(movilidad);
+
     setModalAbierto(true);
   }
 
   function cerrarModal() {
+
     setModalAbierto(false);
+
     setMovilidadEditar(null);
   }
 
   async function guardarMovilidad(form) {
+
     try {
+
       if (movilidadEditar) {
-        await movilidadAPI.actualizar(movilidadEditar.id, form);
 
-        mostrarToast(
-          "Registro de movilidad actualizado."
+        await movilidadesAPI.actualizar(
+          movilidadEditar.id,
+          form
         );
-      } else {
-        await movilidadAPI.crear(form);
 
         mostrarToast(
-          "Registro de movilidad creado exitosamente."
+          "Movilidad actualizada correctamente."
+        );
+
+      } else {
+
+        await movilidadesAPI.crear(form);
+
+        mostrarToast(
+          "Movilidad creada correctamente."
         );
       }
 
       cerrarModal();
+
       cargarDatos();
+
     } catch (err) {
-      console.error(err);
 
       mostrarToast(
         err.message || "Error al guardar.",
@@ -227,16 +225,18 @@ export default function Movilidades({ usuario }) {
   }
 
   async function confirmarEliminar() {
-    try {
-      await movilidadAPI.eliminar(confirmarElim);
 
-      mostrarToast("Registro eliminado.");
+    try {
+
+      await movilidadesAPI.eliminar(confirmarElim);
+
+      mostrarToast("Movilidad eliminada.");
 
       setConfirmarElim(null);
 
       cargarDatos();
+
     } catch (err) {
-      console.error(err);
 
       mostrarToast(
         err.message || "Error al eliminar.",
@@ -247,6 +247,7 @@ export default function Movilidades({ usuario }) {
 
   return (
     <div>
+
       {/* Encabezado */}
       <div
         className="header"
@@ -254,18 +255,19 @@ export default function Movilidades({ usuario }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          gap: 20,
-          flexWrap: "wrap",
         }}
       >
+
         <div>
+
           <h2 className="titulo">
-            Gestión de Movilidad Académica
+            Movilidad Estuadiantil
           </h2>
 
           <p className="subtitulo">
-            Control y seguimiento de intercambios de estudiantes
+            Estudiantes de pregrado por facultad y escuela que realizan movilidad estudiantil academica en universidades nacionales o extranjeras
           </p>
+
         </div>
 
         <div
@@ -276,13 +278,19 @@ export default function Movilidades({ usuario }) {
             alignItems: "center",
           }}
         >
+
           {esAdmin && (
             <button
               className="btn-nuevo"
               onClick={abrirNuevo}
             >
-              <FaPlus style={{ marginRight: 6 }} />
+
+              <FaPlus
+                style={{ marginRight: 6 }}
+              />
+
               Nueva movilidad
+
             </button>
           )}
 
@@ -295,8 +303,13 @@ export default function Movilidades({ usuario }) {
               )
             }
           >
-            <FaFileExcel style={{ marginRight: 6 }} />
+
+            <FaFileExcel
+              style={{ marginRight: 6 }}
+            />
+
             Excel
+
           </button>
 
           <button
@@ -308,246 +321,167 @@ export default function Movilidades({ usuario }) {
               )
             }
           >
-            <FaFilePdf style={{ marginRight: 6 }} />
-            PDF
-          </button>
-        </div>
-      </div>
 
-      {/* Leyenda */}
-      <div className="leyenda">
-        <span className="leyenda-titulo">
-          Estado del intercambio:
-        </span>
-
-        {[
-          {
-            color: "#16a34a",
-            label: "En curso (Vigente)",
-          },
-          {
-            color: "#d97706",
-            label:
-              "Por culminar (menos de 1 mes)",
-          },
-          {
-            color: "#f59e0b",
-            label:
-              "Por culminar (menos de 2 meses)",
-          },
-          {
-            color: "#dc2626",
-            label: "Culminado",
-          },
-        ].map((l) => (
-          <div
-            key={l.label}
-            className="leyenda-item"
-          >
-            <span
-              className="leyenda-punto"
-              style={{
-                background: l.color,
-              }}
+            <FaFilePdf
+              style={{ marginRight: 6 }}
             />
 
-            {l.label}
-          </div>
-        ))}
-      </div>
+            PDF
 
-      {/* Tabs */}
-      <div className="filtros-row">
-        {/* Dirección */}
-        <div className="tab-group">
-          {TABS_DIRECCION.map((t) => (
-            <button
-              key={t.id}
-              onClick={() =>
-                setFiltroDireccion(t.id)
-              }
-              className={
-                filtroDireccion === t.id
-                  ? "tab tab-activo"
-                  : "tab"
-              }
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+          </button>
 
-        {/* Semáforo */}
-        <div className="tab-group">
-          {TABS_SEMAFORO.map((t) => (
-            <button
-              key={t.id}
-              onClick={() =>
-                setFiltroSemaforo(t.id)
-              }
-              className={
-                filtroSemaforo === t.id
-                  ? "tab tab-activo"
-                  : "tab"
-              }
-            >
-              <span
-                className="tab-punto"
-                style={{
-                  background: t.color,
-                  marginRight: 6,
-                  display: "inline-block",
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                }}
-              />
-
-              {t.label}
-            </button>
-          ))}
         </div>
       </div>
 
       {/* Filtros */}
-      <div
-        className="selectores-row"
-        style={{
-          display: "flex",
-          gap: 10,
-          margin: "15px 0",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="filtros-row">
+
+        {/* Filtro semestre */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroSemestre}
+            onChange={(e) =>
+              setFiltroSemestre(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_SEMESTRE.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* Filtro escuela */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroEscuela}
+            onChange={(e) =>
+              setFiltroEscuela(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_ESCUELA.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* Buscador */}
         <input
           type="text"
-          className="input-busqueda"
-          placeholder="Buscar por participante, documento o institución..."
+          placeholder="Buscar estudiante o universidad..."
           value={busqueda}
           onChange={(e) =>
             setBusqueda(e.target.value)
           }
-          style={{
-            flex: 1,
-            minWidth: "250px",
-          }}
+          className="buscador"
         />
 
-        <select
-          className="select-filtro"
-          value={filtroAño}
-          onChange={(e) =>
-            setFiltroAño(e.target.value)
-          }
-        >
-          {TABS_AÑOS.map((a) => (
-            <option
-              key={a.id}
-              value={a.id}
-            >
-              {a.label}
-            </option>
-          ))}
-        </select>
+        <span className="contador">
+          {movilidadesFiltradas.length}
+          {" "}registro(s)
+        </span>
 
-        <select
-          className="select-filtro"
-          value={filtroFinancia}
-          onChange={(e) =>
-            setFiltroFinancia(
-              e.target.value
-            )
-          }
-        >
-          {TABS_FINANCIAMIENTO.map((f) => (
-            <option
-              key={f.id}
-              value={f.id}
-            >
-              {f.label}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="select-filtro"
-          value={filtroParticipante}
-          onChange={(e) =>
-            setFiltroParticipante(
-              e.target.value
-            )
-          }
-        >
-          <option value="todos">
-            Todos los participantes
-          </option>
-
-          <option value="estudiante">
-            Estudiante de Pregrado
-          </option>
-
-          <option value="posgrado">
-            Estudiante de Posgrado
-          </option>
-
-          <option value="docente">
-            Docente / Investigador
-          </option>
-
-          <option value="administrativo">
-            Personal Administrativo
-          </option>
-        </select>
       </div>
 
-      {/* Tabla */}
-      {cargando ? (
-        <p>
-          Cargando registros de movilidad...
+      {/* Estado */}
+      {cargando && (
+        <p
+          style={{
+            textAlign: "center",
+            color: "#6b7280",
+            padding: 32,
+          }}
+        >
+          Cargando movilidades...
         </p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        <TableMovilidades
-          datos={movilidadesFiltradas}
-          esAdmin={esAdmin}
-          onEditar={abrirEditar}
-          onEliminar={(id) =>
-            setConfirmarElim(id)
-          }
-        />
       )}
 
-      {/* Modal */}
+      {error && (
+        <p
+          style={{
+            textAlign: "center",
+            color: "#dc2626",
+            padding: 32,
+          }}
+        >
+          {error}
+        </p>
+      )}
+
+      {/* Tabla */}
+      {!cargando && !error && (
+
+        <div className="tabla-card">
+
+          <TableMovilidades
+            movilidades={movilidadesFiltradas}
+            esAdmin={esAdmin}
+            onEditar={abrirEditar}
+            onEliminar={(id) =>
+              setConfirmarElim(id)
+            }
+          />
+
+        </div>
+
+      )}
+
+      {/* Modal CRUD */}
       {modalAbierto && (
+
         <ModalMovilidad
-          abierto={modalAbierto}
-          onClose={cerrarModal}
-          onGuardar={guardarMovilidad}
           movilidad={movilidadEditar}
+          onGuardar={guardarMovilidad}
+          onCerrar={cerrarModal}
         />
+
       )}
 
-      {/* Confirmación eliminar */}
-      {confirmarElim && (
-        <div className="modal-confirmacion">
-          <div className="modal-contenido">
-            <h3>
-              ¿Eliminar registro?
-            </h3>
+      {/* Modal eliminar */}
+      {confirmarElim !== null && (
 
-            <p>
-              Esta acción no se puede
-              deshacer.
+        <div className="modal-bg">
+
+          <div
+            className="modal-caja"
+            style={{ maxWidth: 380 }}
+          >
+
+            <p className="modal-titulo">
+              ¿Eliminar movilidad?
             </p>
 
-            <div
+            <p
               style={{
-                display: "flex",
-                gap: 10,
-                marginTop: 20,
+                fontSize: 13,
+                color: "#6b7280",
+                marginBottom: 16,
               }}
             >
+              Esta acción no se puede deshacer.
+            </p>
+
+            <div className="modal-btns">
+
               <button
                 className="btn-cancelar"
                 onClick={() =>
@@ -559,25 +493,30 @@ export default function Movilidades({ usuario }) {
 
               <button
                 className="btn-eliminar"
-                onClick={
-                  confirmarEliminar
-                }
+                onClick={confirmarEliminar}
               >
-                Sí, eliminar
+                Eliminar
               </button>
+
             </div>
+
           </div>
+
         </div>
+
       )}
 
       {/* Toast */}
       {toast && (
         <div
-          className={`toast toast-${toast.tipo}`}
+          className={
+            "toast toast-" + toast.tipo
+          }
         >
           {toast.msg}
         </div>
       )}
+
     </div>
   );
 }

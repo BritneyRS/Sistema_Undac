@@ -60,24 +60,63 @@ export const conveniosAPI = {
   eliminar:   (id)        => request('/convenios/' + id, { method: 'DELETE' }),
 };
 // Movilidades
-export const movilidadAPI = {
+export const movilidadesAPI = {
+
   listar: (filtros = {}) => {
+
     const params = new URLSearchParams();
-    
-    // Filtros opcionales para el backend (dirección y búsqueda)
-    if (filtros.direccion && filtros.direccion !== 'todos') {
-      params.set('direccion', filtros.direccion);
+
+    // Buscar por semestre
+    if (filtros.semestre &&filtros.semestre !== "todos") {params.set("semestre",filtros.semestre);
+      
     }
+
+    // Buscar por escuela
+    if (
+      filtros.escuela &&
+      filtros.escuela !== "todos"
+    ) {
+      params.set(
+        "escuela",
+        filtros.escuela
+      );
+    }
+
+    // Búsqueda general
     if (filtros.busqueda) {
-      params.set('busqueda', filtros.busqueda);
+
+      params.set(
+        "busqueda",
+        filtros.busqueda
+      );
     }
-    
+
     const qs = params.toString();
-    return request('/movilidades' + (qs ? '?' + qs : ''));
+
+    return request(
+      "/movilidades" +
+      (qs ? "?" + qs : "")
+    );
   },
-  obtener:    (id)        => request('/movilidades/' + id),
-  crear:      (datos)     => request('/movilidades',       { method: 'POST',   body: JSON.stringify(datos) }),
-  actualizar: (id, datos) => request('/movilidades/' + id, { method: 'PUT',    body: JSON.stringify(datos) }),
-  eliminar:   (id)        => request('/movilidades/' + id, { method: 'DELETE' }),
+
+  obtener: (id) =>
+    request("/movilidades/" + id),
+
+  crear: (datos) =>
+    request("/movilidades", {
+      method: "POST",
+      body: JSON.stringify(datos),
+    }),
+
+  actualizar: (id, datos) =>
+    request("/movilidades/" + id, {
+      method: "PUT",
+      body: JSON.stringify(datos),
+    }),
+
+  eliminar: (id) =>
+    request("/movilidades/" + id, {
+      method: "DELETE",
+    }),
 };
 
