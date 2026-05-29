@@ -449,7 +449,7 @@ export default function Movilidades({ usuario }) {
       {modalAbierto && (
 
         <ModalMovilidad
-          movilidad={movilidadEditar}
+          registro={movilidadEditar}
           onGuardar={guardarMovilidad}
           onCerrar={cerrarModal}
         />

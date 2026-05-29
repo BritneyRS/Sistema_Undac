@@ -18,13 +18,20 @@ export default function TableMovilidades({
     "N°",
     "Nombres y apellidos",
     "Semestre",
-    "N° de celular",
-    "Escuela profesional",
-    "Universidad de origen",
-    "Ciudad de origen",
-    "Universidad de destino",
-    "Ciudad de destino",
+    "Celular",
+    "Escuela",
+    "Período",
+    "Universidad origen",
+    "Ciudad origen",
+    "Universidad destino",
+    "Ciudad destino",
     "Apoyo económico",
+    "Beca",
+    "Tipo de beca",
+    "Estado",
+    "Expediente",
+    "Resolución",
+    "SIAF",
     ...(esAdmin ? ["Acciones"] : []),
   ];
 
@@ -56,49 +63,43 @@ export default function TableMovilidades({
               className={i % 2 === 0 ? "tr-par" : "tr-impar"}
             >
 
-              <td className="td td-numero">
-                {i + 1}
-              </td>
+              <td className="td td-numero">{i + 1}</td>
+
+              <td className="td">{m.nombres}</td>
+
+              <td className="td">{m.semestre}</td>
+
+              <td className="td">{m.celular || "-"}</td>
+
+              <td className="td">{m.escuela || "-"}</td>
+
+              <td className="td">{m.periodo || "-"}</td>
+
+              <td className="td">{m.universidadorigen}</td>
+
+              <td className="td">{m.ciudadorigen}</td>
+
+              <td className="td">{m.universidaddestino}</td>
+
+              <td className="td">{m.ciudaddestino}</td>
 
               <td className="td">
-                {m.nombres}
+                {m.apoyoeconomico
+                  ? `S/ ${m.apoyoeconomico}`
+                  : <span className="sin-registro">Sin registro</span>}
               </td>
 
-              <td className="td">
-                {m.semestre}
-              </td>
+              <td className="td">{m.beca || "-"}</td>
 
-              <td className="td">
-                {m.celular}
-              </td>
+              <td className="td">{m.tipobeca || "-"}</td>
 
-              <td className="td">
-                {m.escuela}
-              </td>
+              <td className="td">{m.estado || "-"}</td>
 
-              <td className="td">
-                {m.universidadorigen}
-              </td>
+              <td className="td">{m.numeroexpediente || "-"}</td>
 
-              <td className="td">
-                {m.ciudadorigen}
-              </td>
+              <td className="td">{m.numeroresolucion || "-"}</td>
 
-              <td className="td">
-                {m.universidaddestino}
-              </td>
-
-              <td className="td">
-                {m.ciudaddestino}
-              </td>
-
-              <td className="td">
-                {m.apoyoeconomico || (
-                  <span className="sin-registro">
-                    Sin registro
-                  </span>
-                )}
-              </td>
+              <td className="td">{m.numerosiaf || "-"}</td>
 
               {esAdmin && (
                 <td className="td td-acciones">
