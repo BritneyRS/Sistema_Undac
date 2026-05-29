@@ -93,7 +93,9 @@ export default function TableMovilidades({
 
               <td className="td">{m.tipobeca || "-"}</td>
 
-              <td className="td">{m.estado || "-"}</td>
+              <td className="td">
+                <EstadoBadge estado={m.estado} />
+              </td>
 
               <td className="td">{m.numeroexpediente || "-"}</td>
 
@@ -128,5 +130,25 @@ export default function TableMovilidades({
         </tbody>
       </table>
     </div>
+  );
+}
+
+function EstadoBadge({ estado }) {
+  const valor = (estado || "").toLowerCase();
+
+  const clases = {
+    activo: "estado-badge estado-activo",
+    pendiente: "estado-badge estado-pendiente",
+    finalizado: "estado-badge estado-finalizado",
+    desistido: "estado-badge estado-desistido",
+    cancelado: "estado-badge estado-desistido",
+  };
+
+  const texto = estado || "-";
+
+  return (
+    <span className={clases[valor] || "estado-badge"}>
+      {texto}
+    </span>
   );
 }

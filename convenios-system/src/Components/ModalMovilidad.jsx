@@ -336,7 +336,7 @@ export default function ModalMovilidad({
                 <option value="activo">Activo</option>
                 <option value="pendiente">Pendiente</option>
                 <option value="finalizado">Finalizado</option>
-                <option value="cancelado">Cancelado</option>
+                <option value="Desistido">Desistido</option>
               </select>
             </Campo>
 

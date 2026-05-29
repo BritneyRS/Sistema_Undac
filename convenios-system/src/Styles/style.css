@@ -297,6 +297,38 @@
   line-height: 1.5;
 }
 
+.estado-badge {
+ font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.estado-activo {
+  background: #eaf0e1;
+  color: #5d8a2b;
+  border-color: #cae2a0;
+}
+
+.estado-pendiente {
+  background: #ebd5bd;
+  color: #9a3412;
+  border-color: #f8dcbd;
+}
+
+.estado-finalizado {
+  background: #c6d6e9;
+  color: #1e3a8a;
+  border-color: #a7c5e7;
+}
+
+.estado-desistido {
+  background: #f3cece;
+  color: #831843;
+  border-color: #e9d6e0;
+}
+
 .vacio {
   text-align: center;
 
