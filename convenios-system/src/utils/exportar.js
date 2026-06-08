@@ -55,6 +55,176 @@ const crearDatosExportPDF = (convenios) =>
     "Resultados obtenidos": c.resultados || c.Resultados || "",
   }));
 
+//FUNCIONES PARA MOVILIDAD 
+
+const crearDatosExportExcelMovilidad = (movilidades) =>
+  movilidades.map((m, index) => ({
+    "ID": index + 1,
+    "Nombres": m.nombres || "",
+    "Escuela": m.escuela || "",
+    "Semestre": m.semestre || "",
+    "Período": m.periodo || "",
+    "Celular": m.celular || "",
+    "Universidad Origen": m.universidadorigen || "",
+    "Ciudad Origen": m.ciudadorigen || "",
+    "Universidad Destino": m.universidaddestino || "",
+    "Ciudad Destino": m.ciudaddestino || "",
+    "Beca": valorSiNo(m.beca === "si" || m.beca === true),
+    "Tipo de Beca": m.tipobeca || "",
+    "Apoyo Económico": m.apoyoeconomico || "",
+    "Estado": m.estado || "",
+    "Nº Expediente": m.numeroexpediente || "",
+    "Nº Resolución": m.numeroresolucion || "",
+    "Nº SIAF": m.numerosiaf || "",
+  }));
+
+const crearDatosExportPDFMovilidad = (movilidades) =>
+  movilidades.map((m, index) => ({
+    "N°": index + 1,
+    "Nombres": m.nombres || "",
+    "Escuela": m.escuela || "",
+    "Semestre": m.semestre || "",
+    "N° de celular": m.celular || "",
+    "Universidad Origen": m.universidadorigen || "",
+    "Universidad Destino": m.universidaddestino || "",
+    "Beca": valorSiNo(m.beca === "si" || m.beca === true),
+    "Tipo de Beca": m.tipobeca || "",
+    "Apoyo económico": m.apoyoeconomico || "",
+    "Nº Resolución": m.numeroresolucion || "",
+    "Nº Expediente": m.numeroexpediente || "",
+    "Nº SIAF": m.numerosiaf || "",
+  }));
+
+export const exportarMovilidad = (movilidades, formato = "excel") => {
+  if (formato === "pdf") {
+    const doc = new jsPDF("landscape", "mm", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 12;
+    
+    // Encabezado con logo y título
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, "bold");
+    doc.text("SISTEMA DE GESTIÓN DE MOVILIDADES", margin, 18);
+    
+    // Subtítulo
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont(undefined, "normal");
+    doc.text(`Reporte generado: ${new Date().toLocaleDateString("es-PE")} - Total de registros: ${movilidades.length}`, margin, 25);
+    
+    // Línea separadora
+    doc.setDrawColor(74, 144, 196);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 27, pageWidth - margin, 27);
+
+    const filas = crearDatosExportPDFMovilidad(movilidades).map((fila, index) => [
+      fila["N°"],
+      fila["Nombres"],
+      fila["Escuela"],
+      fila["Semestre"],
+      fila["N° de celular"],
+      fila["Universidad Origen"],
+      fila["Universidad Destino"],
+      fila["Beca"],
+      fila["Tipo de Beca"],
+      fila["Apoyo económico"],
+      fila["Nº Resolución"],
+      fila["Nº Expediente"],
+      fila["Nº SIAF"],
+    ]);
+
+    autoTable(doc, {
+      head: [["N°", "Nombres", "Escuela de formacion profesional UNDAC", "Semestre", "N° de celular", "Universidad Origen", "Universidad Destino", "Beca", "Tipo de Beca", "Apoyo económico", "Nº Resolución", "Nº Expediente", "Nº SIAF"]],
+      body: filas,
+      startY: 30,
+      margin: { left: margin, right: margin, top: 30, bottom: 15 },
+      pageBreak: "auto",
+      styles: { 
+        fontSize: 8,
+        cellPadding: 1,
+        overflow: "linebreak",
+        halign: "left",
+        valign: "middle",
+        textColor: [40, 40, 40],
+        lineColor: [200, 200, 200],
+        lineWidth: 0.3,
+        font: "helvetica",
+      },
+      headStyles: { 
+        fillColor: [74, 144, 196],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center",
+        valign: "middle",
+        lineColor: [74, 144, 196],
+        lineWidth: 0.5,
+        fontSize: 8,
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [40, 40, 40],
+        lineColor: [220, 220, 220],
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
+      columnStyles: {
+        0: { cellWidth: 8, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: 35, halign: "left" },
+        2: { cellWidth: 30, halign: "center" },
+        3: { cellWidth: 15, halign: "center" },
+        4: { cellWidth: 20, halign: "center" },
+        5: { cellWidth: 30, halign: "left" },
+        6: { cellWidth: 30, halign: "center" },
+        7: { cellWidth: 10, halign: "center" },
+        8: { cellWidth: 15, halign: "center" },
+        9: { cellWidth: 20, halign: "center" },
+        10: { cellWidth: 20, halign: "center" },
+        11: { cellWidth: 20, halign: "center" },
+        12: { cellWidth: 20, halign: "center" },
+      },
+      didDrawPage: (data) => {
+        // Pie de página
+        const currentPageSize = doc.internal.pageSize;
+        const pageCount = doc.getNumberOfPages();
+        const pageNum = data.pageNumber;
+        
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Página ${pageNum} de ${pageCount}`,
+          currentPageSize.getWidth() / 2,
+          currentPageSize.getHeight() - 8,
+          { align: "center" }
+        );
+        
+        // Pie de página derecha con fecha
+        doc.text(
+          `${new Date().toLocaleTimeString("es-PE")}`,
+          currentPageSize.getWidth() - margin - 5,
+          currentPageSize.getHeight() - 8,
+          { align: "right" }
+        );
+      },
+    });
+    
+    doc.save(`movilidades_${new Date().getTime()}.pdf`);
+    return;
+  }
+
+  const libro = XLSX.utils.book_new();
+  const hoja = XLSX.utils.json_to_sheet(crearDatosExportExcelMovilidad(movilidades));
+
+  //CONVENIOS
+  // Ajustar ancho de columnas en Excel
+  const colWidths = [5, 25, 15, 12, 12, 15, 25, 20, 25, 20, 12, 20, 20, 15, 18, 18, 15];
+  hoja["!cols"] = colWidths.map(width => ({ wch: width }));
+  
+  XLSX.utils.book_append_sheet(libro, hoja, "Movilidades");
+  XLSX.writeFile(libro, `movilidades_${new Date().getTime()}.xlsx`);
+};
+
 export const exportar = (convenios, formato = "excel") => {
   if (formato === "pdf") {
     const doc = new jsPDF("landscape", "mm", "a4");

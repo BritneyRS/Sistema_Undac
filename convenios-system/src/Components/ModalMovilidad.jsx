@@ -23,23 +23,76 @@ const VACIO = {
 // Opciones de semestre
 const SEMESTRES = ["IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
-// Opciones de EFP / Escuela
-const EFP_OPCIONES = [
+// Opciones de EFP / Escuela (raw) — se parsea a carreras y sedes
+const EFP_OPCIONES_RAW = [
+  "E.F.P. Derecho  ciencias politicas - Pasco",
+  "E.F.P. Derecho  ciencias politicas - Pueerto Bermudez",
+  "E.F.P. Ciencias de la Comunicación - La merced",
+  "E.F.P. Ciencias de la Comunicación - Pasco",
+  "E.F.P. De Administración - Oxapampa",
   "E.F.P. De Administración - Pasco",
+  "E.F.P. De Medicina Humana - Pasco",
+  "E.F.P. Ingenieira de minas - Pasco",
+  "E.F.P. De Medicina Humana- Pasco",
+  "E.F.P. De Odontología - Pasco",
+  "E.F.P. De Industrias Alimentarias - La Merced",
+  "E.F.P. De Zootecnia - Pasco",
+  "E.F.P. De Zootecnia - Pasco",
+  "E.F.P. De Agronomia- Oxapampa",
+  "E.F.P. De Agronomia- Yanahuanca",
+  "E.F.P. De Agronomia- Paucartambo",
+  "E.F.P. De Agronomia- La Merced",
+  "E.F.P. De Agronomia- La Merced",
   "E.F.P. De Economía - Pasco",
   "E.F.P. De Contabilidad - Pasco",
-  "E.F.P. De Ciencia de la Comunicación",
-  "E.F.P. De Derecho y Ciencias Políticas",
-  "E.F.P. De Ingeniería de Sistemas y Computación - Pasco",
-  "E.F.P. De Ingeniería de Minas - Pasco",
-  "E.F.P. De Ingeniería Civil - Pasco",
-  "E.F.P. De Agronomía - Yanahuanca",
-  "E.F.P. De Odontología - Pasco",
+  "E.F.P. De Contabilidad - Constitucion",
   "E.F.P. De Enfermería - Pasco",
-  "E.F.P. De Educación Secundaria Especialidad de Historia, Ciencias Sociales y Turismo",
-  "E.F.P. De Educación Secundaria Especialidad de Filosofía y Psicología Educativa",
+  "E.F.P. De Enfermería - Tarma",
+  "E.F.P. De Obstetricia - Pasco",
+  "E.F.P. De Obstetricia - Tarma",
+  "E.F.P. De Ingeniería Civil - Pasco",
+  "E.F.P. De Ingeniería Ambiental - Oxapampa",
+  "E.F.P. De Ingeniería Ambiental - Pasco",
+  "E.F.P. De Ingeniería de Sitemas y Computación - Pasco",
+  "E.F.P. De Ingeniería Geológica - Pasco",
+  "E.F.P. De Ingeniería Metalúrgica - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Tecnología, Informática y telecomunicaciones - Yanahuanca",
+  "E.F.P. De Educación Secundaria Especialidad de Tecnología, Informática y telecomunicaciones - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Lenguas Extranjeras Inglés y Francés - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Ciencias Sociales, Filosofía y Psicología Educativa - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Biologia y Química - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Matematica y Física - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Historia, Ciencias Sociales y Turismo - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Comuniccación y Literatura - Pasco",
+  "E.F.P. De Educación Primaria - Oxapampa",
+  "E.F.P. De Educación Primaria - Yanahuanca",
+  "E.F.P. De Educación Primaria - Pasco",
+  "E.F.P. De Educación Inicial - Pasco",
   "Otra",
 ];
+
+// Parsear raw a estructura { full, carrera, sede }
+const EFP_PARSED = EFP_OPCIONES_RAW.map((s) => {
+  const parts = s.split(" - ");
+  return {
+    full: s,
+    carrera: parts[0].trim(),
+    sede: parts[1] ? parts[1].trim() : "",
+  };
+});
+
+// Lista de cadenas completas para compatibilidad con registros existentes
+const EFP_OPCIONES = EFP_PARSED.map((p) => p.full);
+
+// Lista única de carreras (sin sedes) y mapa carrera -> sedes
+const CARRERAS = Array.from(new Set(EFP_PARSED.map((p) => p.carrera))).filter(Boolean);
+if (!CARRERAS.includes("Otra")) CARRERAS.push("Otra");
+
+const SEDES_MAP = EFP_PARSED.reduce((acc, p) => {
+  acc[p.carrera] = acc[p.carrera] || new Set();
+  if (p.sede) acc[p.carrera].add(p.sede);
+  return acc;
+}, {});
 
 export default function ModalMovilidad({
   registro,
@@ -50,6 +103,8 @@ export default function ModalMovilidad({
   const registroActual = registro ?? movilidad;
   const [form, setForm] = useState(VACIO);
   const [escuelaPersonal, setEscuelaPersonal] = useState("");
+  const [selectedCareer, setSelectedCareer] = useState("");
+  const [selectedSede, setSelectedSede] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [errores, setErrores] = useState({});
 
@@ -75,8 +130,22 @@ export default function ModalMovilidad({
         numerosiaf: registroActual.numerosiaf || "",
       });
 
-      if (!EFP_OPCIONES.slice(0, -1).includes(registroActual.escuela)) {
+      // Si la escuela coincide con alguna de las opciones completas, extraer carrera y sede
+      const matched = EFP_PARSED.find((p) => p.full === registroActual.escuela)
+        || EFP_PARSED.find((p) => p.carrera === registroActual.escuela);
+
+      if (matched) {
+        setSelectedCareer(matched.carrera || "");
+        setSelectedSede(matched.sede || "");
+        setEscuelaPersonal("");
+        setForm((prev) => ({
+          ...prev,
+          escuela: matched.full,
+        }));
+      } else if (!EFP_OPCIONES.slice(0, -1).includes(registroActual.escuela)) {
         setEscuelaPersonal(registroActual.escuela || "");
+        setSelectedCareer("Otra");
+        setSelectedSede("");
         setForm((prev) => ({
           ...prev,
           escuela: "Otra",
@@ -112,6 +181,39 @@ export default function ModalMovilidad({
         tipo_beca: "",
       }));
     }
+  }
+
+  function cambiarCarrera(e) {
+    const value = e.target.value;
+    setSelectedCareer(value);
+    setEscuelaPersonal("");
+    if (errores.escuela) setErrores((prev) => ({ ...prev, escuela: "" }));
+
+    if (value === "") {
+      setSelectedSede("");
+      setForm((prev) => ({ ...prev, escuela: "" }));
+      return;
+    }
+
+    if (value === "Otra") {
+      setSelectedSede("");
+      setForm((prev) => ({ ...prev, escuela: "Otra" }));
+      return;
+    }
+
+    const sedes = SEDES_MAP[value] ? Array.from(SEDES_MAP[value]) : [];
+    const sede = sedes.length ? sedes[0] : "";
+    setSelectedSede(sede);
+    const combined = value + (sede ? " - " + sede : "");
+    setForm((prev) => ({ ...prev, escuela: combined }));
+  }
+
+  function cambiarSede(e) {
+    const sede = e.target.value;
+    setSelectedSede(sede);
+    if (errores.escuela) setErrores((prev) => ({ ...prev, escuela: "" }));
+    const combined = selectedCareer + (sede ? " - " + sede : "");
+    setForm((prev) => ({ ...prev, escuela: combined }));
   }
 
   function validar() {
@@ -193,6 +295,7 @@ export default function ModalMovilidad({
             </p>
           </div>
         </div>
+        
 
         <form onSubmit={enviar} className="modal-body">
           <Seccion titulo="Datos del estudiante" clase="section-blue" />
@@ -252,18 +355,36 @@ export default function ModalMovilidad({
           >
             <select
               className={`form-input ${errores.escuela ? "error" : ""}`}
-              name="escuela"
-              value={form.escuela}
-              onChange={cambiar}
+              name="escuela_carrera"
+              value={selectedCareer}
+              onChange={cambiarCarrera}
             >
               <option value="">— Seleccionar escuela —</option>
-              {EFP_OPCIONES.map((e) => (
-                <option key={e} value={e}>
-                  {e}
+              {CARRERAS.map((c) => (
+                <option key={c} value={c}>
+                  {c}
                 </option>
               ))}
             </select>
           </Campo>
+
+          {selectedCareer && selectedCareer !== "Otra" && SEDES_MAP[selectedCareer] && (
+            <Campo label="Sede">
+              <select
+                className="form-input"
+                name="escuela_sede"
+                value={selectedSede}
+                onChange={cambiarSede}
+              >
+                <option value="">— Seleccionar sede —</option>
+                {Array.from(SEDES_MAP[selectedCareer]).map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+          )}
 
           {form.escuela === "Otra" && (
             <Campo label="Escribe el nombre de la EFP">
@@ -410,6 +531,7 @@ export default function ModalMovilidad({
               />
             </Campo>
           </div>
+          
 
           <div className="modal-buttons">
             <button type="button" className="btn-cancel" onClick={onCerrar}>

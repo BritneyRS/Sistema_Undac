@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import TableMovilidades from "../Components/TableMovilidades";
 import ModalMovilidad from "../Components/ModalMovilidad";
-import { exportar } from "../utils/exportar";
+import { exportarMovilidad } from "../utils/exportar";
 import { movilidadesAPI } from "../utils/api";
 
 import {
@@ -297,7 +297,7 @@ export default function Movilidades({ usuario }) {
           <button
             className="btn-export btn-export-excel"
             onClick={() =>
-              exportar(
+              exportarMovilidad(
                 movilidadesFiltradas,
                 "excel"
               )
@@ -315,7 +315,7 @@ export default function Movilidades({ usuario }) {
           <button
             className="btn-export btn-export-pdf"
             onClick={() =>
-              exportar(
+              exportarMovilidad(
                 movilidadesFiltradas,
                 "pdf"
               )
