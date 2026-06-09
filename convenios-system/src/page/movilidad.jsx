@@ -34,6 +34,42 @@ const obtenerEscuelasUnicas = (datos) => {
   return Array.from(escuelas).sort();
 };
 
+const obtenerPeriodosUnicos = (datos) => {
+  const periodos = new Set();
+
+  datos.forEach((m) => {
+    if (m.periodo) {
+      periodos.add(m.periodo);
+    }
+  });
+
+  return Array.from(periodos).sort();
+};
+
+const obtenerCiudadesDestinoUnicas = (datos) => {
+  const ciudades = new Set();
+
+  datos.forEach((m) => {
+    if (m.ciudaddestino) {
+      ciudades.add(m.ciudaddestino);
+    }
+  });
+
+  return Array.from(ciudades).sort();
+};
+
+const obtenerBecasUnicas = (datos) => {
+  const becas = new Set();
+
+  datos.forEach((m) => {
+    if (m.beca) {
+      becas.add(m.beca);
+    }
+  });
+
+  return Array.from(becas).sort();
+};
+
 export default function Movilidades({ usuario }) {
 
   const esAdmin = usuario?.rol === "admin";
@@ -43,6 +79,15 @@ export default function Movilidades({ usuario }) {
   const [error, setError] = useState(null);
 
   const [filtroSemestre, setFiltroSemestre] =
+    useState("todos");
+
+  const [filtroPeriodo, setFiltroPeriodo] =
+    useState("todos");
+
+  const [filtroCiudadDestino, setFiltroCiudadDestino] =
+    useState("todos");
+
+  const [filtroBeca, setFiltroBeca] =
     useState("todos");
 
   const [filtroEscuela, setFiltroEscuela] =
@@ -119,6 +164,42 @@ export default function Movilidades({ usuario }) {
     })),
   ];
 
+  const TABS_PERIODO = [
+    {
+      id: "todos",
+      label: "Todos los periodos",
+    },
+
+    ...obtenerPeriodosUnicos(datos).map((p) => ({
+      id: p,
+      label: p,
+    })),
+  ];
+
+  const TABS_CIUDAD_DESTINO = [
+    {
+      id: "todos",
+      label: "Todas las ciudades destino",
+    },
+
+    ...obtenerCiudadesDestinoUnicas(datos).map((c) => ({
+      id: c,
+      label: c,
+    })),
+  ];
+
+  const TABS_BECA = [
+    {
+      id: "todos",
+      label: "Todas las becas",
+    },
+
+    ...obtenerBecasUnicas(datos).map((b) => ({
+      id: b,
+      label: b,
+    })),
+  ];
+
   const TABS_ESCUELA = [
     {
       id: "todos",
@@ -134,24 +215,41 @@ export default function Movilidades({ usuario }) {
   // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
 
+    const term = busqueda.toLowerCase();
+    const resolucion = String(m.numeroresolucion ?? "").trim().toLowerCase();
+
+
     const porBusqueda =
       busqueda === "" ||
 
       m.nombres
         ?.toLowerCase()
-        .includes(busqueda.toLowerCase()) ||
+        .includes(term) ||
 
-      m.universidadOrigen
-        ?.toLowerCase()
-        .includes(busqueda.toLowerCase()) ||
+      
 
-      m.universidadDestino
+      m.universidaddestino
         ?.toLowerCase()
-        .includes(busqueda.toLowerCase());
+        .includes(term) ||
+
+      resolucion.includes(term);
+      
 
     const porSemestre =
       filtroSemestre === "todos" ||
       m.semestre === filtroSemestre;
+
+    const porPeriodo =
+      filtroPeriodo === "todos" ||
+      m.periodo === filtroPeriodo;
+
+    const porCiudadDestino =
+      filtroCiudadDestino === "todos" ||
+      m.ciudaddestino === filtroCiudadDestino;
+
+    const porBeca =
+      filtroBeca === "todos" ||
+      m.beca === filtroBeca;
 
     const porEscuela =
       filtroEscuela === "todos" ||
@@ -160,6 +258,9 @@ export default function Movilidades({ usuario }) {
     return (
       porBusqueda &&
       porSemestre &&
+      porPeriodo &&
+      porCiudadDestino &&
+      porBeca &&
       porEscuela
     );
 
@@ -348,6 +449,78 @@ export default function Movilidades({ usuario }) {
           >
 
             {TABS_SEMESTRE.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* Filtro periodo */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroPeriodo}
+            onChange={(e) =>
+              setFiltroPeriodo(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_PERIODO.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* Filtro ciudad destino */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroCiudadDestino}
+            onChange={(e) =>
+              setFiltroCiudadDestino(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_CIUDAD_DESTINO.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* Filtro beca */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroBeca}
+            onChange={(e) =>
+              setFiltroBeca(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_BECA.map((t) => (
               <option
                 key={t.id}
                 value={t.id}

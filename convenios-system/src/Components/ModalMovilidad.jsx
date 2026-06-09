@@ -25,8 +25,8 @@ const SEMESTRES = ["IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 // Opciones de EFP / Escuela (raw) — se parsea a carreras y sedes
 const EFP_OPCIONES_RAW = [
-  "E.F.P. Derecho  ciencias politicas - Pasco",
-  "E.F.P. Derecho  ciencias politicas - Pueerto Bermudez",
+  "E.F.P. Derecho y Ciencias Políticas - Pasco",
+  "E.F.P. Derecho y Ciencias Políticas - Puerto Bermudez",
   "E.F.P. Ciencias de la Comunicación - La merced",
   "E.F.P. Ciencias de la Comunicación - Pasco",
   "E.F.P. De Administración - Oxapampa",

@@ -19,7 +19,7 @@ export default function TableMovilidades({
     "Nombres y apellidos",
     "Semestre",
     "Celular",
-    "Escuela",
+    "Escuela de Formación Profesional",
     "Período",
     "Universidad origen",
     "Ciudad origen",
