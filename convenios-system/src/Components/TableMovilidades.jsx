@@ -8,44 +8,32 @@ export default function TableMovilidades({
   onEliminar,
 }) {
 
-  const [datos, setDatos] = useState(movilidadesProp);
+  // Función para convertir período a número comparable
+  // "2025-B" -> 202502, "2025-A" -> 202501
+  // "2024-B" -> 202402, "2024-A" -> 202401
+  const convertirPeriodoANumero = (periodo) => {
+    if (!periodo) return 0;
+    const partes = periodo.split("-");
+    const ano = partes[0] || "0";
+    const letra = partes[1]?.toUpperCase() || "A";
+    const numeroLetra = letra === "B" ? 2 : 1;
+    return parseInt(ano + numeroLetra);
+  };
+
+  // Función para ordenar datos por período de forma descendente
+  const ordenarPorPeriodo = (datos) => {
+    return [...datos].sort((a, b) => {
+      const numA = convertirPeriodoANumero(a.periodo);
+      const numB = convertirPeriodoANumero(b.periodo);
+      return numB - numA; // Descendente (más recientes primero)
+    });
+  };
+
+  const [datos, setDatos] = useState(() => ordenarPorPeriodo(movilidadesProp));
 
   useEffect(() => {
-    setDatos(movilidadesProp);
+    setDatos(ordenarPorPeriodo(movilidadesProp));
   }, [movilidadesProp]);
-
-  // Función para extraer el año del período (ej: "2026-A" → "2026")
-  const extraerAno = (periodo) => {
-    if (!periodo) return "Sin período";
-    const ano = periodo.split("-")[0];
-    return ano || "Sin período";
-  };
-
-  // Agrupar datos por año
-  const agruparPorAno = (datos) => {
-    const grupos = {};
-    datos.forEach((item) => {
-      const ano = extraerAno(item.periodo);
-      if (!grupos[ano]) {
-        grupos[ano] = [];
-      }
-      grupos[ano].push(item);
-    });
-    // Retornar años ordenados de forma descendente
-    return Object.keys(grupos)
-      .sort((a, b) => {
-        if (a === "Sin período") return 1;
-        if (b === "Sin período") return -1;
-        return parseInt(b) - parseInt(a);
-      })
-      .reduce((acc, ano) => {
-        acc[ano] = grupos[ano];
-        return acc;
-      }, {});
-  };
-
-  const datosAgrupados = agruparPorAno(datos);
-  const anosTotales = Object.keys(datosAgrupados);
 
   const columnas = [
     "N°",
@@ -78,31 +66,23 @@ export default function TableMovilidades({
 
   return (
     <div className="wrapper">
-      {anosTotales.map((ano) => (
-        <div key={ano} className="grupo-ano">
-          <div className="encabezado-ano">
-            <h3>Año: {ano}</h3>
-            <span className="cantidad-registros">
-              ({datosAgrupados[ano].length} {datosAgrupados[ano].length === 1 ? "registro" : "registros"})
-            </span>
-          </div>
-          <table className="tabla">
-            <thead>
-              <tr>
-                {columnas.map((col) => (
-                  <th key={col} className="th">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+      <table className="tabla">
+        <thead>
+          <tr>
+            {columnas.map((col) => (
+              <th key={col} className="th">
+                {col}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-            <tbody>
-              {datosAgrupados[ano].map((m, i) => (
-                <tr
-                  key={m.id}
-                  className={i % 2 === 0 ? "tr-par" : "tr-impar"}
-                >
+        <tbody>
+          {datos.map((m, i) => (
+            <tr
+              key={m.id}
+              className={i % 2 === 0 ? "tr-par" : "tr-impar"}
+            >
 
               <td className="td td-numero">{i + 1}</td>
 
@@ -167,11 +147,9 @@ export default function TableMovilidades({
               )}
 
             </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
