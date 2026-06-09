@@ -21,19 +21,19 @@ const VACIO = {
 };
 
 // Opciones de semestre
-const SEMESTRES = ["IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const SEMESTRES = ["V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 // Opciones de EFP / Escuela (raw) — se parsea a carreras y sedes
 const EFP_OPCIONES_RAW = [
-  "E.F.P. Derecho y Ciencias Políticas - Pasco",
-  "E.F.P. Derecho y Ciencias Políticas - Puerto Bermudez",
-  "E.F.P. Ciencias de la Comunicación - La merced",
-  "E.F.P. Ciencias de la Comunicación - Pasco",
+  "E.F.P. De Derecho y Ciencias Políticas - Pasco",
+  "E.F.P. De Derecho y Ciencias Políticas - Puerto Bermudez",
+  "E.F.P. De Ciencias de la Comunicación - La Merced",
+  "E.F.P. De Ciencias de la Comunicación - Pasco",
   "E.F.P. De Administración - Oxapampa",
   "E.F.P. De Administración - Pasco",
   "E.F.P. De Medicina Humana - Pasco",
-  "E.F.P. Ingenieira de minas - Pasco",
-  "E.F.P. De Medicina Humana- Pasco",
+  "E.F.P. De Ingenieira de minas - Pasco",
+  "E.F.P. De Medicina Humana - Pasco",
   "E.F.P. De Odontología - Pasco",
   "E.F.P. De Industrias Alimentarias - La Merced",
   "E.F.P. De Zootecnia - Pasco",
@@ -68,7 +68,7 @@ const EFP_OPCIONES_RAW = [
   "E.F.P. De Educación Primaria - Yanahuanca",
   "E.F.P. De Educación Primaria - Pasco",
   "E.F.P. De Educación Inicial - Pasco",
-  "Otra",
+  //"Otra",
 ];
 
 // Parsear raw a estructura { full, carrera, sede }
@@ -86,7 +86,7 @@ const EFP_OPCIONES = EFP_PARSED.map((p) => p.full);
 
 // Lista única de carreras (sin sedes) y mapa carrera -> sedes
 const CARRERAS = Array.from(new Set(EFP_PARSED.map((p) => p.carrera))).filter(Boolean);
-if (!CARRERAS.includes("Otra")) CARRERAS.push("Otra");
+//if (!CARRERAS.includes("Otra")) CARRERAS.push("Otra");
 
 const SEDES_MAP = EFP_PARSED.reduce((acc, p) => {
   acc[p.carrera] = acc[p.carrera] || new Set();
@@ -107,6 +107,7 @@ export default function ModalMovilidad({
   const [selectedSede, setSelectedSede] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [errores, setErrores] = useState({});
+  const [advertencia, setAdvertencia] = useState("");
 
   useEffect(() => {
     if (registroActual) {
@@ -157,6 +158,7 @@ export default function ModalMovilidad({
       setForm(VACIO);
       setEscuelaPersonal("");
     }
+    setAdvertencia("");
   }, [registroActual]);
 
   function cambiar(e) {
@@ -180,6 +182,10 @@ export default function ModalMovilidad({
         ...prev,
         tipo_beca: "",
       }));
+    }
+
+    if (advertencia) {
+      setAdvertencia("");
     }
   }
 
@@ -253,9 +259,22 @@ export default function ModalMovilidad({
 
     if (Object.keys(err).length > 0) {
       setErrores(err);
+
+      const camposFaltantes = [];
+      if (err.nombres) camposFaltantes.push("Nombres y Apellidos");
+      if (err.semestre) camposFaltantes.push("Semestre");
+      if (err.escuela) camposFaltantes.push("E.F.P. UNDAC");
+      if (err.universidad_destino) camposFaltantes.push("Nombre de la Universidad de destino");
+      if (err.ciudad_destino) camposFaltantes.push("Ciudad de destino");
+      if (err.tipo_beca) camposFaltantes.push("Tipo de beca");
+
+      setAdvertencia(
+        `Por favor completa los siguientes campos: ${camposFaltantes.join(", ")}.`
+      );
       return;
     }
 
+    setAdvertencia("");
     setGuardando(true);
 
     const datosFinales = {
@@ -295,15 +314,17 @@ export default function ModalMovilidad({
             </p>
           </div>
         </div>
-        
+        {advertencia && (
+          <p className="login-error">{advertencia}</p>
+        )}
 
         <form onSubmit={enviar} className="modal-body">
           <Seccion titulo="Datos del estudiante" clase="section-blue" />
 
           <div className="grid-2">
-            <Campo label="Nombres y Apellidos *" error={errores.nombres}>
+            <Campo label="Nombres y Apellidos *">
               <input
-                className={`form-input ${errores.nombres ? "error" : ""}`}
+                className="form-input"
                 name="nombres"
                 value={form.nombres}
                 onChange={cambiar}
@@ -311,9 +332,9 @@ export default function ModalMovilidad({
               />
             </Campo>
 
-            <Campo label="Semestre *" error={errores.semestre}>
+            <Campo label="Semestre *">
               <select
-                className={`form-input ${errores.semestre ? "error" : ""}`}
+                className="form-input"
                 name="semestre"
                 value={form.semestre}
                 onChange={cambiar}
@@ -349,12 +370,9 @@ export default function ModalMovilidad({
             </Campo>
           </div>
 
-          <Campo
-            label="E.F.P. UNDAC (Escuela de Formación Profesional) *"
-            error={errores.escuela}
-          >
+          <Campo label="E.F.P. UNDAC (Escuela de Formación Profesional) *">
             <select
-              className={`form-input ${errores.escuela ? "error" : ""}`}
+              className="form-input"
               name="escuela_carrera"
               value={selectedCareer}
               onChange={cambiarCarrera}
@@ -422,21 +440,18 @@ export default function ModalMovilidad({
           <Seccion titulo="Universidad de Destino" clase="section-green" />
 
           <div className="grid-2">
-            <Campo
-              label="Nombre de la Universidad *"
-              error={errores.universidad_destino}
-            >
+            <Campo label="Nombre de la Universidad *">
               <input
-                className={`form-input ${errores.universidad_destino ? "error" : ""}`}
+                className="form-input"
                 name="universidad_destino"
                 value={form.universidad_destino}
                 onChange={cambiar}
               />
             </Campo>
 
-            <Campo label="Ciudad *" error={errores.ciudad_destino}>
+            <Campo label="Ciudad *">
               <input
-                className={`form-input ${errores.ciudad_destino ? "error" : ""}`}
+                className="form-input"
                 name="ciudad_destino"
                 value={form.ciudad_destino}
                 onChange={cambiar}
@@ -457,7 +472,7 @@ export default function ModalMovilidad({
                 <option value="activo">Activo</option>
                 <option value="pendiente">Pendiente</option>
                 <option value="finalizado">Finalizado</option>
-                <option value="Desistido">Desistido</option>
+                <option value="desistido">Desistido</option>
               </select>
             </Campo>
 
@@ -489,9 +504,9 @@ export default function ModalMovilidad({
             </Campo>
 
             {form.beca === "si" && (
-              <Campo label="Tipo de beca" error={errores.tipo_beca}>
+              <Campo label="Tipo de beca">
                 <input
-                  className={`form-input ${errores.tipo_beca ? "error" : ""}`}
+                  className="form-input"
                   name="tipo_beca"
                   value={form.tipo_beca}
                   onChange={cambiar}
@@ -560,14 +575,12 @@ function Seccion({ titulo, clase }) {
 // COMPONENTE CAMPO
 // ========================================
 
-function Campo({ label, error, children }) {
+function Campo({ label, children }) {
   return (
     <div className="form-group">
-      <label className={`form-label ${error ? "error" : ""}`}>{label}</label>
+      <label className="form-label">{label}</label>
 
       {children}
-
-      {error && <span className="form-error">{error}</span>}
     </div>
   );
 }

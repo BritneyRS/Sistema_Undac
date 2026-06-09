@@ -93,6 +93,9 @@ export default function Movilidades({ usuario }) {
   const [filtroEscuela, setFiltroEscuela] =
     useState("todos");
 
+  const [filtroEstado, setFiltroEstado] =
+    useState("todos"); 
+
   const [busqueda, setBusqueda] = useState("");
 
   const [modalAbierto, setModalAbierto] =
@@ -211,6 +214,16 @@ export default function Movilidades({ usuario }) {
       label: e,
     })),
   ];
+  const TABS_ESTADO = [
+    {
+      id: "todos",
+      label: "Todos los estados",
+    },
+    ...["activo", "pendiente", "finalizado", "desistido"].map((e) => ({
+      id: e,
+      label: e,
+    })),
+  ];
 
   // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
@@ -255,13 +268,18 @@ export default function Movilidades({ usuario }) {
       filtroEscuela === "todos" ||
       m.escuela === filtroEscuela;
 
+    const porEstado =
+      filtroEstado === "todos" ||
+      m.estado === filtroEstado;
+
     return (
       porBusqueda &&
       porSemestre &&
       porPeriodo &&
       porCiudadDestino &&
       porBeca &&
-      porEscuela
+      porEscuela &&
+      porEstado
     );
 
   });
@@ -362,7 +380,7 @@ export default function Movilidades({ usuario }) {
         <div>
 
           <h2 className="titulo">
-            Movilidad Estuadiantil
+            Movilidad Estudiantil
           </h2>
 
           <p className="subtitulo">
@@ -545,6 +563,29 @@ export default function Movilidades({ usuario }) {
           >
 
             {TABS_ESCUELA.map((t) => (
+              <option
+                key={t.id}
+                value={t.id}
+              >
+                {t.label}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+        {/* Filtro estado */}
+        <div className="filtro-select">
+
+          <select
+            value={filtroEstado}
+            onChange={(e) =>
+              setFiltroEstado(e.target.value)
+            }
+            className="select-año"
+          >
+
+            {TABS_ESTADO.map((t) => (
               <option
                 key={t.id}
                 value={t.id}

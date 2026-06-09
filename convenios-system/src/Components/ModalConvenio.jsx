@@ -33,6 +33,7 @@ const vacioConvenio = {
 
 export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
   const [form, setForm] = useState(vacioConvenio);
+  const [advertencia, setAdvertencia] = useState("");
 
   useEffect(() => {
     if (convenio) {
@@ -45,6 +46,7 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
     } else {
       setForm(vacioConvenio);
     }
+    setAdvertencia("");
   }, [convenio]);
 
   function cambiar(campo, valor) {
@@ -61,9 +63,26 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
   }
 
   function guardar() {
-    if (!form.nombre.trim()) { alert("El nombre es obligatorio."); return; }
-    if (!form.inicio) { alert("La fecha de inicio es obligatoria."); return; }
-    if (!form.fin) { alert("La fecha de fin es obligatoria."); return; }
+    const camposFaltantes = [];
+
+    if (!form.nombre.trim()) {
+      camposFaltantes.push("Nombre del convenio");
+    }
+    if (!form.inicio) {
+      camposFaltantes.push("Fecha de inicio");
+    }
+    if (!form.fin) {
+      camposFaltantes.push("Fecha de fin");
+    }
+
+    if (camposFaltantes.length > 0) {
+      setAdvertencia(
+        `Por favor completa los siguientes campos: ${camposFaltantes.join(", ")}.`
+      );
+      return;
+    }
+
+    setAdvertencia("");
     onGuardar(form);
   }
 
@@ -75,6 +94,10 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
         <p className="modal-titulo">
           {esEdicion ? "Editar Convenio" : "Nuevo Convenio"}
         </p>
+
+        {advertencia && (
+          <p className="login-error">{advertencia}</p>
+        )}
 
         <div className="modal-grid">
           {/* Nombre */}

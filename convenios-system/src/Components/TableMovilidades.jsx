@@ -14,6 +14,39 @@ export default function TableMovilidades({
     setDatos(movilidadesProp);
   }, [movilidadesProp]);
 
+  // Función para extraer el año del período (ej: "2026-A" → "2026")
+  const extraerAno = (periodo) => {
+    if (!periodo) return "Sin período";
+    const ano = periodo.split("-")[0];
+    return ano || "Sin período";
+  };
+
+  // Agrupar datos por año
+  const agruparPorAno = (datos) => {
+    const grupos = {};
+    datos.forEach((item) => {
+      const ano = extraerAno(item.periodo);
+      if (!grupos[ano]) {
+        grupos[ano] = [];
+      }
+      grupos[ano].push(item);
+    });
+    // Retornar años ordenados de forma descendente
+    return Object.keys(grupos)
+      .sort((a, b) => {
+        if (a === "Sin período") return 1;
+        if (b === "Sin período") return -1;
+        return parseInt(b) - parseInt(a);
+      })
+      .reduce((acc, ano) => {
+        acc[ano] = grupos[ano];
+        return acc;
+      }, {});
+  };
+
+  const datosAgrupados = agruparPorAno(datos);
+  const anosTotales = Object.keys(datosAgrupados);
+
   const columnas = [
     "N°",
     "Nombres y apellidos",
@@ -45,23 +78,31 @@ export default function TableMovilidades({
 
   return (
     <div className="wrapper">
-      <table className="tabla">
-        <thead>
-          <tr>
-            {columnas.map((col) => (
-              <th key={col} className="th">
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
+      {anosTotales.map((ano) => (
+        <div key={ano} className="grupo-ano">
+          <div className="encabezado-ano">
+            <h3>Año: {ano}</h3>
+            <span className="cantidad-registros">
+              ({datosAgrupados[ano].length} {datosAgrupados[ano].length === 1 ? "registro" : "registros"})
+            </span>
+          </div>
+          <table className="tabla">
+            <thead>
+              <tr>
+                {columnas.map((col) => (
+                  <th key={col} className="th">
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
-        <tbody>
-          {datos.map((m, i) => (
-            <tr
-              key={m.id}
-              className={i % 2 === 0 ? "tr-par" : "tr-impar"}
-            >
+            <tbody>
+              {datosAgrupados[ano].map((m, i) => (
+                <tr
+                  key={m.id}
+                  className={i % 2 === 0 ? "tr-par" : "tr-impar"}
+                >
 
               <td className="td td-numero">{i + 1}</td>
 
@@ -126,22 +167,25 @@ export default function TableMovilidades({
               )}
 
             </tr>
-          ))}
-        </tbody>
-      </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }
 
 function EstadoBadge({ estado }) {
-  const valor = (estado || "").toLowerCase();
+  
+  const valor = (estado || "");
+  
 
   const clases = {
     activo: "estado-badge estado-activo",
     pendiente: "estado-badge estado-pendiente",
     finalizado: "estado-badge estado-finalizado",
     desistido: "estado-badge estado-desistido",
-    cancelado: "estado-badge estado-desistido",
   };
 
   const texto = estado || "-";
