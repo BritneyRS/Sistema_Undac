@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import TableMovilidades from "../Components/TableMovilidades";
 import ModalMovilidad from "../Components/ModalMovilidad";
 import { exportarMovilidad } from "../utils/exportar";
@@ -82,7 +82,12 @@ export default function Movilidades({ usuario }) {
     useState("todos");
 
   const [filtroPeriodo, setFiltroPeriodo] =
-    useState("todos");
+    useState(["todos"]);
+
+  const [periodoDropdownAbierto, setPeriodoDropdownAbierto] =
+    useState(false);
+
+  const filtroPeriodoRef = useRef(null);
 
   const [filtroCiudadDestino, setFiltroCiudadDestino] =
     useState("todos");
@@ -142,6 +147,55 @@ export default function Movilidades({ usuario }) {
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
+
+  useEffect(() => {
+    const manejarClickFuera = (event) => {
+      if (
+        filtroPeriodoRef.current &&
+        !filtroPeriodoRef.current.contains(event.target)
+      ) {
+        setPeriodoDropdownAbierto(false);
+      }
+    };
+
+    document.addEventListener("mousedown", manejarClickFuera);
+
+    return () => {
+      document.removeEventListener("mousedown", manejarClickFuera);
+    };
+  }, []);
+
+  function obtenerLabelPeriodoSeleccionado() {
+    if (filtroPeriodo.includes("todos") || filtroPeriodo.length === 0) {
+      return "Todos los periodos";
+    }
+
+    return filtroPeriodo.join(", ");
+  }
+
+  function onCambioPeriodo(valor) {
+    if (valor === "todos") {
+      setFiltroPeriodo(["todos"]);
+      return;
+    }
+
+    const seleccionActual = filtroPeriodo.includes("todos")
+      ? []
+      : [...filtroPeriodo];
+
+    if (seleccionActual.includes(valor)) {
+      const nuevaSeleccion = seleccionActual.filter(
+        (item) => item !== valor
+      );
+
+      setFiltroPeriodo(
+        nuevaSeleccion.length === 0 ? ["todos"] : nuevaSeleccion
+      );
+    } else {
+      setFiltroPeriodo([...seleccionActual, valor]);
+    }
+  }
+
   // ─── Toast ──────────────────────────────────────
   function mostrarToast(msg, tipo = "ok") {
 
@@ -253,8 +307,9 @@ export default function Movilidades({ usuario }) {
       m.semestre === filtroSemestre;
 
     const porPeriodo =
-      filtroPeriodo === "todos" ||
-      m.periodo === filtroPeriodo;
+      filtroPeriodo.includes("todos") ||
+      filtroPeriodo.length === 0 ||
+      filtroPeriodo.includes(m.periodo);
 
     const porCiudadDestino =
       filtroCiudadDestino === "todos" ||
@@ -480,26 +535,40 @@ export default function Movilidades({ usuario }) {
         </div>
 
         {/* Filtro periodo */}
-        <div className="filtro-select">
+        <div className="filtro-select" ref={filtroPeriodoRef}>
 
-          <select
-            value={filtroPeriodo}
-            onChange={(e) =>
-              setFiltroPeriodo(e.target.value)
+          <button
+            type="button"
+            className="select-año multi-select-trigger"
+            onClick={() =>
+              setPeriodoDropdownAbierto(!periodoDropdownAbierto)
             }
-            className="select-año"
           >
+            <span>{obtenerLabelPeriodoSeleccionado()}</span>
+            <span className="multi-select-arrow">▾</span>
+          </button>
 
-            {TABS_PERIODO.map((t) => (
-              <option
-                key={t.id}
-                value={t.id}
-              >
-                {t.label}
-              </option>
-            ))}
-
-          </select>
+          {periodoDropdownAbierto && (
+            <div className="multi-select-menu">
+              {TABS_PERIODO.map((t) => (
+                <label
+                  key={t.id}
+                  className="multi-select-item"
+                >
+                  <input
+                    type="checkbox"
+                    value={t.id}
+                    checked={
+                      filtroPeriodo.includes(t.id) ||
+                      (t.id === "todos" && filtroPeriodo.includes("todos"))
+                    }
+                    onChange={() => onCambioPeriodo(t.id)}
+                  />
+                  <span>{t.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
 
         </div>
 
