@@ -184,6 +184,13 @@
   font-weight: 700;
   line-height: 1;
 }
+.stats-descripcion {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
 /*-------------------------semaforo.jxs--------------------------------*/
 
 
@@ -704,16 +711,19 @@
   cursor: pointer;
   min-width: 120px;
 }
-
+/*arreglo*/
 .select-año[multiple] {
   min-height: 110px;
-  max-height: 180px;
+  max-height: 110px;
 }
 
 .select-año:focus,
 .multi-select-trigger:focus {
-  border-color: #4a90c4;
+  border-color: #374151;
   box-shadow: 0 0 0 2px rgba(74, 144, 196, 0.1);
+}
+input[type="checkbox"] {
+  accent-color: #374151;
 }
 
 .multi-select-trigger {
@@ -1339,3 +1349,55 @@
   min-height: 64px;
   resize: vertical;
 }
+
+/*----------------------CARDST INICIO-----------------------*/
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 1rem 0;
+}
+
+.stats-tarjeta {
+  background: var(--color-background-primary, #fff);
+  border: 0.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.stats-tarjeta:hover {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Línea de color superior por tarjeta */
+.stats-tarjeta:nth-child(1)::before { background: #BA7517; } /* amber */
+.stats-tarjeta:nth-child(2)::before { background: #1D9E75; } /* teal */
+.stats-tarjeta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.stats-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stats-numero {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+/* Color del número según tarjeta */
+.stats-tarjeta:nth-child(1) .stats-numero { color: #854F0B; }
+.stats-tarjeta:nth-child(2) .stats-numero { color: #0F6E56; }
