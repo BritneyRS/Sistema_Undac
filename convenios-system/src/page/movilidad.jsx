@@ -361,7 +361,7 @@ export default function Movilidades({ usuario }) {
     setMovilidadEditar(null);
   }
 
-  async function guardarMovilidad(form) {
+  async function guardarMovilidad(form, archivo = null) {
 
     try {
 
@@ -369,7 +369,8 @@ export default function Movilidades({ usuario }) {
 
         await movilidadesAPI.actualizar(
           movilidadEditar.id,
-          form
+          form,
+          archivo
         );
 
         mostrarToast(
@@ -378,7 +379,7 @@ export default function Movilidades({ usuario }) {
 
       } else {
 
-        await movilidadesAPI.crear(form);
+        await movilidadesAPI.crear(form, archivo);
 
         mostrarToast(
           "Movilidad creada correctamente."

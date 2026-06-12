@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaDownload } from "react-icons/fa";
+import { movilidadesAPI } from "../utils/api";
+
+
+//const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:4000/api";
 
 export default function TableMovilidades({
   movilidades: movilidadesProp,
@@ -8,9 +12,6 @@ export default function TableMovilidades({
   onEliminar,
 }) {
 
-  // Función para convertir período a número comparable
-  // "2025-B" -> 202502, "2025-A" -> 202501
-  // "2024-B" -> 202402, "2024-A" -> 202401
   const convertirPeriodoANumero = (periodo) => {
     if (!periodo) return 0;
     const partes = periodo.split("-");
@@ -20,12 +21,11 @@ export default function TableMovilidades({
     return parseInt(ano + numeroLetra);
   };
 
-  // Función para ordenar datos por período de forma descendente
   const ordenarPorPeriodo = (datos) => {
     return [...datos].sort((a, b) => {
       const numA = convertirPeriodoANumero(a.periodo);
       const numB = convertirPeriodoANumero(b.periodo);
-      return numB - numA; // Descendente (más recientes primero)
+      return numB - numA;
     });
   };
 
@@ -53,6 +53,8 @@ export default function TableMovilidades({
     "Expediente",
     "Resolución",
     "SIAF",
+    "Observación",   // ← NUEVO
+    "Documento",     // ← NUEVO
     ...(esAdmin ? ["Acciones"] : []),
   ];
 
@@ -124,6 +126,64 @@ export default function TableMovilidades({
 
               <td className="td">{m.numerosiaf || "-"}</td>
 
+              {/* ── OBSERVACIÓN ── */}
+              <td className="td" style={{ maxWidth: 180 }}>
+                {m.observacion ? (
+                  <span
+                    title={m.observacion}
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      fontSize: 12,
+                      color: "#374151",
+                    }}
+                  >
+                    {m.observacion}
+                  </span>
+                ) : (
+                  <span className="sin-registro">-</span>
+                )}
+              </td>
+
+              {/* ── DOCUMENTO ── */}
+              <td className="td" style={{ textAlign: "center" }}>
+                {m.documento_nombre ? (
+                  <button
+                    type="button"
+                    onClick={() => movilidadesAPI.descargarDocumento(m.id, m.documento_nombre)}
+                    title={m.documento_nombre}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      color: "#2563eb",
+                      fontSize: 12,
+                      textDecoration: "none",
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <FaDownload style={{ flexShrink: 0 }} />
+                    <span
+                      style={{
+                        maxWidth: 100,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {m.documento_nombre}
+                    </span>
+                  </button>
+                ) : (
+                  <span className="sin-registro">-</span>
+                )}
+              </td>
+
               {esAdmin && (
                 <td className="td td-acciones">
 
@@ -155,19 +215,14 @@ export default function TableMovilidades({
 }
 
 function EstadoBadge({ estado }) {
-  
   const valor = (estado || "");
-  
-
   const clases = {
     activo: "estado-badge estado-activo",
     pendiente: "estado-badge estado-pendiente",
     finalizado: "estado-badge estado-finalizado",
     desistido: "estado-badge estado-desistido",
   };
-
   const texto = estado || "-";
-
   return (
     <span className={clases[valor] || "estado-badge"}>
       {texto}
