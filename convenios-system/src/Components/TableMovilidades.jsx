@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaEdit, FaTrash, FaDownload } from "react-icons/fa";
 import { movilidadesAPI } from "../utils/api";
 
@@ -21,24 +21,25 @@ export default function TableMovilidades({
     return parseInt(ano + numeroLetra);
   };
 
-  const ordenarPorPeriodo = (datos) => {
-    return [...datos].sort((a, b) => {
-      const numA = convertirPeriodoANumero(a.periodo);
-      const numB = convertirPeriodoANumero(b.periodo);
-      return numB - numA;
-    });
-  };
+const ordenarPorPeriodo = useCallback((datos) => {
+  return [...datos].sort((a, b) => {
+    const numA = convertirPeriodoANumero(a.periodo);
+    const numB = convertirPeriodoANumero(b.periodo);
+    return numB - numA;
+  });
+}, []);
 
   const [datos, setDatos] = useState(() => ordenarPorPeriodo(movilidadesProp));
 
   useEffect(() => {
     setDatos(ordenarPorPeriodo(movilidadesProp));
-  }, [movilidadesProp]);
+  }, [movilidadesProp, ordenarPorPeriodo]);
 
   const columnas = [
     "N°",
     "Nombres y apellidos",
     "Semestre",
+    "Intercambio",
     "Celular",
     "Escuela de Formación Profesional",
     "Período",
@@ -53,8 +54,8 @@ export default function TableMovilidades({
     "Expediente",
     "Resolución",
     "SIAF",
-    "Observación",   // ← NUEVO
-    "Documento",     // ← NUEVO
+    "Observación",
+    "Documento",
     ...(esAdmin ? ["Acciones"] : []),
   ];
 
@@ -91,6 +92,8 @@ export default function TableMovilidades({
               <td className="td">{m.nombres}</td>
 
               <td className="td">{m.semestre}</td>
+
+              <td className="td">{m.intercambio ? capitalizeIntercambio(m.intercambio) : "-"}</td>
 
               <td className="td">{m.celular || "-"}</td>
 
@@ -228,4 +231,9 @@ function EstadoBadge({ estado }) {
       {texto}
     </span>
   );
+}
+
+function capitalizeIntercambio(value) {
+  if (!value) return "-";
+  return String(value);
 }

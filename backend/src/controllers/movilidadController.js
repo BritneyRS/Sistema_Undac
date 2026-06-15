@@ -129,11 +129,17 @@ exports.crear = async (req, res) => {
     });
   }
 
-  // Archivo adjunto (opcional)
-  const documento_nombre = req.file ? req.file.originalname : null;
-  const documento_ruta   = req.file ? req.file.filename : null;
-
   try {
+    // Contar movilidades previas del mismo alumno
+    const { rows: previas } = await pool.query(
+      `SELECT COUNT(*) as total FROM movilidades WHERE nombres = $1`,
+      [nombres]
+    );
+    const numIntercambio = (previas[0]?.total || 0) + 1;
+
+    // Archivo adjunto (opcional)
+    const documento_nombre = req.file ? req.file.originalname : null;
+    const documento_ruta   = req.file ? req.file.filename : null;
 
     const { rows } = await pool.query(
       `
@@ -151,6 +157,7 @@ exports.crear = async (req, res) => {
         beca,
         tipobeca,
         estado,
+        intercambio,
         numeroexpediente,
         numeroresolucion,
         numerosiaf,
@@ -159,7 +166,7 @@ exports.crear = async (req, res) => {
         documento_ruta
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20
       )
       RETURNING *
       `,
@@ -177,6 +184,7 @@ exports.crear = async (req, res) => {
         beca || "no",
         tipobeca || null,
         estado || "activo",
+        numIntercambio,
         numeroexpediente || null,
         numeroresolucion || null,
         numerosiaf || null,
@@ -216,6 +224,7 @@ exports.actualizar = async (req, res) => {
     numeroresolucion,
     numerosiaf,
     observacion,
+    intercambio,
     borrar_documento,
   } = req.body;
 
@@ -267,10 +276,10 @@ exports.actualizar = async (req, res) => {
           nombres = $1, semestre = $2, celular = $3, escuela = $4,
           periodo = $5, universidadorigen = $6, ciudadorigen = $7,
           universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, numeroexpediente = $14,
-          numeroresolucion = $15, numerosiaf = $16, observacion = $17,
-          documento_nombre = $18, documento_ruta = $19
-        WHERE id = $20
+          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
+          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
+          observacion = $18, documento_nombre = $19, documento_ruta = $20
+        WHERE id = $21
         RETURNING *
       `;
       values = [
@@ -278,7 +287,7 @@ exports.actualizar = async (req, res) => {
         periodo || null, universidadorigen || null, ciudadorigen || null,
         universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
         beca || "no", tipobeca || null, estado || "activo",
-        numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
+        intercambio || "primera", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
         observacion || null, documento_nombre, documento_ruta,
         req.params.id,
       ];
@@ -289,10 +298,10 @@ exports.actualizar = async (req, res) => {
           nombres = $1, semestre = $2, celular = $3, escuela = $4,
           periodo = $5, universidadorigen = $6, ciudadorigen = $7,
           universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, numeroexpediente = $14,
-          numeroresolucion = $15, numerosiaf = $16, observacion = $17,
-          documento_nombre = NULL, documento_ruta = NULL
-        WHERE id = $18
+          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
+          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
+          observacion = $18, documento_nombre = NULL, documento_ruta = NULL
+        WHERE id = $19
         RETURNING *
       `;
       values = [
@@ -300,7 +309,7 @@ exports.actualizar = async (req, res) => {
         periodo || null, universidadorigen || null, ciudadorigen || null,
         universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
         beca || "no", tipobeca || null, estado || "activo",
-        numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
+        intercambio || "primera", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
         observacion || null,
         req.params.id,
       ];
@@ -311,9 +320,10 @@ exports.actualizar = async (req, res) => {
           nombres = $1, semestre = $2, celular = $3, escuela = $4,
           periodo = $5, universidadorigen = $6, ciudadorigen = $7,
           universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, numeroexpediente = $14,
-          numeroresolucion = $15, numerosiaf = $16, observacion = $17
-        WHERE id = $18
+          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
+          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
+          observacion = $18
+        WHERE id = $19
         RETURNING *
       `;
       values = [
@@ -321,7 +331,7 @@ exports.actualizar = async (req, res) => {
         periodo || null, universidadorigen || null, ciudadorigen || null,
         universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
         beca || "no", tipobeca || null, estado || "activo",
-        numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
+        intercambio || "1", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
         observacion || null,
         req.params.id,
       ];

@@ -15,10 +15,12 @@ const VACIO = {
   beca: "no",
   tipo_beca: "",
   periodo: "",
+  intercambio: "1",
   numero_expediente: "",
   numero_resolucion: "",
   numerosiaf: "",
   observacion: "",
+  movilidad: 1,
 };
 
 const SEMESTRES = ["V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
@@ -35,10 +37,10 @@ const EFP_OPCIONES_RAW = [
   "E.F.P. De Odontología - Pasco",
   "E.F.P. De Industrias Alimentarias - La Merced",
   "E.F.P. De Zootecnia - Pasco",
-  "E.F.P. De Agronomia- Oxapampa",
-  "E.F.P. De Agronomia- Yanahuanca",
-  "E.F.P. De Agronomia- Paucartambo",
-  "E.F.P. De Agronomia- La Merced",
+  "E.F.P. De Agronomia - Oxapampa",
+  "E.F.P. De Agronomia - Yanahuanca",
+  "E.F.P. De Agronomia - Paucartambo",
+  "E.F.P. De Agronomia - La Merced",
   "E.F.P. De Economía - Pasco",
   "E.F.P. De Contabilidad - Pasco",
   "E.F.P. De Contabilidad - Constitucion",
@@ -100,7 +102,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
   const [archivoNuevo, setArchivoNuevo] = useState(null);     // File object del input
   const [archivoError, setArchivoError] = useState("");  const [documentoEliminado, setDocumentoEliminado] = useState(false);  const fileInputRef = useRef(null);
 
-  const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:4000/api";
+  
 
   useEffect(() => {
     if (registroActual) {
@@ -119,10 +121,12 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
         beca: registroActual.beca || "no",
         tipo_beca: registroActual.tipobeca || "",
         periodo: registroActual.periodo || "",
+        intercambio: registroActual.intercambio || "1",
         numero_expediente: registroActual.numeroexpediente || "",
         numero_resolucion: registroActual.numeroresolucion || "",
         numerosiaf: registroActual.numerosiaf || "",
         observacion: registroActual.observacion || "",
+        movilidad: registroActual.movilidad || 1,
       });
 
       const matched =
@@ -247,6 +251,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       celular: form.celular || null,
       escuela: form.escuela === "Otra" ? escuelaPersonal.trim() : form.escuela,
       periodo: form.periodo || null,
+      intercambio: form.intercambio || "primera",
       universidadorigen: form.universidad_origen || null,
       ciudadorigen: form.ciudad_origen || null,
       universidaddestino: form.universidad_destino || null,
@@ -260,6 +265,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       numerosiaf: form.numerosiaf || null,
       observacion: form.observacion.trim() || null,
       borrar_documento: documentoEliminado && !archivoNuevo ? "true" : undefined,
+      movilidad: form.movilidad,
     };
 
     setTimeout(() => {
@@ -287,13 +293,13 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
           <Seccion titulo="Datos del estudiante" clase="section-blue" />
 
           <div className="grid-2">
-            <Campo label="Nombres y Apellidos *">
+            <Campo label="Apellidos y Nombres *">
               <input
                 className="form-input"
                 name="nombres"
                 value={form.nombres}
                 onChange={cambiar}
-                placeholder="Nombres y apellidos completos"
+                placeholder="Apellidos y nombres completos"
               />
             </Campo>
 
@@ -312,6 +318,14 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
 
             <Campo label="Período (Ej: 2026-A)">
               <input className="form-input" name="periodo" value={form.periodo} onChange={cambiar} />
+            </Campo>
+
+            <Campo label="Intercambio">
+              <select className="form-input" name="intercambio" value={form.intercambio} onChange={cambiar}>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
             </Campo>
           </div>
 

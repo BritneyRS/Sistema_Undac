@@ -5,6 +5,11 @@ import { formatearFecha } from "./semaforo";
 
 const valorSiNo = (valor) => (valor ? "Sí" : "No");
 
+/*const capitalizeIntercambio = (value) => {
+  if (!value) return "-";
+  return String(value);
+};*/
+
 const crearDatosExportExcel = (convenios) =>
   convenios.map((c, index) => ({
     "ID": index + 1,
@@ -60,9 +65,10 @@ const crearDatosExportPDF = (convenios) =>
 const crearDatosExportExcelMovilidad = (movilidades) =>
   movilidades.map((m, index) => ({
     "ID": index + 1,
-    "Nombres": m.nombres || "",
+    "Apellidos y Nombres": m.nombres || "",
     "Escuela": m.escuela || "",
     "Semestre": m.semestre || "",
+    //"Intercambio": capitalizeIntercambio(m.intercambio),
     "Período": m.periodo || "",
     "Celular": m.celular || "",
     "Universidad Origen": m.universidadorigen || "",
@@ -81,9 +87,10 @@ const crearDatosExportExcelMovilidad = (movilidades) =>
 const crearDatosExportPDFMovilidad = (movilidades) =>
   movilidades.map((m, index) => ({
     "N°": index + 1,
-    "Nombres": m.nombres || "",
+    "Apellidos y Nombres": m.nombres || "",
     "Escuela": m.escuela || "",
     "Semestre": m.semestre || "",
+    //"Intercambio": capitalizeIntercambio(m.intercambio),
     "N° de celular": m.celular || "",
     "Universidad Origen": m.universidadorigen || "",
     "Universidad Destino": m.universidaddestino || "",
@@ -120,9 +127,10 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
 
     const filas = crearDatosExportPDFMovilidad(movilidades).map((fila, index) => [
       fila["N°"],
-      fila["Nombres"],
+      fila["Apellidos y Nombres"],
       fila["Escuela"],
       fila["Semestre"],
+      //fila["Intercambio"],
       fila["N° de celular"],
       fila["Universidad Origen"],
       fila["Universidad Destino"],
@@ -171,7 +179,7 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
       },
       columnStyles: {
         0: { cellWidth: 8, halign: "center", fontStyle: "bold" },
-        1: { cellWidth: 35, halign: "left" },
+        1: { cellWidth: 25, halign: "left" },
         2: { cellWidth: 30, halign: "center" },
         3: { cellWidth: 15, halign: "center" },
         4: { cellWidth: 20, halign: "center" },
