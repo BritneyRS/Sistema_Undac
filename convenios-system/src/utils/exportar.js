@@ -112,7 +112,7 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
     doc.setFontSize(18);
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, "bold");
-    doc.text("SISTEMA DE GESTIÓN DE MOVILIDADES", margin, 18);
+    doc.text("SISTEMA DE GESTIÓN DE MOVILIDAD ESTUDIANTIL", margin, 18);
     
     // Subtítulo
     doc.setFontSize(10);

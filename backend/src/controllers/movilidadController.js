@@ -3,6 +3,16 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+
+//-------PRUEBA-------------
+function normalizarNombre(nombre) {
+  return nombre
+    .toUpperCase()
+    .replace(/,/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // ─── CONFIGURACION MULTER ────────────────────────
 const UPLOAD_DIR = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -128,15 +138,21 @@ exports.crear = async (req, res) => {
       error: "Campos requeridos: nombres y semestre",
     });
   }
+  const nombreNormalizado = normalizarNombre(nombres);
 
   try {
     // Contar movilidades previas del mismo alumno
-    const { rows: previas } = await pool.query(
-      `SELECT COUNT(*) as total FROM movilidades WHERE nombres = $1`,
-      [nombres]
-    );
-    const numIntercambio = (previas[0]?.total || 0) + 1;
+  const { rows: previas } = await pool.query(
+    `
+    SELECT COUNT(*) as total
+    FROM movilidades
+    WHERE UPPER(REPLACE(nombres, ',', '')) = $1
+    `,
+    [nombreNormalizado]
+  );
 
+    
+    const numIntercambio = Number(previas[0].total) + 1;
     // Archivo adjunto (opcional)
     const documento_nombre = req.file ? req.file.originalname : null;
     const documento_ruta   = req.file ? req.file.filename : null;
