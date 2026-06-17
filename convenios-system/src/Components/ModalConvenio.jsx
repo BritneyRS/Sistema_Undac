@@ -37,16 +37,23 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
 
   useEffect(() => {
     if (convenio) {
-      setForm({
-        ...vacioConvenio,
-        ...convenio,
-        resultados: convenio?.resultados ?? convenio?.Resultados ?? "",
-        otros: convenio?.otros ?? convenio?.Otros ?? "",
-      });
-    } else {
-      setForm(vacioConvenio);
-    }
-    setAdvertencia("");
+    setForm({
+          ...vacioConvenio,
+          ...convenio,
+          inicio: convenio?.inicio
+            ? convenio.inicio.toString().split("T")[0]
+            : "",
+          fin: convenio?.fin
+            ? convenio.fin.toString().split("T")[0]
+            : "",
+          resultados: convenio?.resultados ?? convenio?.Resultados ?? "",
+          otros: convenio?.otros ?? convenio?.Otros ?? "",
+        });
+      } else {
+        setForm(vacioConvenio);
+      }
+
+      setAdvertencia("");
   }, [convenio]);
 
   function cambiar(campo, valor) {
