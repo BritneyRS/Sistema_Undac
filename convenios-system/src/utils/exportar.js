@@ -90,6 +90,7 @@ const crearDatosExportPDFMovilidad = (movilidades) =>
     "Apellidos y Nombres": m.nombres || "",
     "Escuela": m.escuela || "",
     "Semestre": m.semestre || "",
+    "Período": m.periodo || "",
     //"Intercambio": capitalizeIntercambio(m.intercambio),
     "N° de celular": m.celular || "",
     "Universidad Origen": m.universidadorigen || "",
@@ -130,6 +131,7 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
       fila["Apellidos y Nombres"],
       fila["Escuela"],
       fila["Semestre"],
+      fila["Período"],
       //fila["Intercambio"],
       fila["N° de celular"],
       fila["Universidad Origen"],
@@ -143,7 +145,7 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
     ]);
 
     autoTable(doc, {
-      head: [["N°", "Nombres", "Escuela de formacion profesional UNDAC", "Semestre", "N° de celular", "Universidad Origen", "Universidad Destino", "Beca", "Tipo de Beca", "Apoyo económico", "Nº Resolución", "Nº Expediente", "Nº SIAF"]],
+      head: [["N°", "Nombres", "Escuela de formacion profesional UNDAC", "Semestre", "Período", "N° de celular", "Universidad Origen", "Universidad Destino", "Beca", "Tipo de Beca", "Apoyo económico", "Nº Resolución", "Nº Expediente", "Nº SIAF"]],
       body: filas,
       startY: 30,
       margin: { left: margin, right: margin, top: 30, bottom: 15 },
@@ -182,15 +184,16 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
         1: { cellWidth: 25, halign: "left" },
         2: { cellWidth: 30, halign: "center" },
         3: { cellWidth: 15, halign: "center" },
-        4: { cellWidth: 20, halign: "center" },
-        5: { cellWidth: 30, halign: "left" },
-        6: { cellWidth: 30, halign: "center" },
-        7: { cellWidth: 10, halign: "center" },
-        8: { cellWidth: 15, halign: "center" },
-        9: { cellWidth: 20, halign: "center" },
+        4: { cellWidth: 15, halign: "center" },
+        5: { cellWidth: 20, halign: "center" },
+        6: { cellWidth: 30, halign: "left" },
+        7: { cellWidth: 30, halign: "center" },
+        8: { cellWidth: 10, halign: "center" },
+        9: { cellWidth: 15, halign: "center" },
         10: { cellWidth: 20, halign: "center" },
         11: { cellWidth: 20, halign: "center" },
         12: { cellWidth: 20, halign: "center" },
+        13: { cellWidth: 20, halign: "center" },
       },
       didDrawPage: (data) => {
         // Pie de página
