@@ -328,13 +328,13 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
               <input className="form-input" name="periodo" value={form.periodo} onChange={cambiar} />
             </Campo>
 
-            <Campo label="Intercambio">
+            {/* <Campo label="Intercambio">
               <select className="form-input" name="intercambio" value={form.intercambio} onChange={cambiar}>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
               </select>
-            </Campo>
+            </Campo>*/}
           </div>
 
           <Campo label="E.F.P. UNDAC (Escuela de Formación Profesional) *">
