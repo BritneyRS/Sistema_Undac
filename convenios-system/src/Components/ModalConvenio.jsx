@@ -91,6 +91,12 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
   return (
     <div className="modal-bg">
       <div className="modal-caja modal-grande">
+            <button
+      className="modal-close"
+      onClick={onCerrar}
+    >
+      ✕
+    </button>
         <p className="modal-titulo">
           {esEdicion ? "Editar Convenio" : "Nuevo Convenio"}
         </p>

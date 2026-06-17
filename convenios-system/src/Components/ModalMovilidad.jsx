@@ -23,20 +23,22 @@ const VACIO = {
   movilidad: 1,
 };
 
-const SEMESTRES = ["V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const SEMESTRES = ["IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 const EFP_OPCIONES_RAW = [
   "E.F.P. De Derecho y Ciencias Políticas - Pasco",
   "E.F.P. De Derecho y Ciencias Políticas - Puerto Bermudez",
-  "E.F.P. De Ciencias de la Comunicación - La Merced",
   "E.F.P. De Ciencias de la Comunicación - Pasco",
-  "E.F.P. De Administración - Oxapampa",
+  "E.F.P. De Ciencias de la Comunicación - La Merced",
   "E.F.P. De Administración - Pasco",
+  "E.F.P. De Administración - Oxapampa",
   "E.F.P. De Medicina Humana - Pasco",
   "E.F.P. De Ingenieira de minas - Pasco",
   "E.F.P. De Odontología - Pasco",
   "E.F.P. De Industrias Alimentarias - La Merced",
   "E.F.P. De Zootecnia - Pasco",
+  "E.F.P. De Zootecnia - Oxapampa",
+  "E.F.P. De Agronomia - Pasco",
   "E.F.P. De Agronomia - Oxapampa",
   "E.F.P. De Agronomia - Yanahuanca",
   "E.F.P. De Agronomia - Paucartambo",
@@ -251,7 +253,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       celular: form.celular || null,
       escuela: form.escuela === "Otra" ? escuelaPersonal.trim() : form.escuela,
       periodo: form.periodo || null,
-      intercambio: form.intercambio || "primera",
+      intercambio: form.intercambio || "1",
       universidadorigen: form.universidad_origen || null,
       ciudadorigen: form.ciudad_origen || null,
       universidaddestino: form.universidad_destino || null,
@@ -280,6 +282,12 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
   return (
     <div className="modal-overlay">
       <div className="modal-container">
+        <button
+            className="modal-close"
+            onClick={onCerrar}
+          >
+            ✕
+          </button>
         <div className="modal-header">
           <div>
             <p className="modal-title">

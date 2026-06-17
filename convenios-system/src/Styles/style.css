@@ -1401,3 +1401,20 @@ input[type="checkbox"] {
 /* Color del número según tarjeta */
 .stats-tarjeta:nth-child(1) .stats-numero { color: #854F0B; }
 .stats-tarjeta:nth-child(2) .stats-numero { color: #0F6E56; }
+/*------------ la X en el modal*/
+.modal-container{
+    position: relative;
+}
+.modal-caja {
+  position: relative;
+}
+
+.modal-close{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
