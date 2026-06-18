@@ -279,25 +279,34 @@ export default function Movilidades({ usuario }) {
     })),
   ];
 
+  function normalizarTexto(texto) {
+  return String(texto || "")
+    .normalize("NFD")                  // separa las tildes
+    .replace(/[\u0300-\u036f]/g, "")   // elimina las tildes
+    .toUpperCase()
+    .replace(/,/g, "")
+    .trim()
+    .split(/\s+/)
+    .sort()
+    .join(" ");
+}
+
   // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
 
-    const term = busqueda.toLowerCase();
-    const resolucion = String(m.numeroresolucion ?? "").trim().toLowerCase();
+    const term = normalizarTexto(busqueda);
+    const resolucion = normalizarTexto(m.numeroresolucion);
 
 
     const porBusqueda =
       busqueda === "" ||
 
-      m.nombres
-        ?.toLowerCase()
-        .includes(term) ||
-
+      normalizarTexto(m.nombres)
+      .includes(term)
       
 
-      m.universidaddestino
-        ?.toLowerCase()
-        .includes(term) ||
+      normalizarTexto(m.universidaddestino)
+      .includes(term)
 
       resolucion.includes(term);
       

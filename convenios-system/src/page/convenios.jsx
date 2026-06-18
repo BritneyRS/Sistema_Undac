@@ -43,7 +43,15 @@ const obtenerTiposUnicos = (datos) => {
   datos.forEach((c) => { if (c.tipo) tipos.add(c.tipo); });
   return Array.from(tipos).sort();
 };
-
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/,/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 export default function Convenios({ usuario }) {
   const esAdmin = usuario?.rol === "admin";
 
@@ -104,10 +112,12 @@ export default function Convenios({ usuario }) {
       filtroSemaforo === "todos" ||
       (filtroSemaforo === "por-vencer" && ["naranja", "amarillo"].includes(semaforoColor)) ||
       semaforoColor === filtroSemaforo;
+    const termino = normalizarTexto(busqueda);
+
     const porBusqueda =
       busqueda === "" ||
-      c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      c.resolucion?.toLowerCase().includes(busqueda.toLowerCase());
+      normalizarTexto(c.nombre).includes(termino) ||
+      normalizarTexto(c.resolucion).includes(termino);
     const año    = new Date(c.inicio).getFullYear();
     const porAño = filtroAño === "todos" || año.toString() === filtroAño;
     const tipoNorm = c.tipo?.toLowerCase().replace(/\s+/g, "-");
