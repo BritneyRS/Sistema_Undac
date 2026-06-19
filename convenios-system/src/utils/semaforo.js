@@ -3,7 +3,7 @@ export function calcularSemaforo(fechaFin) {
   const hoy = new Date();
   const fin = new Date(fechaFin);
   const difMs = fin - hoy;
-  const difDias = Math.floor(difMs / (1000 * 60 * 60 * 24));
+  const difDias = Math.ceil(difMs / (1000 * 60 * 60 * 24)); //math.floor avisa un dia antes
 
   if (difDias < 0) {
     return {

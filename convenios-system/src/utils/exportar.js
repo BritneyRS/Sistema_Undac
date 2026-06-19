@@ -57,7 +57,7 @@ const crearDatosExportPDF = (convenios) =>
     "Duración": c.duracion || "",
     "Resolución": c.resolucion || "",
     "Tipo de oportunidad": obtenerOportunidades(c),
-    "Resultados obtenidos": c.resultados || c.Resultados || "",
+    //"Resultados obtenidos": c.resultados || c.Resultados || "",
   }));
 
 //FUNCIONES PARA MOVILIDAD 
@@ -270,7 +270,7 @@ export const exportar = (convenios, formato = "excel") => {
       { header: "Fin", key: "fin", width: 13 },
       { header: "Duración", key: "duracion", width: 12 },
       { header: "Resolución", key: "resolucion", width: 16 },
-      { header: "Resultados Obtenidos", key: "resultados", width: 30 },
+      //{ header: "Resultados Obtenidos", key: "resultados", width: 30 },
     ];
 
     const filas = crearDatosExportPDF(convenios).map((fila, index) => [
@@ -283,7 +283,7 @@ export const exportar = (convenios, formato = "excel") => {
       fila["Fin"],
       fila["Duración"],
       fila["Resolución"],
-      fila["Resultados obtenidos"],
+      //fila["Resultados obtenidos"],
     ]);
 
     autoTable(doc, {
@@ -323,7 +323,7 @@ export const exportar = (convenios, formato = "excel") => {
       },
       columnStyles: {
         0: { cellWidth: 7, halign: "center", fontStyle: "bold" },
-        1: { cellWidth: 40, halign: "left" },
+        1: { cellWidth: 50, halign: "left" },
         2: { cellWidth: 25, halign: "center" },
         3: { cellWidth: 30, halign: "center" },
         4: { cellWidth: 20, halign: "center" },

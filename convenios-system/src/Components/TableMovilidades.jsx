@@ -55,7 +55,7 @@ const ordenarPorPeriodo = useCallback((datos) => {
     "Resolución",
     "SIAF",
     "Observación",
-    "Documento",
+    "Documentos",
     ...(esAdmin ? ["Acciones"] : []),
   ];
 
@@ -150,38 +150,61 @@ const ordenarPorPeriodo = useCallback((datos) => {
                 )}
               </td>
 
-              {/* ── DOCUMENTO ── */}
+              {/* ── DOCUMENTOS ── */}
               <td className="td" style={{ textAlign: "center" }}>
-                {m.documento_nombre ? (
-                  <button
-                    type="button"
-                    onClick={() => movilidadesAPI.descargarDocumento(m.id, m.documento_nombre)}
-                    title={m.documento_nombre}
+                {m.documento_nombre || m.documento2_nombre ? (
+                  <div
                     style={{
-                      display: "inline-flex",
+                      display: "flex",
+                      flexDirection: "column",
                       alignItems: "center",
-                      gap: 4,
-                      color: "#2563eb",
-                      fontSize: 12,
-                      textDecoration: "none",
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
+                      gap: 6,
                     }}
                   >
-                    <FaDownload style={{ flexShrink: 0 }} />
-                    <span
-                      style={{
-                        maxWidth: 100,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {m.documento_nombre}
-                    </span>
-                  </button>
+                    {[
+                      { nombre: m.documento_nombre, indice: 1 },
+                      { nombre: m.documento2_nombre, indice: 2 },
+                    ]
+                      .filter((doc) => doc.nombre)
+                      .map((doc) => (
+                        <button
+                          key={doc.indice}
+                          type="button"
+                          onClick={() =>
+                            movilidadesAPI.descargarDocumento(
+                              m.id,
+                              doc.nombre,
+                              doc.indice
+                            )
+                          }
+                          title={doc.nombre}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            color: "#2563eb",
+                            fontSize: 12,
+                            textDecoration: "none",
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            cursor: "pointer",
+                          }}
+                        >
+                          <FaDownload style={{ flexShrink: 0 }} />
+                          <span
+                            style={{
+                              maxWidth: 120,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {doc.nombre}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
                 ) : (
                   <span className="sin-registro">-</span>
                 )}

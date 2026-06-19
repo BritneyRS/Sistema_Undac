@@ -36,7 +36,7 @@ const fileFilter = (_req, file, cb) => {
 exports.upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
 });
 
 
@@ -153,9 +153,13 @@ exports.crear = async (req, res) => {
 
     
     const numIntercambio = Number(previas[0].total) + 1;
-    // Archivo adjunto (opcional)
-    const documento_nombre = req.file ? req.file.originalname : null;
-    const documento_ruta   = req.file ? req.file.filename : null;
+    // Archivos adjuntos (opcionales)
+    const archivo1 = req.files?.documento1?.[0] || null;
+    const archivo2 = req.files?.documento2?.[0] || null;
+    const documento_nombre = archivo1 ? archivo1.originalname : null;
+    const documento_ruta   = archivo1 ? archivo1.filename : null;
+    const documento2_nombre = archivo2 ? archivo2.originalname : null;
+    const documento2_ruta   = archivo2 ? archivo2.filename : null;
 
     const { rows } = await pool.query(
       `
@@ -179,10 +183,12 @@ exports.crear = async (req, res) => {
         numerosiaf,
         observacion,
         documento_nombre,
-        documento_ruta
+        documento_ruta,
+        documento2_nombre,
+        documento2_ruta
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22
       )
       RETURNING *
       `,
@@ -207,6 +213,8 @@ exports.crear = async (req, res) => {
         observacion || null,
         documento_nombre,
         documento_ruta,
+        documento2_nombre,
+        documento2_ruta,
       ]
     );
 
@@ -242,6 +250,7 @@ exports.actualizar = async (req, res) => {
     observacion,
     intercambio,
     borrar_documento,
+    borrar_documento2,
   } = req.body;
 
   if (!nombres || !semestre) {
@@ -252,106 +261,83 @@ exports.actualizar = async (req, res) => {
 
   try {
 
-    // Si viene nuevo archivo, obtener el anterior para borrarlo
-    let documento_nombre = null;
-    let documento_ruta   = null;
-    let borrarDocumento  = false;
+    const archivo1 = req.files?.documento1?.[0] || null;
+    const archivo2 = req.files?.documento2?.[0] || null;
+    const borrarDocumento1 = borrar_documento === "true" || borrar_documento === true;
+    const borrarDocumento2 = borrar_documento2 === "true" || borrar_documento2 === true;
 
-    if (req.file) {
-      documento_nombre = req.file.originalname;
-      documento_ruta   = req.file.filename;
+    const { rows: prevRows } = await pool.query(
+      `SELECT documento_nombre, documento_ruta, documento2_nombre, documento2_ruta FROM movilidades WHERE id = $1`,
+      [req.params.id]
+    );
 
-      // Borrar archivo anterior si existe
-      const { rows: prev } = await pool.query(
-        `SELECT documento_ruta FROM movilidades WHERE id = $1`,
-        [req.params.id]
-      );
-      if (prev[0]?.documento_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev[0].documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-    } else if (borrar_documento === "true" || borrar_documento === true) {
-      borrarDocumento = true;
-      const { rows: prev } = await pool.query(
-        `SELECT documento_ruta FROM movilidades WHERE id = $1`,
-        [req.params.id]
-      );
-      if (prev[0]?.documento_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev[0].documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
+    if (!prevRows.length) {
+      return res.status(404).json({ error: "Movilidad no encontrada" });
     }
 
-    // Construir query dinámicamente según si hay nuevo archivo o se borra el archivo
-    let query, values;
+    const prev = prevRows[0];
 
-    if (req.file) {
-      query = `
-        UPDATE movilidades
-        SET
-          nombres = $1, semestre = $2, celular = $3, escuela = $4,
-          periodo = $5, universidadorigen = $6, ciudadorigen = $7,
-          universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
-          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
-          observacion = $18, documento_nombre = $19, documento_ruta = $20
-        WHERE id = $21
-        RETURNING *
-      `;
-      values = [
-        nombres, semestre, celular || null, escuela || null,
-        periodo || null, universidadorigen || null, ciudadorigen || null,
-        universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
-        beca || "no", tipobeca || null, estado || "activo",
-        intercambio || "primera", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
-        observacion || null, documento_nombre, documento_ruta,
-        req.params.id,
-      ];
-    } else if (borrarDocumento) {
-      query = `
-        UPDATE movilidades
-        SET
-          nombres = $1, semestre = $2, celular = $3, escuela = $4,
-          periodo = $5, universidadorigen = $6, ciudadorigen = $7,
-          universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
-          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
-          observacion = $18, documento_nombre = NULL, documento_ruta = NULL
-        WHERE id = $19
-        RETURNING *
-      `;
-      values = [
-        nombres, semestre, celular || null, escuela || null,
-        periodo || null, universidadorigen || null, ciudadorigen || null,
-        universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
-        beca || "no", tipobeca || null, estado || "activo",
-        intercambio || "primera", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
-        observacion || null,
-        req.params.id,
-      ];
-    } else {
-      query = `
-        UPDATE movilidades
-        SET
-          nombres = $1, semestre = $2, celular = $3, escuela = $4,
-          periodo = $5, universidadorigen = $6, ciudadorigen = $7,
-          universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
-          beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
-          numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
-          observacion = $18
-        WHERE id = $19
-        RETURNING *
-      `;
-      values = [
-        nombres, semestre, celular || null, escuela || null,
-        periodo || null, universidadorigen || null, ciudadorigen || null,
-        universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
-        beca || "no", tipobeca || null, estado || "activo",
-        intercambio || "1", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
-        observacion || null,
-        req.params.id,
-      ];
+    let documento_nombre = prev.documento_nombre;
+    let documento_ruta = prev.documento_ruta;
+    let documento2_nombre = prev.documento2_nombre;
+    let documento2_ruta = prev.documento2_ruta;
+
+    if (archivo1) {
+      if (prev.documento_ruta) {
+        const oldPath = path.join(UPLOAD_DIR, prev.documento_ruta);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      documento_nombre = archivo1.originalname;
+      documento_ruta = archivo1.filename;
+    } else if (borrarDocumento1) {
+      if (prev.documento_ruta) {
+        const oldPath = path.join(UPLOAD_DIR, prev.documento_ruta);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      documento_nombre = null;
+      documento_ruta = null;
     }
+
+    if (archivo2) {
+      if (prev.documento2_ruta) {
+        const oldPath = path.join(UPLOAD_DIR, prev.documento2_ruta);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      documento2_nombre = archivo2.originalname;
+      documento2_ruta = archivo2.filename;
+    } else if (borrarDocumento2) {
+      if (prev.documento2_ruta) {
+        const oldPath = path.join(UPLOAD_DIR, prev.documento2_ruta);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      documento2_nombre = null;
+      documento2_ruta = null;
+    }
+
+    const query = `
+      UPDATE movilidades
+      SET
+        nombres = $1, semestre = $2, celular = $3, escuela = $4,
+        periodo = $5, universidadorigen = $6, ciudadorigen = $7,
+        universidaddestino = $8, ciudaddestino = $9, apoyoeconomico = $10,
+        beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
+        numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
+        observacion = $18, documento_nombre = $19, documento_ruta = $20,
+        documento2_nombre = $21, documento2_ruta = $22
+      WHERE id = $23
+      RETURNING *
+    `;
+
+    const values = [
+      nombres, semestre, celular || null, escuela || null,
+      periodo || null, universidadorigen || null, ciudadorigen || null,
+      universidaddestino || null, ciudaddestino || null, apoyoeconomico || null,
+      beca || "no", tipobeca || null, estado || "activo",
+      intercambio || "1", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
+      observacion || null, documento_nombre, documento_ruta,
+      documento2_nombre, documento2_ruta,
+      req.params.id,
+    ];
 
     const { rows } = await pool.query(query, values);
 
@@ -412,8 +398,17 @@ exports.descargarDocumento = async (req, res) => {
 
   try {
 
+    const indice = Number(req.query.indice || 1);
+    if (![1, 2].includes(indice)) {
+      return res.status(400).json({ error: "Índice de documento inválido" });
+    }
+
+    const columnas = indice === 1
+      ? "documento_nombre, documento_ruta"
+      : "documento2_nombre AS documento_nombre, documento2_ruta AS documento_ruta";
+
     const { rows } = await pool.query(
-      `SELECT documento_nombre, documento_ruta FROM movilidades WHERE id = $1`,
+      `SELECT ${columnas} FROM movilidades WHERE id = $1`,
       [req.params.id]
     );
 

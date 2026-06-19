@@ -1418,3 +1418,111 @@ input[type="checkbox"] {
     font-size: 24px;
     cursor: pointer;
 }
+/*----------------Documentos-----------------*/
+/* Contenedor principal de todo el bloque */
+.contenedor-documentos-global {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px;
+}
+
+/* Contenedor individual de cada documento (Garantiza el orden exacto) */
+.grupo-documento {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Estilos de las etiquetas de título (Documento 1, Documento 2) */
+.documento-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Estilos básicos para el input file */
+.input-selector-archivo {
+  padding: 4px 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Estructura común para los recuadros de alertas (verdes, rojos, azules) */
+.alerta-archivo {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Variación: Recuadro Verde (Existente) */
+.alerta-existente {
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+/* Variación: Recuadro Rojo (Eliminado) */
+.alerta-eliminado {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 8px 10px;
+}
+
+/* Variación: Recuadro Azul (Nuevo) */
+.alerta-nuevo {
+  background-color: #eff6ff;
+  border: 1px solid #93c5fd;
+}
+
+/* Textos dentro de las alertas */
+.nombre-archivo-texto {
+  flex-grow: 1;
+  color: #166534;
+}
+.nombre-archivo-texto.azul {
+  color: #1d4ed8;
+}
+
+/* Botones genéricos de descargar y eliminar */
+.btn-archivo {
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-descargar {
+  color: #16a34a;
+  text-decoration: underline;
+}
+.btn-eliminar {
+  color: #b91c1c;
+}
+
+/* Botón 'X' para quitar archivo recién seleccionado */
+.btn-quitar-nuevo {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #dc2626;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Mensaje de error */
+.error-archivo-texto {
+  color: #dc2626;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Leyenda inferior de formatos aceptados */
+.formatos-leyenda {
+  color: #9ca3af;
+  font-size: 11px;
+  margin: 0;
+  margin-top: -6px;
+}

@@ -88,7 +88,7 @@ const SEDES_MAP = EFP_PARSED.reduce((acc, p) => {
 // TIPOS DE ARCHIVO PERMITIDOS (para mostrar al usuario)
 // ──────────────────────────────────────────────────────────────
 const TIPOS_PERMITIDOS = ".pdf,.doc,.docx,.png,.jpg,.jpeg";
-const MAX_MB = 10;
+const MAX_MB = 100;
 
 export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerrar }) {
   const registroActual = registro ?? movilidad;
@@ -100,11 +100,16 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
   const [errores, setErrores] = useState({});
   const [advertencia, setAdvertencia] = useState("");
 
-  // ── Estado para documento adjunto ──────────────────────────
-  const [archivoNuevo, setArchivoNuevo] = useState(null);     // File object del input
-  const [archivoError, setArchivoError] = useState("");  const [documentoEliminado, setDocumentoEliminado] = useState(false);  const fileInputRef = useRef(null);
+  // ── Estado para documentos adjuntos ────────────────────────
+  const [archivoNuevo1, setArchivoNuevo1] = useState(null);
+  const [archivoError1, setArchivoError1] = useState("");
+  const [documentoEliminado1, setDocumentoEliminado1] = useState(false);
+  const fileInputRef1 = useRef(null);
 
-  
+  const [archivoNuevo2, setArchivoNuevo2] = useState(null);
+  const [archivoError2, setArchivoError2] = useState("");
+  const [documentoEliminado2, setDocumentoEliminado2] = useState(false);
+  const fileInputRef2 = useRef(null);
 
   useEffect(() => {
     if (registroActual) {
@@ -153,9 +158,12 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       setEscuelaPersonal("");
     }
     setAdvertencia("");
-    setArchivoNuevo(null);
-    setArchivoError("");
-    setDocumentoEliminado(false);
+    setArchivoNuevo1(null);
+    setArchivoError1("");
+    setDocumentoEliminado1(false);
+    setArchivoNuevo2(null);
+    setArchivoError2("");
+    setDocumentoEliminado2(false);
   }, [registroActual]);
 
   function cambiar(e) {
@@ -191,31 +199,58 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
   }
 
   // ── Manejo de archivo ───────────────────────────────────────
-  function cambiarArchivo(e) {
+  function cambiarArchivo1(e) {
     const file = e.target.files[0];
-    setArchivoError("");
-    setDocumentoEliminado(false);
-    if (!file) { setArchivoNuevo(null); return; }
+    setArchivoError1("");
+    setDocumentoEliminado1(false);
+    if (!file) { setArchivoNuevo1(null); return; }
     if (file.size > MAX_MB * 1024 * 1024) {
-      setArchivoError(`El archivo supera el límite de ${MAX_MB} MB.`);
+      setArchivoError1(`El archivo supera el límite de ${MAX_MB} MB.`);
       e.target.value = "";
-      setArchivoNuevo(null);
+      setArchivoNuevo1(null);
       return;
     }
-    setArchivoNuevo(file);
+    setArchivoNuevo1(file);
   }
 
-  function quitarArchivo() {
-    setArchivoNuevo(null);
-    setArchivoError("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  function cambiarArchivo2(e) {
+    const file = e.target.files[0];
+    setArchivoError2("");
+    setDocumentoEliminado2(false);
+    if (!file) { setArchivoNuevo2(null); return; }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setArchivoError2(`El archivo supera el límite de ${MAX_MB} MB.`);
+      e.target.value = "";
+      setArchivoNuevo2(null);
+      return;
+    }
+    setArchivoNuevo2(file);
   }
 
-  function quitarDocumentoExistente() {
-    setDocumentoEliminado(true);
-    setArchivoError("");
-    setArchivoNuevo(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  function quitarArchivo1() {
+    setArchivoNuevo1(null);
+    setArchivoError1("");
+    if (fileInputRef1.current) fileInputRef1.current.value = "";
+  }
+
+  function quitarArchivo2() {
+    setArchivoNuevo2(null);
+    setArchivoError2("");
+    if (fileInputRef2.current) fileInputRef2.current.value = "";
+  }
+
+  function quitarDocumentoExistente1() {
+    setDocumentoEliminado1(true);
+    setArchivoError1("");
+    setArchivoNuevo1(null);
+    if (fileInputRef1.current) fileInputRef1.current.value = "";
+  }
+
+  function quitarDocumentoExistente2() {
+    setDocumentoEliminado2(true);
+    setArchivoError2("");
+    setArchivoNuevo2(null);
+    if (fileInputRef2.current) fileInputRef2.current.value = "";
   }
 
   function validar() {
@@ -266,18 +301,20 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       numeroresolucion: form.numero_resolucion || null,
       numerosiaf: form.numerosiaf || null,
       observacion: form.observacion.trim() || null,
-      borrar_documento: documentoEliminado && !archivoNuevo ? "true" : undefined,
+      borrar_documento: documentoEliminado1 && !archivoNuevo1 ? "true" : undefined,
+      borrar_documento2: documentoEliminado2 && !archivoNuevo2 ? "true" : undefined,
       movilidad: form.movilidad,
     };
 
     setTimeout(() => {
-      onGuardar(datosFinales, archivoNuevo);
+      onGuardar(datosFinales, archivoNuevo1, archivoNuevo2);
       setGuardando(false);
     }, 400);
   }
 
   const esEdicion = !!registroActual?.id;
   const documentoExistente = registroActual?.documento_nombre || null;
+  const documento2Existente = registroActual?.documento2_nombre || null;
 
   return (
     <div className="modal-overlay">
@@ -458,129 +495,108 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
             />
           </Campo>
 
-          {/* Campo documento */}
-          <Campo label="Adjuntar documento (PDF, Word, imagen — máx. 10 MB)">
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {/* Mostrar documento existente si hay */}
-              {esEdicion && documentoExistente && !archivoNuevo && !documentoEliminado && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "6px 10px",
-                    background: "#f0fdf4",
-                    border: "1px solid #86efac",
-                    borderRadius: 6,
-                    fontSize: 13,
-                  }}
-                >
-                  <span>📄</span>
-                  <span style={{ flexGrow: 1, color: "#166534" }}>
-                    {documentoExistente}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documentoExistente)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#16a34a",
-                      textDecoration: "underline",
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Descargar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={quitarDocumentoExistente}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#b91c1c",
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                    title="Eliminar archivo"
-                  >
-                    Eliminar
-                  </button>
+            {/* Campo documento */}
+            <Campo label={<strong>Adjuntar documentos (PDF, Word, imagen — máx. 100 MB cada uno)</strong>}>
+              <div className="contenedor-documentos-global">
+                
+                {/* ================= GRUPO DOCUMENTO 1 ================= */}
+                <div className="grupo-documento">
+                  <label className="form-label">Documento Expediente</label>
+                  
+                  <input
+                    ref={fileInputRef1}
+                    type="file"
+                    accept={TIPOS_PERMITIDOS}
+                    onChange={cambiarArchivo1}
+                    className="form-input input-selector-archivo"
+                  />
+                  
+                  {/* Alerta Verde: Archivo Existente */}
+                  {esEdicion && documentoExistente && !archivoNuevo1 && !documentoEliminado1 && (
+                    <div className="alerta-archivo alerta-existente">
+                      <span>📄</span>
+                      <span className="nombre-archivo-texto">{documentoExistente}</span>
+                      <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documentoExistente, 1)}>
+                        Descargar
+                      </button>
+                      <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente1} title="Eliminar archivo">
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Alerta Roja: Archivo Eliminado */}
+                  {esEdicion && documentoEliminado1 && (
+                    <div className="alerta-archivo alerta-eliminado">
+                      <span>🗑️</span>
+                      <span>Documento 1 marcado para eliminación.</span>
+                    </div>
+                  )}
+
+                  {/* Alerta Azul: Archivo Nuevo Cargado */}
+                  {archivoNuevo1 && (
+                    <div className="alerta-archivo alerta-nuevo">
+                      <span>📎</span>
+                      <span className="nombre-archivo-texto azul">{archivoNuevo1.name}</span>
+                      <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo1} title="Quitar archivo">✕</button>
+                    </div>
+                  )}
+                  
+                  {archivoError1 && <p className="error-archivo-texto">{archivoError1}</p>}
                 </div>
-              )}
-              {esEdicion && documentoEliminado && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 10px",
-                    background: "#fef2f2",
-                    border: "1px solid #fecaca",
-                    borderRadius: 6,
-                    fontSize: 13,
-                    color: "#991b1b",
-                  }}
-                >
-                  <span>🗑️</span>
-                  <span>Documento marcado para eliminación.</span>
+
+                {/* ================= GRUPO DOCUMENTO 2 ================= */}
+                <div className="grupo-documento">
+                  <label className="form-label">Documento Informe</label>
+                  
+                  <input
+                    ref={fileInputRef2}
+                    type="file"
+                    accept={TIPOS_PERMITIDOS}
+                    onChange={cambiarArchivo2}
+                    className="form-input input-selector-archivo"
+                  />
+
+                  {/* Alerta Verde: Archivo Existente */}
+                  {esEdicion && documento2Existente && !archivoNuevo2 && !documentoEliminado2 && (
+                    <div className="alerta-archivo alerta-existente">
+                      <span>📄</span>
+                      <span className="nombre-archivo-texto">{documento2Existente}</span>
+                      <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documento2Existente, 2)}>
+                        Descargar
+                      </button>
+                      <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente2} title="Eliminar archivo">
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Alerta Roja: Archivo Eliminado */}
+                  {esEdicion && documentoEliminado2 && (
+                    <div className="alerta-archivo alerta-eliminado">
+                      <span>🗑️</span>
+                      <span>Documento 2 marcado para eliminación.</span>
+                    </div>
+                  )}
+
+                  {/* Alerta Azul: Archivo Nuevo Cargado */}
+                  {archivoNuevo2 && (
+                    <div className="alerta-archivo alerta-nuevo">
+                      <span>📎</span>
+                      <span className="nombre-archivo-texto azul">{archivoNuevo2.name}</span>
+                      <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo2} title="Quitar archivo">✕</button>
+                    </div>
+                  )}
+                  
+                  {archivoError2 && <p className="error-archivo-texto">{archivoError2}</p>}
                 </div>
-              )}
 
-              {/* Input de archivo */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={TIPOS_PERMITIDOS}
-                onChange={cambiarArchivo}
-                className="form-input"
-                style={{ padding: "4px 8px", cursor: "pointer" }}
-              />
-
-              {/* Archivo nuevo seleccionado */}
-              {archivoNuevo && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "6px 10px",
-                    background: "#eff6ff",
-                    border: "1px solid #93c5fd",
-                    borderRadius: 6,
-                    fontSize: 13,
-                  }}
-                >
-                  <span>📎</span>
-                  <span style={{ flexGrow: 1, color: "#1d4ed8" }}>{archivoNuevo.name}</span>
-                  <button
-                    type="button"
-                    onClick={quitarArchivo}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: "#dc2626",
-                      fontSize: 16,
-                      lineHeight: 1,
-                    }}
-                    title="Quitar archivo"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-
-              {archivoError && (
-                <p style={{ color: "#dc2626", fontSize: 12, margin: 0 }}>{archivoError}</p>
-              )}
-
-              <p style={{ color: "#9ca3af", fontSize: 11, margin: 0 }}>
-                Formatos aceptados: PDF, DOC, DOCX, PNG, JPG · Máximo {MAX_MB} MB
-              </p>
-            </div>
-          </Campo>
+                {/* Formatos aceptados */}
+                <p className="formatos-leyenda">
+                  Formatos aceptados: PDF, DOC, DOCX, PNG, JPG · Máximo {MAX_MB} MB
+                </p>
+              </div>
+            </Campo>
 
           {/* ══════════════════════════════════════════════ */}
 

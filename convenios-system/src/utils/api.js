@@ -33,7 +33,7 @@ async function request(endpoint, options = {}) {
 }
 
 // ── Request para FormData (subida de archivos) ──────────────
-async function requestFormData(endpoint, method, datos, archivo) {
+async function requestFormData(endpoint, method, datos, archivo1 = null, archivo2 = null) {
   const token = getToken();
 
   const formData = new FormData();
@@ -45,9 +45,12 @@ async function requestFormData(endpoint, method, datos, archivo) {
     }
   });
 
-  // Agregar archivo si existe
-  if (archivo) {
-    formData.append('documento', archivo);
+  // Agregar archivos si existen
+  if (archivo1) {
+    formData.append('documento1', archivo1);
+  }
+  if (archivo2) {
+    formData.append('documento2', archivo2);
   }
 
   const res = await fetch(BASE_URL + endpoint, {
@@ -114,18 +117,21 @@ export const movilidadesAPI = {
   obtener: (id) => request('/movilidades/' + id),
 
   // Crear acepta un objeto de datos y opcionalmente un File
-  crear: (datos, archivo = null) =>
-    requestFormData('/movilidades', 'POST', datos, archivo),
+  crear: (datos, archivo1 = null, archivo2 = null) =>
+    requestFormData('/movilidades', 'POST', datos, archivo1, archivo2),
 
-  // Actualizar acepta un objeto de datos y opcionalmente un File
-  actualizar: (id, datos, archivo = null) =>
-    requestFormData('/movilidades/' + id, 'PUT', datos, archivo),
+  // Actualizar acepta un objeto de datos y opcionalmente dos Files
+  actualizar: (id, datos, archivo1 = null, archivo2 = null) =>
+    requestFormData('/movilidades/' + id, 'PUT', datos, archivo1, archivo2),
 
   eliminar: (id) => request('/movilidades/' + id, { method: 'DELETE' }),
 
-  descargarDocumento: async (id, nombreArchivo) => {
+  descargarDocumento: async (id, nombreArchivo, indice = 1) => {
     const token = getToken();
-    const res = await fetch(BASE_URL + `/movilidades/${id}/documento`, {
+    const url = new URL(BASE_URL + `/movilidades/${id}/documento`);
+    url.searchParams.set('indice', String(indice));
+
+    const res = await fetch(url.toString(), {
       headers: {
         ...(token ? { Authorization: 'Bearer ' + token } : {}),
       },
@@ -137,14 +143,14 @@ export const movilidadesAPI = {
     }
 
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const urlBlob = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url;
+    link.href = urlBlob;
     link.download = nombreArchivo || 'documento';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(urlBlob);
   },
 
   // URL para descargar el documento adjunto de una movilidad
