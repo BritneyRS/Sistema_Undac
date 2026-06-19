@@ -10,6 +10,64 @@ import {
   FaFilePdf,
 } from "react-icons/fa";
 
+// ─── EFP: mapa carrera → filiales completas ──────────────────
+const EFP_RAW = [
+  "E.F.P. De Derecho y Ciencias Políticas - Pasco",
+  "E.F.P. De Derecho y Ciencias Políticas - Puerto Bermudez",
+  "E.F.P. De Ciencias de la Comunicación - Pasco",
+  "E.F.P. De Ciencias de la Comunicación - La Merced",
+  "E.F.P. De Administración - Pasco",
+  "E.F.P. De Administración - Oxapampa",
+  "E.F.P. De Medicina Humana - Pasco",
+  "E.F.P. De Ingenieira de minas - Pasco",
+  "E.F.P. De Odontología - Pasco",
+  "E.F.P. De Industrias Alimentarias - La Merced",
+  "E.F.P. De Zootecnia - Pasco",
+  "E.F.P. De Zootecnia - Oxapampa",
+  "E.F.P. De Agronomia - Pasco",
+  "E.F.P. De Agronomia - Oxapampa",
+  "E.F.P. De Agronomia - Yanahuanca",
+  "E.F.P. De Agronomia - Paucartambo",
+  "E.F.P. De Agronomia - La Merced",
+  "E.F.P. De Economía - Pasco",
+  "E.F.P. De Contabilidad - Pasco",
+  "E.F.P. De Contabilidad - Constitucion",
+  "E.F.P. De Enfermería - Pasco",
+  "E.F.P. De Enfermería - Tarma",
+  "E.F.P. De Obstetricia - Pasco",
+  "E.F.P. De Obstetricia - Tarma",
+  "E.F.P. De Ingeniería Civil - Pasco",
+  "E.F.P. De Ingeniería Ambiental - Oxapampa",
+  "E.F.P. De Ingeniería Ambiental - Pasco",
+  "E.F.P. De Ingeniería de Sitemas y Computación - Pasco",
+  "E.F.P. De Ingeniería Geológica - Pasco",
+  "E.F.P. De Ingeniería Metalúrgica - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Tecnología, Informática y telecomunicaciones - Yanahuanca",
+  "E.F.P. De Educación Secundaria Especialidad de Tecnología, Informática y telecomunicaciones - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Lenguas Extranjeras Inglés y Francés - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Ciencias Sociales, Filosofía y Psicología Educativa - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Biologia y Química - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Matematica y Física - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Historia, Ciencias Sociales y Turismo - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Comuniccación y Literatura - Pasco",
+  "E.F.P. De Educación Primaria - Oxapampa",
+  "E.F.P. De Educación Primaria - Yanahuanca",
+  "E.F.P. De Educación Primaria - Pasco",
+  "E.F.P. De Educación Inicial - Pasco",
+];
+ 
+// carrera → [filiales]
+const EFP_CARRERA_MAP = EFP_RAW.reduce((acc, full) => {
+  const sep     = full.indexOf(" - ");
+  const carrera = sep !== -1 ? full.substring(0, sep).trim() : full.trim();
+  if (!acc[carrera]) acc[carrera] = [];
+  acc[carrera].push(full);
+  return acc;
+}, {});
+ 
+// Todas las carreras únicas (con o sin filiales), en orden
+const TODAS_CARRERAS = Object.keys(EFP_CARRERA_MAP).sort();
+//--------------- seccdion --------
 const obtenerSemestresUnicos = (datos) => {
   const semestres = new Set();
 
@@ -22,7 +80,7 @@ const obtenerSemestresUnicos = (datos) => {
   return Array.from(semestres).sort().reverse();
 };
 
-const obtenerEscuelasUnicas = (datos) => {
+/*const obtenerEscuelasUnicas = (datos) => {
   const escuelas = new Set();
 
   datos.forEach((m) => {
@@ -30,9 +88,8 @@ const obtenerEscuelasUnicas = (datos) => {
       escuelas.add(m.escuela);
     }
   });
-
   return Array.from(escuelas).sort();
-};
+};*/
 
 const obtenerPeriodosUnicos = (datos) => {
   const periodos = new Set();
@@ -69,7 +126,7 @@ const obtenerBecasUnicas = (datos) => {
 
   return Array.from(becas).sort();
 };
-
+//----------componente inicial----------------
 export default function Movilidades({ usuario }) {
 
   const esAdmin = usuario?.rol === "admin";
@@ -95,8 +152,14 @@ export default function Movilidades({ usuario }) {
   const [filtroBeca, setFiltroBeca] =
     useState("todos");
 
-  const [filtroEscuela, setFiltroEscuela] =
-    useState("todos");
+  /*const [filtroEscuela, setFiltroEscuela] =
+    useState("todos");*/
+  const [filtroCarrera, setFiltroCarrera] =
+   useState("todos");
+  const [filtroFiliales,          setFiltroFiliales]          = useState(["todos"]);
+  const [filialesDropdownAbierto, setFilialesDropdownAbierto] = useState(false);
+  const filialesRef = useRef(null);
+ 
 
   const [filtroEstado, setFiltroEstado] =
     useState("todos"); 
@@ -165,6 +228,12 @@ export default function Movilidades({ usuario }) {
     };
   }, []);
 
+    // Al cambiar carrera → resetear filiales
+  useEffect(() => {
+    setFiltroFiliales(["todos"]);
+    setFilialesDropdownAbierto(false);
+  }, [filtroCarrera]);
+
   function obtenerLabelPeriodoSeleccionado() {
     if (filtroPeriodo.includes("todos") || filtroPeriodo.length === 0) {
       return "Todos los periodos";
@@ -193,6 +262,36 @@ export default function Movilidades({ usuario }) {
       );
     } else {
       setFiltroPeriodo([...seleccionActual, valor]);
+    }
+  }
+    // ─── Multi-select filiales ────────────────────────────────
+  // Solo se activa si la carrera seleccionada tiene más de 1 filial
+  const tieneFiliales = filtroCarrera !== "todos" &&
+    (EFP_CARRERA_MAP[filtroCarrera]?.length || 0) > 1;
+ 
+  const sedesCarreraSeleccionada = tieneFiliales
+    ? EFP_CARRERA_MAP[filtroCarrera].map((full) => {
+        const s = full.indexOf(" - ");
+        return { full, sede: s !== -1 ? full.substring(s + 3) : full };
+      })
+    : [];
+ 
+  function obtenerLabelFilialesSeleccionadas() {
+    if (filtroFiliales.includes("todos") || filtroFiliales.length === 0)
+      return "Todas las filiales";
+    return filtroFiliales
+      .map((f) => { const s = f.indexOf(" - "); return s !== -1 ? f.substring(s + 3) : f; })
+      .join(", ");
+  }
+ 
+  function onCambioFilial(valor) {
+    if (valor === "todos") { setFiltroFiliales(["todos"]); return; }
+    const actual = filtroFiliales.includes("todos") ? [] : [...filtroFiliales];
+    if (actual.includes(valor)) {
+      const nueva = actual.filter((i) => i !== valor);
+      setFiltroFiliales(nueva.length === 0 ? ["todos"] : nueva);
+    } else {
+      setFiltroFiliales([...actual, valor]);
     }
   }
 
@@ -248,7 +347,7 @@ export default function Movilidades({ usuario }) {
   const TABS_BECA = [
     {
       id: "todos",
-      label: "Todas las becas",
+      label: "Beca",
     },
 
     ...obtenerBecasUnicas(datos).map((b) => ({
@@ -257,7 +356,7 @@ export default function Movilidades({ usuario }) {
     })),
   ];
 
-  const TABS_ESCUELA = [
+  /*const TABS_ESCUELA = [
     {
       id: "todos",
       label: "Todas las escuelas",
@@ -267,7 +366,7 @@ export default function Movilidades({ usuario }) {
       id: e,
       label: e,
     })),
-  ];
+  ];*/
   const TABS_ESTADO = [
     {
       id: "todos",
@@ -302,11 +401,11 @@ export default function Movilidades({ usuario }) {
       busqueda === "" ||
 
       normalizarTexto(m.nombres)
-      .includes(term)
+      .includes(term) ||
       
 
       normalizarTexto(m.universidaddestino)
-      .includes(term)
+      .includes(term) ||
 
       resolucion.includes(term);
       
@@ -328,9 +427,24 @@ export default function Movilidades({ usuario }) {
       filtroBeca === "todos" ||
       m.beca === filtroBeca;
 
-    const porEscuela =
-      filtroEscuela === "todos" ||
-      m.escuela === filtroEscuela;
+    // ── Filtro unificado escuela/carrera + filiales ──────────
+    // Caso 1: no hay carrera seleccionada → mostrar todo
+    // Caso 2: carrera sin filiales → filtrar por prefijo exacto
+    // Caso 3: carrera con filiales y filiales específicas → filtrar por valor exacto
+    // Caso 4: carrera con filiales pero "todas" → mostrar todas sus filiales
+    let porEscuela = true;
+    if (filtroCarrera !== "todos") {
+      if (!tieneFiliales) {
+        // Carrera sin filiales: la escuela del registro debe ser exactamente la única opción
+        porEscuela = m.escuela && m.escuela.startsWith(filtroCarrera);
+      } else if (filtroFiliales.includes("todos") || filtroFiliales.length === 0) {
+        // Carrera con filiales, todas seleccionadas
+        porEscuela = m.escuela && m.escuela.startsWith(filtroCarrera);
+      } else {
+        // Carrera con filiales, filiales específicas elegidas
+        porEscuela = filtroFiliales.includes(m.escuela);
+      }
+    }
 
     const porEstado =
       filtroEstado === "todos" ||
@@ -342,8 +456,8 @@ export default function Movilidades({ usuario }) {
       porPeriodo &&
       porCiudadDestino &&
       porBeca &&
-      porEscuela &&
-      porEstado
+      porEstado &&
+      porEscuela
     );
 
   });
@@ -631,29 +745,54 @@ export default function Movilidades({ usuario }) {
 
         </div>
 
-        {/* Filtro escuela */}
+                {/* ── Escuela / Carrera (filtro único) ── */}
         <div className="filtro-select">
-
           <select
-            value={filtroEscuela}
-            onChange={(e) =>
-              setFiltroEscuela(e.target.value)
-            }
+            value={filtroCarrera}
+            onChange={(e) => setFiltroCarrera(e.target.value)}
             className="select-año"
           >
-
-            {TABS_ESCUELA.map((t) => (
-              <option
-                key={t.id}
-                value={t.id}
-              >
-                {t.label}
+            <option value="todos">Todas las escuelas</option>
+            {TODAS_CARRERAS.map((c) => (
+              <option key={c} value={c}>
+                {c.replace("E.F.P. De ", "")}
               </option>
             ))}
-
           </select>
-
         </div>
+ 
+        {/* ── Filiales (multi, aparece SOLO si la carrera elegida tiene más de 1 filial) ── */}
+        {tieneFiliales && (
+            <div ref={filialesRef} style={{ display: tieneFiliales ? "block" : "none" }} className="filtro-select">
+
+            <button
+              type="button"
+              className="select-año multi-select-trigger"
+              onClick={() => setFilialesDropdownAbierto(!filialesDropdownAbierto)}
+            >
+              <span>{obtenerLabelFilialesSeleccionadas()}</span>
+              <span className="multi-select-arrow">▾</span>
+            </button>
+            {filialesDropdownAbierto && (
+              <div className="multi-select-menu">
+                <label className="multi-select-item">
+                  <input type="checkbox" value="todos"
+                    checked={filtroFiliales.includes("todos")}
+                    onChange={() => onCambioFilial("todos")} />
+                  <span>Todas las filiales</span>
+                </label>
+                {sedesCarreraSeleccionada.map(({ full, sede }) => (
+                  <label key={full} className="multi-select-item">
+                    <input type="checkbox" value={full}
+                      checked={filtroFiliales.includes(full)}
+                      onChange={() => onCambioFilial(full)} />
+                    <span>{sede}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {/* Filtro estado */}
         <div className="filtro-select">
 

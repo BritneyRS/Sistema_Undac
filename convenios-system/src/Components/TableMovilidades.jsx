@@ -182,7 +182,7 @@ const ordenarPorPeriodo = useCallback((datos) => {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 4,
-                            color: "#2563eb",
+                            color: "#796921",
                             fontSize: 12,
                             textDecoration: "none",
                             background: "none",
