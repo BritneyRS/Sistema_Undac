@@ -193,78 +193,52 @@
 
 /*-------------------------semaforo.jxs--------------------------------*/
 
-
 .semaforo-contenedor {
   display: flex;
-
   align-items: center;
-
   gap: 7px;
 }
-
 .semaforo-punto {
   width: 11px;
   height: 11px;
-
   border-radius: 50%;
-
   flex-shrink: 0;
 }
-
 .semaforo-texto {
   font-size: 11px;
   font-weight: 600;
-
   padding: 2px 8px;
-
   border-radius: 20px;
-
   white-space: nowrap;
 }
-/*------------------ TABLADECOVERNIOS-----------------*/
+/*------------------ TABLA DE COVERNIOS-----------------*/
 .wrapper {
   overflow-x: auto;
 }
 
 .tabla {
   width: 100%;
-
   border-collapse: collapse;
-
   font-size: 12px;
 }
-
 .th {
   background: #f8fafc;
-
   color: #6b7280;
-
   font-weight: 700;
-
   padding: 11px 12px;
-
   text-align: left;
-
   border-bottom: 1px solid #e5e7eb;
-
   font-size: 10px;
-
   text-transform: uppercase;
-
   letter-spacing: 0.4px;
-
   white-space: nowrap;
 }
 
 .td {
   padding: 10px 12px;
-
   color: #374151;
-
   border-bottom: 0.5px solid #f3f4f6;
-
   vertical-align: top;
-
   font-size: 12px;
 }
 
@@ -278,29 +252,23 @@
 
 .td-numero {
   color: #9ca3af;
-
   font-size: 11px;
 }
 
 .td-fecha {
   white-space: nowrap;
-
   color: #6b7280;
 }
 
 .td-resolucion {
   font-size: 11px;
-
   color: #6b7280;
-
   white-space: nowrap;
 }
 
 .td-resultados {
   font-size: 11px;
-
   color: #6b7280;
-
   line-height: 1.5;
 }
 
@@ -352,13 +320,9 @@
 .tipo-badge,
 .ambito-badge {
   font-size: 10px;
-
   font-weight: 600;
-
   padding: 2px 8px;
-
   border-radius: 4px;
-
   white-space: nowrap;
 }
 
@@ -367,55 +331,38 @@
 
 .op-container {
   display: flex;
-
   flex-wrap: wrap;
-
   gap: 3px;
 }
 
 .op-tag {
   font-size: 10px;
-
   padding: 2px 6px;
-
   border-radius: 3px;
-
   background: #f3f4f6;
-
   color: #6b7280;
-
   border: 0.15px solid #e5e7eb;
-
   user-select: none;
 }
 
 .op-otros {
   border-color: #e5e7eb;
-
   color: #6b7280;
-
   background: #eff6ff;
-
   cursor: pointer;
 }
 
 
 
-/* modal */
+/* modal convenios */
 
 .modal-bg {
   position: fixed;
-
   inset: 0;
-
   background: rgba(0, 0, 0, 0.45);
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   z-index: 100;
 }
 
