@@ -535,8 +535,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
                 {/* Alerta Roja: Archivo Eliminado */}
                 {esEdicion && documentoEliminado1 && (
                   <div className="alerta-archivo alerta-eliminado">
-                    <span>🗑️</span>
-                    <span>Documento 1 marcado para eliminación.</span>
+                    <span>Documento marcado para eliminación.</span>
                   </div>
                 )}
 
@@ -581,8 +580,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
                 {/* Alerta Roja: Archivo Eliminado */}
                 {esEdicion && documentoEliminado2 && (
                   <div className="alerta-archivo alerta-eliminado">
-                    <span>🗑️</span>
-                    <span>Documento 2 marcado para eliminación.</span>
+                    <span>Documento informe marcado para eliminación.</span>
                   </div>
                 )}
 

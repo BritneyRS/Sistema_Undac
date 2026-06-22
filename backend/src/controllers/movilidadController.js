@@ -20,8 +20,9 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (_req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
+  const nombreLimpio = file.originalname.replace(/\s+/g, "_");
+  const unique = Math.floor(Math.random() * 100000);
+  cb(null, `${unique}-${nombreLimpio}`);
   },
 });
 
