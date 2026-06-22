@@ -111,23 +111,17 @@ export default function TableMovilidades({
               <td className="td">{m.ciudaddestino}</td>
 
               {/* ── MODIFICADO: Nueva celda para el Ámbito (Nacional o Internacional) ── */}
-              <td className="td" style={{ textAlign: "center" }}>
-                <span
-                  className={`badge ${m.es_internacional ? 'badge-internacional' : 'badge-nacional'}`}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    display: "inline-block",
-                    whiteSpace: "nowrap",
-                    backgroundColor: m.es_internacional ? "#e8f5e9" : "#e3f2fd",
-                    color: m.es_internacional ? "#1b5e20" : "#0d47a1",
-                  }}
-                >
-                  {m.es_internacional ? 'Internacional' : 'Nacional'}
-                </span>
-              </td>
+              <td className="td td-centro">
+              <span
+                className={`badge-ambito ${
+                  m.es_internacional
+                    ? "badge-internacional"
+                    : "badge-nacional"
+                }`}
+              >
+                {m.es_internacional ? "Internacional" : "Nacional"}
+              </span>
+            </td>
 
               <td className="td">
                 {m.apoyoeconomico
@@ -150,18 +144,11 @@ export default function TableMovilidades({
               <td className="td">{m.numerosiaf || "-"}</td>
 
               {/* ── OBSERVACIÓN ── */}
-              <td className="td" style={{ maxWidth: 180 }}>
+              <td className="td td-observacion">
                 {m.observacion ? (
                   <span
                     title={m.observacion}
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      fontSize: 12,
-                      color: "#374151",
-                    }}
+                    className="texto-observacion"
                   >
                     {m.observacion}
                   </span>
@@ -171,16 +158,9 @@ export default function TableMovilidades({
               </td>
 
               {/* ── DOCUMENTOS ── */}
-              <td className="td" style={{ textAlign: "center" }}>
+              <td className="td td-centro">
                 {m.documento_nombre || m.documento2_nombre ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
+                  <div className="documentos-container">
                     {[
                       { nombre: m.documento_nombre, indice: 1 },
                       { nombre: m.documento2_nombre, indice: 2 },
@@ -188,38 +168,19 @@ export default function TableMovilidades({
                       .filter((doc) => doc.nombre)
                       .map((doc) => (
                         <button
-                          key={doc.indice}
-                          type="button"
-                          onClick={() =>
-                            movilidadesAPI.descargarDocumento(
-                              m.id,
-                              doc.nombre,
-                              doc.indice
-                            )
-                          }
-                          title={doc.nombre}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            color: "#796921",
-                            fontSize: 12,
-                            textDecoration: "none",
-                            background: "none",
-                            border: "none",
-                            padding: 0,
-                            cursor: "pointer",
-                          }}
-                        >
-                          <FaDownload style={{ flexShrink: 0 }} />
-                          <span
-                            style={{
-                              maxWidth: 120,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
+                            key={doc.indice}
+                            type="button"
+                            className="btn-documento"
+                            onClick={() =>
+                              movilidadesAPI.descargarDocumento(
+                                m.id,
+                                doc.nombre,
+                                doc.indice
+                              )
+                            }
                           >
+                          <FaDownload className="icono-documento" />
+                          <span className="nombre-documento">
                             {doc.nombre}
                           </span>
                         </button>

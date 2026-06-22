@@ -410,14 +410,7 @@ export default function Movilidades({ usuario }) {
     <div>
 
       {/* Encabezado */}
-      <div
-        className="header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}
-      >
+      <div className="header header-movilidad">
         <div>
           <h2 className="titulo">
             Movilidad Estudiantil
@@ -427,14 +420,7 @@ export default function Movilidades({ usuario }) {
           </p>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
+        <div className="header-botones">
           {esAdmin && (
             <button
               className="btn-nuevo"
@@ -590,7 +576,10 @@ export default function Movilidades({ usuario }) {
  
         {/* ── Filiales ── */}
         {tieneFiliales && (
-          <div ref={filialesRef} style={{ display: tieneFiliales ? "block" : "none" }} className="filtro-select">
+          <div
+              ref={filialesRef}
+              className={`filtro-select ${tieneFiliales ? "filtro-filiales" : ""}`}
+            >
             <button
               type="button"
               className="select-año multi-select-trigger"
@@ -673,25 +662,13 @@ export default function Movilidades({ usuario }) {
 
       {/* Estado */}
       {cargando && (
-        <p
-          style={{
-            textAlign: "center",
-            color: "#6b7280",
-            padding: 32,
-          }}
-        >
+        <p className="cargando-movilidades">
           Cargando movilidades...
         </p>
       )}
 
       {error && (
-        <p
-          style={{
-            textAlign: "center",
-            color: "#dc2626",
-            padding: 32,
-          }}
-        >
+        <p className="error-movilidades">
           {error}
         </p>
       )}
@@ -722,21 +699,12 @@ export default function Movilidades({ usuario }) {
       {/* Modal eliminar */}
       {confirmarElim !== null && (
         <div className="modal-bg">
-          <div
-            className="modal-caja"
-            style={{ maxWidth: 380 }}
-          >
+          <div className="modal-caja modal-eliminar">
             <p className="modal-titulo">
               ¿Eliminar movilidad?
             </p>
 
-            <p
-              style={{
-                fontSize: 13,
-                color: "#6b7280",
-                marginBottom: 16,
-              }}
-            >
+            <p className="texto-eliminar">
               Esta acción no se puede deshacer.
             </p>
 
