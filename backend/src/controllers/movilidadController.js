@@ -19,7 +19,6 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (_req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, unique + path.extname(file.originalname));
@@ -42,11 +41,11 @@ exports.upload = multer({
 
 // ─── LISTAR ─────────────────────────────────────
 exports.listar = async (req, res) => {
-
   const {
     semestre,
     escuela,
     busqueda,
+    es_internacional, // <-- NUEVO: Capturar el parámetro de filtro
   } = req.query;
 
   let query = "SELECT * FROM movilidades WHERE 1=1";
@@ -60,6 +59,12 @@ exports.listar = async (req, res) => {
   if (escuela && escuela !== "todos") {
     params.push(escuela);
     query += ` AND escuela = $${params.length}`;
+  }
+
+  // <-- NUEVO: Filtrar por tipo nacional/internacional
+  if (es_internacional && es_internacional !== "todos") {
+    params.push(es_internacional === "true");
+    query += ` AND es_internacional = $${params.length}`;
   }
 
   if (busqueda) {
@@ -78,7 +83,6 @@ exports.listar = async (req, res) => {
   try {
     const { rows } = await pool.query(query, params);
     res.json(rows);
-
   } catch (err) {
     console.error("Error al listar movilidades:", err);
     res.status(500).json({ error: "Error al obtener movilidades" });
@@ -88,7 +92,6 @@ exports.listar = async (req, res) => {
 
 // ─── OBTENER ────────────────────────────────────
 exports.obtener = async (req, res) => {
-
   try {
     const { rows } = await pool.query(
       `SELECT * FROM movilidades WHERE id = $1`,
@@ -102,7 +105,6 @@ exports.obtener = async (req, res) => {
     }
 
     res.json(rows[0]);
-
   } catch (err) {
     console.error("Error al obtener movilidad:", err);
     res.status(500).json({ error: "Error al obtener movilidad" });
@@ -112,7 +114,6 @@ exports.obtener = async (req, res) => {
 
 // ─── CREAR ──────────────────────────────────────
 exports.crear = async (req, res) => {
-
   const {
     nombres,
     semestre,
@@ -131,6 +132,7 @@ exports.crear = async (req, res) => {
     numeroresolucion,
     numerosiaf,
     observacion,
+    es_internacional, // <-- NUEVO
   } = req.body;
 
   if (!nombres || !semestre) {
@@ -142,16 +144,15 @@ exports.crear = async (req, res) => {
 
   try {
     // Contar movilidades previas del mismo alumno
-  const { rows: previas } = await pool.query(
-    `
-    SELECT COUNT(*) as total
-    FROM movilidades
-    WHERE UPPER(REPLACE(nombres, ',', '')) = $1
-    `,
-    [nombreNormalizado]
-  );
+    const { rows: previas } = await pool.query(
+      `
+      SELECT COUNT(*) as total
+      FROM movilidades
+      WHERE UPPER(REPLACE(nombres, ',', '')) = $1
+      `,
+      [nombreNormalizado]
+    );
 
-    
     const numIntercambio = Number(previas[0].total) + 1;
     // Archivos adjuntos (opcionales)
     const archivo1 = req.files?.documento1?.[0] || null;
@@ -185,10 +186,11 @@ exports.crear = async (req, res) => {
         documento_nombre,
         documento_ruta,
         documento2_nombre,
-        documento2_ruta
+        documento2_ruta,
+        es_internacional -- <-- NUEVA COLUMNA (Parámetro $23)
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23
       )
       RETURNING *
       `,
@@ -215,11 +217,11 @@ exports.crear = async (req, res) => {
         documento_ruta,
         documento2_nombre,
         documento2_ruta,
+        es_internacional === "true" || es_internacional === true, // <-- NUEVO: Convierte el valor a booleano
       ]
     );
 
     res.status(201).json(rows[0]);
-
   } catch (err) {
     console.error("Error al crear movilidad:", err);
     res.status(500).json({ error: "Error al crear movilidad" });
@@ -229,7 +231,6 @@ exports.crear = async (req, res) => {
 
 // ─── ACTUALIZAR ─────────────────────────────────
 exports.actualizar = async (req, res) => {
-
   const {
     nombres,
     semestre,
@@ -251,6 +252,7 @@ exports.actualizar = async (req, res) => {
     intercambio,
     borrar_documento,
     borrar_documento2,
+    es_internacional, // <-- NUEVO
   } = req.body;
 
   if (!nombres || !semestre) {
@@ -260,7 +262,6 @@ exports.actualizar = async (req, res) => {
   }
 
   try {
-
     const archivo1 = req.files?.documento1?.[0] || null;
     const archivo2 = req.files?.documento2?.[0] || null;
     const borrarDocumento1 = borrar_documento === "true" || borrar_documento === true;
@@ -323,8 +324,9 @@ exports.actualizar = async (req, res) => {
         beca = $11, tipobeca = $12, estado = $13, intercambio = $14,
         numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
         observacion = $18, documento_nombre = $19, documento_ruta = $20,
-        documento2_nombre = $21, documento2_ruta = $22
-      WHERE id = $23
+        documento2_nombre = $21, documento2_ruta = $22,
+        es_internacional = $23 -- <-- NUEVO (Parámetro $23)
+      WHERE id = $24 -- <-- Cambia a $24
       RETURNING *
     `;
 
@@ -336,6 +338,7 @@ exports.actualizar = async (req, res) => {
       intercambio || "1", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
       observacion || null, documento_nombre, documento_ruta,
       documento2_nombre, documento2_ruta,
+      es_internacional === "true" || es_internacional === true, // <-- NUEVO
       req.params.id,
     ];
 
@@ -348,7 +351,6 @@ exports.actualizar = async (req, res) => {
     }
 
     res.json(rows[0]);
-
   } catch (err) {
     console.error("Error al actualizar movilidad:", err);
     res.status(500).json({ error: "Error al actualizar movilidad" });
@@ -358,9 +360,7 @@ exports.actualizar = async (req, res) => {
 
 // ─── ELIMINAR ───────────────────────────────────
 exports.eliminar = async (req, res) => {
-
   try {
-
     // Borrar archivo adjunto si existe
     const { rows } = await pool.query(
       `SELECT documento_ruta FROM movilidades WHERE id = $1`,
@@ -385,7 +385,6 @@ exports.eliminar = async (req, res) => {
     res.json({
       mensaje: "Movilidad eliminada correctamente",
     });
-
   } catch (err) {
     console.error("Error al eliminar movilidad:", err);
     res.status(500).json({ error: "Error al eliminar movilidad" });
@@ -395,9 +394,7 @@ exports.eliminar = async (req, res) => {
 
 // ─── DESCARGAR DOCUMENTO ────────────────────────
 exports.descargarDocumento = async (req, res) => {
-
   try {
-
     const indice = Number(req.query.indice || 1);
     if (![1, 2].includes(indice)) {
       return res.status(400).json({ error: "Índice de documento inválido" });
@@ -423,7 +420,6 @@ exports.descargarDocumento = async (req, res) => {
     }
 
     res.download(filePath, rows[0].documento_nombre);
-
   } catch (err) {
     console.error("Error al descargar documento:", err);
     res.status(500).json({ error: "Error al descargar documento" });

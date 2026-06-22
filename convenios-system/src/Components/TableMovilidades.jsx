@@ -21,13 +21,13 @@ export default function TableMovilidades({
     return parseInt(ano + numeroLetra);
   };
 
-const ordenarPorPeriodo = useCallback((datos) => {
-  return [...datos].sort((a, b) => {
-    const numA = convertirPeriodoANumero(a.periodo);
-    const numB = convertirPeriodoANumero(b.periodo);
-    return numB - numA;
-  });
-}, []);
+  const ordenarPorPeriodo = useCallback((datos) => {
+    return [...datos].sort((a, b) => {
+      const numA = convertirPeriodoANumero(a.periodo);
+      const numB = convertirPeriodoANumero(b.periodo);
+      return numB - numA;
+    });
+  }, []);
 
   const [datos, setDatos] = useState(() => ordenarPorPeriodo(movilidadesProp));
 
@@ -47,6 +47,7 @@ const ordenarPorPeriodo = useCallback((datos) => {
     "Ciudad origen",
     "Universidad destino",
     "Ciudad destino",
+    "Ámbito", // <-- MODIFICADO: Agregada cabecera de la columna
     "Apoyo económico",
     "Beca",
     "Tipo de beca",
@@ -108,6 +109,25 @@ const ordenarPorPeriodo = useCallback((datos) => {
               <td className="td">{m.universidaddestino}</td>
 
               <td className="td">{m.ciudaddestino}</td>
+
+              {/* ── MODIFICADO: Nueva celda para el Ámbito (Nacional o Internacional) ── */}
+              <td className="td" style={{ textAlign: "center" }}>
+                <span
+                  className={`badge ${m.es_internacional ? 'badge-internacional' : 'badge-nacional'}`}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    display: "inline-block",
+                    whiteSpace: "nowrap",
+                    backgroundColor: m.es_internacional ? "#e8f5e9" : "#e3f2fd",
+                    color: m.es_internacional ? "#1b5e20" : "#0d47a1",
+                  }}
+                >
+                  {m.es_internacional ? 'Internacional' : 'Nacional'}
+                </span>
+              </td>
 
               <td className="td">
                 {m.apoyoeconomico

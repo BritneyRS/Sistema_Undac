@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { movilidadesAPI } from "../utils/api";
 
+
 const VACIO = {
   nombres: "",
   semestre: "",
@@ -21,6 +22,7 @@ const VACIO = {
   numerosiaf: "",
   observacion: "",
   movilidad: 1,
+  es_internacional: false, // <-- MODIFICADO: Agregado valor inicial
 };
 
 const SEMESTRES = ["IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
@@ -134,6 +136,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
         numerosiaf: registroActual.numerosiaf || "",
         observacion: registroActual.observacion || "",
         movilidad: registroActual.movilidad || 1,
+        es_internacional: registroActual.es_internacional ?? false, // <-- MODIFICADO: Recuperar de DB
       });
 
       const matched =
@@ -191,6 +194,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
     setForm((prev) => ({ ...prev, escuela: value + (sede ? " - " + sede : "") }));
   }
 
+  // Manejo de cambio de Sede
   function cambiarSede(e) {
     const sede = e.target.value;
     setSelectedSede(sede);
@@ -304,6 +308,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
       borrar_documento: documentoEliminado1 && !archivoNuevo1 ? "true" : undefined,
       borrar_documento2: documentoEliminado2 && !archivoNuevo2 ? "true" : undefined,
       movilidad: form.movilidad,
+      es_internacional: form.es_internacional === "true" || form.es_internacional === true, // <-- MODIFICADO: Envío seguro del valor
     };
 
     setTimeout(() => {
@@ -364,14 +369,6 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
             <Campo label="Período (Ej: 2026-A)">
               <input className="form-input" name="periodo" value={form.periodo} onChange={cambiar} />
             </Campo>
-
-            {/* <Campo label="Intercambio">
-              <select className="form-input" name="intercambio" value={form.intercambio} onChange={cambiar}>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </select>
-            </Campo>*/}
           </div>
 
           <Campo label="E.F.P. UNDAC (Escuela de Formación Profesional) *">
@@ -422,7 +419,18 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
               <input className="form-input" name="ciudad_destino" value={form.ciudad_destino} onChange={cambiar} />
             </Campo>
           </div>
-
+          {/* MODIFICADO: Agregada la selección de ámbito nacional/internacional en la 3ra columna del grid-3 */}
+                      <Campo label="Ámbito de Movilidad">
+                        <select 
+                          className="form-input" 
+                          name="es_internacional" 
+                          value={String(form.es_internacional)} 
+                          onChange={cambiar}
+                        >
+                          <option value="false">Nacional</option>
+                          <option value="true">Internacional</option>
+                        </select>
+                      </Campo>
           <Seccion titulo="Movilidad y financiamiento" clase="section-orange" />
 
           <div className="grid-3">
@@ -438,6 +446,8 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
             <Campo label="Apoyo económico (S/)">
               <input className="form-input" type="number" name="apoyo_economico" value={form.apoyo_economico} onChange={cambiar} min={0} />
             </Campo>
+
+            
           </div>
 
           <Seccion titulo="Beca" clase="section-blue" />
@@ -477,9 +487,6 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
             </Campo>
           </div>
 
-          {/* ══════════════════════════════════════════════ */}
-          {/* NUEVA SECCIÓN: OBSERVACIONES + DOCUMENTO       */}
-          {/* ══════════════════════════════════════════════ */}
           <Seccion titulo="Observaciones y documentos" clase="section-orange" />
 
           {/* Campo observación */}
@@ -495,110 +502,108 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
             />
           </Campo>
 
-            {/* Campo documento */}
-            <Campo label={<strong>Adjuntar documentos (PDF, Word, imagen — máx. 100 MB cada uno)</strong>}>
-              <div className="contenedor-documentos-global">
+          {/* Campo documento */}
+          <Campo label={<strong>Adjuntar documentos (PDF, Word, imagen — máx. 100 MB cada uno)</strong>}>
+            <div className="contenedor-documentos-global">
+              
+              {/* ================= GRUPO DOCUMENTO 1 ================= */}
+              <div className="grupo-documento">
+                <label className="form-label">Documento Expediente</label>
                 
-                {/* ================= GRUPO DOCUMENTO 1 ================= */}
-                <div className="grupo-documento">
-                  <label className="form-label">Documento Expediente</label>
-                  
-                  <input
-                    ref={fileInputRef1}
-                    type="file"
-                    accept={TIPOS_PERMITIDOS}
-                    onChange={cambiarArchivo1}
-                    className="form-input input-selector-archivo"
-                  />
-                  
-                  {/* Alerta Verde: Archivo Existente */}
-                  {esEdicion && documentoExistente && !archivoNuevo1 && !documentoEliminado1 && (
-                    <div className="alerta-archivo alerta-existente">
-                      <span>📄</span>
-                      <span className="nombre-archivo-texto">{documentoExistente}</span>
-                      <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documentoExistente, 1)}>
-                        Descargar
-                      </button>
-                      <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente1} title="Eliminar archivo">
-                        Eliminar
-                      </button>
-                    </div>
-                  )}
+                <input
+                  ref={fileInputRef1}
+                  type="file"
+                  accept={TIPOS_PERMITIDOS}
+                  onChange={cambiarArchivo1}
+                  className="form-input input-selector-archivo"
+                />
+                
+                {/* Alerta Verde: Archivo Existente */}
+                {esEdicion && documentoExistente && !archivoNuevo1 && !documentoEliminado1 && (
+                  <div className="alerta-archivo alerta-existente">
+                    <span>📄</span>
+                    <span className="nombre-archivo-texto">{documentoExistente}</span>
+                    <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documentoExistente, 1)}>
+                      Descargar
+                    </button>
+                    <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente1} title="Eliminar archivo">
+                      Eliminar
+                    </button>
+                  </div>
+                )}
 
-                  {/* Alerta Roja: Archivo Eliminado */}
-                  {esEdicion && documentoEliminado1 && (
-                    <div className="alerta-archivo alerta-eliminado">
-                      <span>🗑️</span>
-                      <span>Documento 1 marcado para eliminación.</span>
-                    </div>
-                  )}
+                {/* Alerta Roja: Archivo Eliminado */}
+                {esEdicion && documentoEliminado1 && (
+                  <div className="alerta-archivo alerta-eliminado">
+                    <span>🗑️</span>
+                    <span>Documento 1 marcado para eliminación.</span>
+                  </div>
+                )}
 
-                  {/* Alerta Azul: Archivo Nuevo Cargado */}
-                  {archivoNuevo1 && (
-                    <div className="alerta-archivo alerta-nuevo">
-                      <span>📎</span>
-                      <span className="nombre-archivo-texto azul">{archivoNuevo1.name}</span>
-                      <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo1} title="Quitar archivo">✕</button>
-                    </div>
-                  )}
-                  
-                  {archivoError1 && <p className="error-archivo-texto">{archivoError1}</p>}
-                </div>
-
-                {/* ================= GRUPO DOCUMENTO 2 ================= */}
-                <div className="grupo-documento">
-                  <label className="form-label">Documento Informe</label>
-                  
-                  <input
-                    ref={fileInputRef2}
-                    type="file"
-                    accept={TIPOS_PERMITIDOS}
-                    onChange={cambiarArchivo2}
-                    className="form-input input-selector-archivo"
-                  />
-
-                  {/* Alerta Verde: Archivo Existente */}
-                  {esEdicion && documento2Existente && !archivoNuevo2 && !documentoEliminado2 && (
-                    <div className="alerta-archivo alerta-existente">
-                      <span>📄</span>
-                      <span className="nombre-archivo-texto">{documento2Existente}</span>
-                      <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documento2Existente, 2)}>
-                        Descargar
-                      </button>
-                      <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente2} title="Eliminar archivo">
-                        Eliminar
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Alerta Roja: Archivo Eliminado */}
-                  {esEdicion && documentoEliminado2 && (
-                    <div className="alerta-archivo alerta-eliminado">
-                      <span>🗑️</span>
-                      <span>Documento 2 marcado para eliminación.</span>
-                    </div>
-                  )}
-
-                  {/* Alerta Azul: Archivo Nuevo Cargado */}
-                  {archivoNuevo2 && (
-                    <div className="alerta-archivo alerta-nuevo">
-                      <span>📎</span>
-                      <span className="nombre-archivo-texto azul">{archivoNuevo2.name}</span>
-                      <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo2} title="Quitar archivo">✕</button>
-                    </div>
-                  )}
-                  
-                  {archivoError2 && <p className="error-archivo-texto">{archivoError2}</p>}
-                </div>
-
-                {/* Formatos aceptados */}
-                <p className="formatos-leyenda">
-                  Formatos aceptados: PDF, DOC, DOCX, PNG, JPG · Máximo {MAX_MB} MB
-                </p>
+                {/* Alerta Azul: Archivo Nuevo Cargado */}
+                {archivoNuevo1 && (
+                  <div className="alerta-archivo alerta-nuevo">
+                    <span>📎</span>
+                    <span className="nombre-archivo-texto azul">{archivoNuevo1.name}</span>
+                    <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo1} title="Quitar archivo">✕</button>
+                  </div>
+                )}
+                
+                {archivoError1 && <p className="error-archivo-texto">{archivoError1}</p>}
               </div>
-            </Campo>
 
-          {/* ══════════════════════════════════════════════ */}
+              {/* ================= GRUPO DOCUMENTO 2 ================= */}
+              <div className="grupo-documento">
+                <label className="form-label">Documento Informe</label>
+                
+                <input
+                  ref={fileInputRef2}
+                  type="file"
+                  accept={TIPOS_PERMITIDOS}
+                  onChange={cambiarArchivo2}
+                  className="form-input input-selector-archivo"
+                />
+
+                {/* Alerta Verde: Archivo Existente */}
+                {esEdicion && documento2Existente && !archivoNuevo2 && !documentoEliminado2 && (
+                  <div className="alerta-archivo alerta-existente">
+                    <span>📄</span>
+                    <span className="nombre-archivo-texto">{documento2Existente}</span>
+                    <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documento2Existente, 2)}>
+                      Descargar
+                    </button>
+                    <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente2} title="Eliminar archivo">
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+
+                {/* Alerta Roja: Archivo Eliminado */}
+                {esEdicion && documentoEliminado2 && (
+                  <div className="alerta-archivo alerta-eliminado">
+                    <span>🗑️</span>
+                    <span>Documento 2 marcado para eliminación.</span>
+                  </div>
+                )}
+
+                {/* Alerta Azul: Archivo Nuevo Cargado */}
+                {archivoNuevo2 && (
+                  <div className="alerta-archivo alerta-nuevo">
+                    <span>📎</span>
+                    <span className="nombre-archivo-texto azul">{archivoNuevo2.name}</span>
+                    <button type="button" className="btn-quitar-nuevo" onClick={quitarArchivo2} title="Quitar archivo">✕</button>
+                  </div>
+                )}
+                
+                {archivoError2 && <p className="error-archivo-texto">{archivoError2}</p>}
+              </div>
+
+              {/* Formatos aceptados */}
+              <p className="formatos-leyenda">
+                Formatos aceptados: PDF, DOC, DOCX, PNG, JPG · Máximo {MAX_MB} MB
+              </p>
+            </div>
+          </Campo>
 
           <div className="modal-buttons">
             <button type="button" className="btn-cancel" onClick={onCerrar}>

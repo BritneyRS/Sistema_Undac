@@ -67,65 +67,47 @@ const EFP_CARRERA_MAP = EFP_RAW.reduce((acc, full) => {
  
 // Todas las carreras únicas (con o sin filiales), en orden
 const TODAS_CARRERAS = Object.keys(EFP_CARRERA_MAP).sort();
-//--------------- seccdion --------
+
 const obtenerSemestresUnicos = (datos) => {
   const semestres = new Set();
-
   datos.forEach((m) => {
     if (m.semestre) {
       semestres.add(m.semestre);
     }
   });
-
   return Array.from(semestres).sort().reverse();
 };
 
-/*const obtenerEscuelasUnicas = (datos) => {
-  const escuelas = new Set();
-
-  datos.forEach((m) => {
-    if (m.escuela) {
-      escuelas.add(m.escuela);
-    }
-  });
-  return Array.from(escuelas).sort();
-};*/
-
 const obtenerPeriodosUnicos = (datos) => {
   const periodos = new Set();
-
   datos.forEach((m) => {
     if (m.periodo) {
       periodos.add(m.periodo);
     }
   });
-
   return Array.from(periodos).sort();
 };
 
 const obtenerCiudadesDestinoUnicas = (datos) => {
   const ciudades = new Set();
-
   datos.forEach((m) => {
     if (m.ciudaddestino) {
       ciudades.add(m.ciudaddestino);
     }
   });
-
   return Array.from(ciudades).sort();
 };
 
 const obtenerBecasUnicas = (datos) => {
   const becas = new Set();
-
   datos.forEach((m) => {
     if (m.beca) {
       becas.add(m.beca);
     }
   });
-
   return Array.from(becas).sort();
 };
+
 //----------componente inicial----------------
 export default function Movilidades({ usuario }) {
 
@@ -135,78 +117,46 @@ export default function Movilidades({ usuario }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  const [filtroSemestre, setFiltroSemestre] =
-    useState("todos");
-
-  const [filtroPeriodo, setFiltroPeriodo] =
-    useState(["todos"]);
-
-  const [periodoDropdownAbierto, setPeriodoDropdownAbierto] =
-    useState(false);
-
+  const [filtroSemestre, setFiltroSemestre] = useState("todos");
+  const [filtroPeriodo, setFiltroPeriodo] = useState(["todos"]);
+  const [periodoDropdownAbierto, setPeriodoDropdownAbierto] = useState(false);
   const filtroPeriodoRef = useRef(null);
 
-  const [filtroCiudadDestino, setFiltroCiudadDestino] =
-    useState("todos");
-
-  const [filtroBeca, setFiltroBeca] =
-    useState("todos");
-
-  /*const [filtroEscuela, setFiltroEscuela] =
-    useState("todos");*/
-  const [filtroCarrera, setFiltroCarrera] =
-   useState("todos");
-  const [filtroFiliales,          setFiltroFiliales]          = useState(["todos"]);
+  const [filtroCiudadDestino, setFiltroCiudadDestino] = useState("todos");
+  const [filtroBeca, setFiltroBeca] = useState("todos");
+  const [filtroCarrera, setFiltroCarrera] = useState("todos");
+  const [filtroFiliales, setFiltroFiliales] = useState(["todos"]);
   const [filialesDropdownAbierto, setFilialesDropdownAbierto] = useState(false);
   const filialesRef = useRef(null);
  
-
-  const [filtroEstado, setFiltroEstado] =
-    useState("todos"); 
+  const [filtroEstado, setFiltroEstado] = useState("todos"); 
+  const [filtroAmbito, setFiltroAmbito] = useState("todos"); // <-- NUEVO: Estado para el filtro nacional/internacional
 
   const [busqueda, setBusqueda] = useState("");
-
-  const [modalAbierto, setModalAbierto] =
-    useState(false);
-
-  const [movilidadEditar, setMovilidadEditar] =
-    useState(null);
-
-  const [confirmarElim, setConfirmarElim] =
-    useState(null);
-
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [movilidadEditar, setMovilidadEditar] = useState(null);
+  const [confirmarElim, setConfirmarElim] = useState(null);
   const [toast, setToast] = useState(null);
 
   // ─── Cargar datos ───────────────────────────────
   const cargarDatos = useCallback(async () => {
-
-  setCargando(true);
-  setError(null);
-
-  try {
-
-    const filas = await movilidadesAPI.listar();
-
-    console.log("DATOS:", filas);
-
-    setDatos(filas);
-
-  } catch (err) {
-
-    console.error("ERROR:", err);
-
-    setError(
-      err.message ||
-      "No se pudo conectar con el servidor."
-    );
-
-  } finally {
-
-    setCargando(false);
-
-  }
-
+    setCargando(true);
+    setError(null);
+    try {
+      const filas = await movilidadesAPI.listar();
+      console.log("DATOS:", filas);
+      setDatos(filas);
+    } catch (err) {
+      console.error("ERROR:", err);
+      setError(
+        err.message ||
+        "No se pudo conectar con el servidor."
+      );
+    } finally {
+      setCargando(false);
+    }
   }, []);
+
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
@@ -220,15 +170,13 @@ export default function Movilidades({ usuario }) {
         setPeriodoDropdownAbierto(false);
       }
     };
-
     document.addEventListener("mousedown", manejarClickFuera);
-
     return () => {
       document.removeEventListener("mousedown", manejarClickFuera);
     };
   }, []);
 
-    // Al cambiar carrera → resetear filiales
+  // Al cambiar carrera → resetear filiales
   useEffect(() => {
     setFiltroFiliales(["todos"]);
     setFilialesDropdownAbierto(false);
@@ -238,7 +186,6 @@ export default function Movilidades({ usuario }) {
     if (filtroPeriodo.includes("todos") || filtroPeriodo.length === 0) {
       return "Todos los periodos";
     }
-
     return filtroPeriodo.join(", ");
   }
 
@@ -247,7 +194,6 @@ export default function Movilidades({ usuario }) {
       setFiltroPeriodo(["todos"]);
       return;
     }
-
     const seleccionActual = filtroPeriodo.includes("todos")
       ? []
       : [...filtroPeriodo];
@@ -256,7 +202,6 @@ export default function Movilidades({ usuario }) {
       const nuevaSeleccion = seleccionActual.filter(
         (item) => item !== valor
       );
-
       setFiltroPeriodo(
         nuevaSeleccion.length === 0 ? ["todos"] : nuevaSeleccion
       );
@@ -264,8 +209,8 @@ export default function Movilidades({ usuario }) {
       setFiltroPeriodo([...seleccionActual, valor]);
     }
   }
-    // ─── Multi-select filiales ────────────────────────────────
-  // Solo se activa si la carrera seleccionada tiene más de 1 filial
+
+  // ─── Multi-select filiales ────────────────────────────────
   const tieneFiliales = filtroCarrera !== "todos" &&
     (EFP_CARRERA_MAP[filtroCarrera]?.length || 0) > 1;
  
@@ -297,119 +242,61 @@ export default function Movilidades({ usuario }) {
 
   // ─── Toast ──────────────────────────────────────
   function mostrarToast(msg, tipo = "ok") {
-
     setToast({ msg, tipo });
-
     setTimeout(() => {
-
       setToast(null);
-
     }, 3000);
   }
 
   // ─── Filtros dinámicos ──────────────────────────
   const TABS_SEMESTRE = [
-    {
-      id: "todos",
-      label: "Todos los semestres",
-    },
-
-    ...obtenerSemestresUnicos(datos).map((s) => ({
-      id: s,
-      label: s,
-    })),
+    { id: "todos", label: "Todos los semestres" },
+    ...obtenerSemestresUnicos(datos).map((s) => ({ id: s, label: s })),
   ];
 
   const TABS_PERIODO = [
-    {
-      id: "todos",
-      label: "Todos los periodos",
-    },
-
-    ...obtenerPeriodosUnicos(datos).map((p) => ({
-      id: p,
-      label: p,
-    })),
+    { id: "todos", label: "Todos los periodos" },
+    ...obtenerPeriodosUnicos(datos).map((p) => ({ id: p, label: p })),
   ];
 
   const TABS_CIUDAD_DESTINO = [
-    {
-      id: "todos",
-      label: "Todas las ciudades destino",
-    },
-
-    ...obtenerCiudadesDestinoUnicas(datos).map((c) => ({
-      id: c,
-      label: c,
-    })),
+    { id: "todos", label: "Todas las ciudades destino" },
+    ...obtenerCiudadesDestinoUnicas(datos).map((c) => ({ id: c, label: c })),
   ];
 
   const TABS_BECA = [
-    {
-      id: "todos",
-      label: "Beca",
-    },
-
-    ...obtenerBecasUnicas(datos).map((b) => ({
-      id: b,
-      label: b,
-    })),
+    { id: "todos", label: "Beca" },
+    ...obtenerBecasUnicas(datos).map((b) => ({ id: b, label: b })),
   ];
 
-  /*const TABS_ESCUELA = [
-    {
-      id: "todos",
-      label: "Todas las escuelas",
-    },
-
-    ...obtenerEscuelasUnicas(datos).map((e) => ({
-      id: e,
-      label: e,
-    })),
-  ];*/
   const TABS_ESTADO = [
-    {
-      id: "todos",
-      label: "Todos los estados",
-    },
-    ...["activo", "pendiente", "finalizado", "desistido"].map((e) => ({
-      id: e,
-      label: e,
-    })),
+    { id: "todos", label: "Todos los estados" },
+    ...["activo", "pendiente", "finalizado", "desistido"].map((e) => ({ id: e, label: e })),
   ];
 
   function normalizarTexto(texto) {
-  return String(texto || "")
-    .normalize("NFD")                  // separa las tildes
-    .replace(/[\u0300-\u036f]/g, "")   // elimina las tildes
-    .toUpperCase()
-    .replace(/,/g, "")
-    .trim()
-    .split(/\s+/)
-    .sort()
-    .join(" ");
-}
+    return String(texto || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/,/g, "")
+      .trim()
+      .split(/\s+/)
+      .sort()
+      .join(" ");
+  }
 
   // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
-
     const term = normalizarTexto(busqueda);
     const resolucion = normalizarTexto(m.numeroresolucion);
 
-
     const porBusqueda =
       busqueda === "" ||
-
-      normalizarTexto(m.nombres)
-      .includes(term) ||
-      
-
-      normalizarTexto(m.universidaddestino)
-      .includes(term) ||
-
+      normalizarTexto(m.nombres).includes(term) ||
+      normalizarTexto(m.universidaddestino).includes(term) ||
       resolucion.includes(term);
       
-
     const porSemestre =
       filtroSemestre === "todos" ||
       m.semestre === filtroSemestre;
@@ -428,20 +315,13 @@ export default function Movilidades({ usuario }) {
       m.beca === filtroBeca;
 
     // ── Filtro unificado escuela/carrera + filiales ──────────
-    // Caso 1: no hay carrera seleccionada → mostrar todo
-    // Caso 2: carrera sin filiales → filtrar por prefijo exacto
-    // Caso 3: carrera con filiales y filiales específicas → filtrar por valor exacto
-    // Caso 4: carrera con filiales pero "todas" → mostrar todas sus filiales
     let porEscuela = true;
     if (filtroCarrera !== "todos") {
       if (!tieneFiliales) {
-        // Carrera sin filiales: la escuela del registro debe ser exactamente la única opción
         porEscuela = m.escuela && m.escuela.startsWith(filtroCarrera);
       } else if (filtroFiliales.includes("todos") || filtroFiliales.length === 0) {
-        // Carrera con filiales, todas seleccionadas
         porEscuela = m.escuela && m.escuela.startsWith(filtroCarrera);
       } else {
-        // Carrera con filiales, filiales específicas elegidas
         porEscuela = filtroFiliales.includes(m.escuela);
       }
     }
@@ -450,6 +330,12 @@ export default function Movilidades({ usuario }) {
       filtroEstado === "todos" ||
       m.estado === filtroEstado;
 
+    // <-- NUEVO: Filtrado lógico por ámbito nacional o internacional
+    const porAmbito =
+      filtroAmbito === "todos" ||
+      (filtroAmbito === "internacional" && m.es_internacional === true) ||
+      (filtroAmbito === "nacional" && !m.es_internacional);
+
     return (
       porBusqueda &&
       porSemestre &&
@@ -457,65 +343,48 @@ export default function Movilidades({ usuario }) {
       porCiudadDestino &&
       porBeca &&
       porEstado &&
-      porEscuela
+      porEscuela &&
+      porAmbito // <-- NUEVO: Inyección de la condición del filtro
     );
-
   });
 
   // ─── CRUD ──────────────────────────────────────
   function abrirNuevo() {
-
     setMovilidadEditar(null);
-
     setModalAbierto(true);
   }
 
   function abrirEditar(movilidad) {
-
     setMovilidadEditar(movilidad);
-
     setModalAbierto(true);
   }
 
   function cerrarModal() {
-
     setModalAbierto(false);
-
     setMovilidadEditar(null);
   }
 
   async function guardarMovilidad(form, archivo1 = null, archivo2 = null) {
-
     try {
-
       if (movilidadEditar) {
-
         await movilidadesAPI.actualizar(
           movilidadEditar.id,
           form,
           archivo1,
           archivo2
         );
-
         mostrarToast(
           "Movilidad actualizada correctamente."
         );
-
       } else {
-
         await movilidadesAPI.crear(form, archivo1, archivo2);
-
         mostrarToast(
           "Movilidad creada correctamente."
         );
       }
-
       cerrarModal();
-
       cargarDatos();
-
     } catch (err) {
-
       mostrarToast(
         err.message || "Error al guardar.",
         "warn"
@@ -524,19 +393,12 @@ export default function Movilidades({ usuario }) {
   }
 
   async function confirmarEliminar() {
-
     try {
-
       await movilidadesAPI.eliminar(confirmarElim);
-
       mostrarToast("Movilidad eliminada.");
-
       setConfirmarElim(null);
-
       cargarDatos();
-
     } catch (err) {
-
       mostrarToast(
         err.message || "Error al eliminar.",
         "warn"
@@ -556,17 +418,13 @@ export default function Movilidades({ usuario }) {
           alignItems: "flex-start",
         }}
       >
-
         <div>
-
           <h2 className="titulo">
             Movilidad Estudiantil
           </h2>
-
           <p className="subtitulo">
             Estudiantes de pregrado por facultad y escuela que realizan movilidad estudiantil academica en universidades nacionales o extranjeras
           </p>
-
         </div>
 
         <div
@@ -577,19 +435,13 @@ export default function Movilidades({ usuario }) {
             alignItems: "center",
           }}
         >
-
           {esAdmin && (
             <button
               className="btn-nuevo"
               onClick={abrirNuevo}
             >
-
-              <FaPlus
-                style={{ marginRight: 6 }}
-              />
-
+              <FaPlus style={{ marginRight: 6 }} />
               Nueva movilidad
-
             </button>
           )}
 
@@ -602,13 +454,8 @@ export default function Movilidades({ usuario }) {
               )
             }
           >
-
-            <FaFileExcel
-              style={{ marginRight: 6 }}
-            />
-
+            <FaFileExcel style={{ marginRight: 6 }} />
             Excel
-
           </button>
 
           <button
@@ -620,15 +467,9 @@ export default function Movilidades({ usuario }) {
               )
             }
           >
-
-            <FaFilePdf
-              style={{ marginRight: 6 }}
-            />
-
+            <FaFilePdf style={{ marginRight: 6 }} />
             PDF
-
           </button>
-
         </div>
       </div>
 
@@ -637,7 +478,6 @@ export default function Movilidades({ usuario }) {
 
         {/* Filtro semestre */}
         <div className="filtro-select">
-
           <select
             value={filtroSemestre}
             onChange={(e) =>
@@ -645,7 +485,6 @@ export default function Movilidades({ usuario }) {
             }
             className="select-año"
           >
-
             {TABS_SEMESTRE.map((t) => (
               <option
                 key={t.id}
@@ -654,14 +493,11 @@ export default function Movilidades({ usuario }) {
                 {t.label}
               </option>
             ))}
-
           </select>
-
         </div>
 
         {/* Filtro periodo */}
         <div className="filtro-select" ref={filtroPeriodoRef}>
-
           <button
             type="button"
             className="select-año multi-select-trigger"
@@ -694,12 +530,10 @@ export default function Movilidades({ usuario }) {
               ))}
             </div>
           )}
-
         </div>
 
         {/* Filtro ciudad destino */}
         <div className="filtro-select">
-
           <select
             value={filtroCiudadDestino}
             onChange={(e) =>
@@ -707,7 +541,6 @@ export default function Movilidades({ usuario }) {
             }
             className="select-año"
           >
-
             {TABS_CIUDAD_DESTINO.map((t) => (
               <option
                 key={t.id}
@@ -716,14 +549,11 @@ export default function Movilidades({ usuario }) {
                 {t.label}
               </option>
             ))}
-
           </select>
-
         </div>
 
         {/* Filtro beca */}
         <div className="filtro-select">
-
           <select
             value={filtroBeca}
             onChange={(e) =>
@@ -731,7 +561,6 @@ export default function Movilidades({ usuario }) {
             }
             className="select-año"
           >
-
             {TABS_BECA.map((t) => (
               <option
                 key={t.id}
@@ -740,12 +569,10 @@ export default function Movilidades({ usuario }) {
                 {t.label}
               </option>
             ))}
-
           </select>
-
         </div>
 
-                {/* ── Escuela / Carrera (filtro único) ── */}
+        {/* ── Escuela / Carrera (filtro único) ── */}
         <div className="filtro-select">
           <select
             value={filtroCarrera}
@@ -761,10 +588,9 @@ export default function Movilidades({ usuario }) {
           </select>
         </div>
  
-        {/* ── Filiales (multi, aparece SOLO si la carrera elegida tiene más de 1 filial) ── */}
+        {/* ── Filiales ── */}
         {tieneFiliales && (
-            <div ref={filialesRef} style={{ display: tieneFiliales ? "block" : "none" }} className="filtro-select">
-
+          <div ref={filialesRef} style={{ display: tieneFiliales ? "block" : "none" }} className="filtro-select">
             <button
               type="button"
               className="select-año multi-select-trigger"
@@ -793,9 +619,9 @@ export default function Movilidades({ usuario }) {
             )}
           </div>
         )}
+
         {/* Filtro estado */}
         <div className="filtro-select">
-
           <select
             value={filtroEstado}
             onChange={(e) =>
@@ -803,7 +629,6 @@ export default function Movilidades({ usuario }) {
             }
             className="select-año"
           >
-
             {TABS_ESTADO.map((t) => (
               <option
                 key={t.id}
@@ -812,9 +637,20 @@ export default function Movilidades({ usuario }) {
                 {t.label}
               </option>
             ))}
-
           </select>
+        </div>
 
+        {/* ── NUEVO: Filtro ámbito (Nacional / Internacional) ── */}
+        <div className="filtro-select">
+          <select
+            value={filtroAmbito}
+            onChange={(e) => setFiltroAmbito(e.target.value)}
+            className="select-año"
+          >
+            <option value="todos">Todos los ámbitos</option>
+            <option value="nacional">Nacional</option>
+            <option value="internacional">Internacional</option>
+          </select>
         </div>
 
         {/* Buscador */}
@@ -862,9 +698,7 @@ export default function Movilidades({ usuario }) {
 
       {/* Tabla */}
       {!cargando && !error && (
-
         <div className="tabla-card">
-
           <TableMovilidades
             movilidades={movilidadesFiltradas}
             esAdmin={esAdmin}
@@ -873,32 +707,25 @@ export default function Movilidades({ usuario }) {
               setConfirmarElim(id)
             }
           />
-
         </div>
-
       )}
 
       {/* Modal CRUD */}
       {modalAbierto && (
-
         <ModalMovilidad
           registro={movilidadEditar}
           onGuardar={guardarMovilidad}
           onCerrar={cerrarModal}
         />
-
       )}
 
       {/* Modal eliminar */}
       {confirmarElim !== null && (
-
         <div className="modal-bg">
-
           <div
             className="modal-caja"
             style={{ maxWidth: 380 }}
           >
-
             <p className="modal-titulo">
               ¿Eliminar movilidad?
             </p>
@@ -914,7 +741,6 @@ export default function Movilidades({ usuario }) {
             </p>
 
             <div className="modal-btns">
-
               <button
                 className="btn-cancelar"
                 onClick={() =>
@@ -930,13 +756,9 @@ export default function Movilidades({ usuario }) {
               >
                 Eliminar
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
       {/* Toast */}
