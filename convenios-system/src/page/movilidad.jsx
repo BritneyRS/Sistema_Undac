@@ -280,22 +280,28 @@ export default function Movilidades({ usuario }) {
       .replace(/[\u0300-\u036f]/g, "")
       .toUpperCase()
       .replace(/,/g, "")
-      .trim()
-      .split(/\s+/)
-      .sort()
-      .join(" ");
+      .trim();
   }
 
   // ─── Filtrado ──────────────────────────────────
   const movilidadesFiltradas = datos.filter((m) => {
-    const term = normalizarTexto(busqueda);
-    const resolucion = normalizarTexto(m.numeroresolucion);
+
+
+   const palabrasBusqueda = normalizarTexto(busqueda)
+      .split(/\s+/)
+      .filter(Boolean);
+
+    const textoCompleto = [
+      m.nombres,
+      m.universidaddestino,
+      m.numeroresolucion,
+    ].map(normalizarTexto).join(" ");
 
     const porBusqueda =
       busqueda === "" ||
-      normalizarTexto(m.nombres).includes(term) ||
-      normalizarTexto(m.universidaddestino).includes(term) ||
-      resolucion.includes(term);
+      palabrasBusqueda.every((palabra) =>
+        textoCompleto.includes(palabra)
+      );
       
     const porSemestre =
       filtroSemestre === "todos" ||

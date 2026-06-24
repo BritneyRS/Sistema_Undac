@@ -349,7 +349,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
                 name="nombres"
                 value={form.nombres}
                 onChange={cambiar}
-                placeholder="Apellidos y nombres completos"
+                placeholder="APELLIDOS, nombres completos"
               />
             </Campo>
 
@@ -526,7 +526,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
                     <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documentoExistente, 1)}>
                       Descargar
                     </button>
-                    <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente1} title="Eliminar archivo">
+                    <button type="button" className="btn-archivo btn-eliminar-2" onClick={quitarDocumentoExistente1} title="Eliminar archivo">
                       Eliminar
                     </button>
                   </div>
