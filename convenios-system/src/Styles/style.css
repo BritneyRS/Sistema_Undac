@@ -1466,8 +1466,15 @@ input[type="checkbox"] {
 .documentos-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
+}
+
+.documento-item {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .btn-documento {
@@ -1481,6 +1488,14 @@ input[type="checkbox"] {
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+.btn-previsualizar {
+  color: #1f6feb;
+}
+
+.btn-documento:hover {
+  text-decoration: underline;
 }
 
 .icono-documento {

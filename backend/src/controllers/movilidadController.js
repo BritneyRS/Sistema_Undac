@@ -397,6 +397,7 @@ exports.eliminar = async (req, res) => {
 exports.descargarDocumento = async (req, res) => {
   try {
     const indice = Number(req.query.indice || 1);
+    const preview = req.query.preview === "true" || req.query.preview === "1";
     if (![1, 2].includes(indice)) {
       return res.status(400).json({ error: "Índice de documento inválido" });
     }
@@ -418,6 +419,14 @@ exports.descargarDocumento = async (req, res) => {
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: "Archivo no encontrado en el servidor" });
+    }
+
+    if (preview) {
+      return res.sendFile(filePath, {
+        headers: {
+          "Content-Disposition": `inline; filename="${rows[0].documento_nombre}"`,
+        },
+      });
     }
 
     res.download(filePath, rows[0].documento_nombre);

@@ -38,6 +38,9 @@ convenios-system/build
 .env.test.local
 .env.production.local
 
+# Archivos subidos por usuarios
+backend/uploads/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

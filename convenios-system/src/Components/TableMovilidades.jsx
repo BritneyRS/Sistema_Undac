@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaEdit, FaTrash, FaDownload } from "react-icons/fa";
+import { FaEdit, FaTrash, FaDownload, FaEye } from "react-icons/fa";
 import { movilidadesAPI } from "../utils/api";
 
 
@@ -167,8 +167,22 @@ export default function TableMovilidades({
                     ]
                       .filter((doc) => doc.nombre)
                       .map((doc) => (
-                        <button
-                            key={doc.indice}
+                        <div key={doc.indice} className="documento-item">
+                          <button
+                            type="button"
+                            className="btn-documento btn-previsualizar"
+                            onClick={() =>
+                              movilidadesAPI
+                                .previsualizarDocumento(m.id, doc.indice)
+                                .catch((err) => alert(err.message || "Error al previsualizar"))
+                            }
+                            title="Ver"
+                          >
+                            <FaEye className="icono-documento" />
+                            
+                          </button>
+
+                          <button
                             type="button"
                             className="btn-documento"
                             onClick={() =>
@@ -178,18 +192,21 @@ export default function TableMovilidades({
                                 doc.indice
                               )
                             }
+                            title="Descargar documento"
                           >
-                          <FaDownload className="icono-documento" />
-                          <span className="nombre-documento">
-                            {doc.nombre}
-                          </span>
-                        </button>
+                            <FaDownload className="icono-documento" />
+                            <span className="nombre-documento">
+                              {doc.nombre}
+                            </span>
+                          </button>
+                        </div>
                       ))}
                   </div>
                 ) : (
                   <span className="sin-registro">-</span>
                 )}
               </td>
+              
 
               {esAdmin && (
                 <td className="td td-acciones">

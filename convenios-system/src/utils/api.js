@@ -153,6 +153,34 @@ export const movilidadesAPI = {
     URL.revokeObjectURL(urlBlob);
   },
 
+  previsualizarDocumento: async (id, indice = 1) => {
+    const token = getToken();
+    const url = new URL(BASE_URL + `/movilidades/${id}/documento`);
+    url.searchParams.set('indice', String(indice));
+    url.searchParams.set('preview', 'true');
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || 'Error al previsualizar el documento');
+    }
+
+    const blob = await res.blob();
+    const urlBlob = URL.createObjectURL(blob);
+    window.open(urlBlob, '_blank');
+    setTimeout(() => URL.revokeObjectURL(urlBlob), 10000);
+  },
+
   // URL para descargar el documento adjunto de una movilidad
-  urlDocumento: (id) => `${BASE_URL}/movilidades/${id}/documento`,
+  urlDocumento: (id, indice = 1, preview = false) => {
+    const url = new URL(BASE_URL + `/movilidades/${id}/documento`);
+    url.searchParams.set('indice', String(indice));
+    if (preview) url.searchParams.set('preview', 'true');
+    return url.toString();
+  },
 };
