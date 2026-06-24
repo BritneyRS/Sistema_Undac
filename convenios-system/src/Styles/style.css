@@ -1471,10 +1471,10 @@ input[type="checkbox"] {
 }
 
 .documento-item {
-  display: flex;
+display: flex !important;
+  flex-direction: row !important; /* Fuerza a que se pongan uno al lado del otro */
+  align-items: center !important;  /* Los centra verticalmente */
   gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
 }
 
 .btn-documento {

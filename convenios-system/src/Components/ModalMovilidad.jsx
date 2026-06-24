@@ -571,7 +571,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
                     <button type="button" className="btn-archivo btn-descargar" onClick={() => movilidadesAPI.descargarDocumento(registroActual.id, documento2Existente, 2)}>
                       Descargar
                     </button>
-                    <button type="button" className="btn-archivo btn-eliminar" onClick={quitarDocumentoExistente2} title="Eliminar archivo">
+                    <button type="button" className="btn-archivo btn-eliminar-2" onClick={quitarDocumentoExistente2} title="Eliminar archivo">
                       Eliminar
                     </button>
                   </div>
