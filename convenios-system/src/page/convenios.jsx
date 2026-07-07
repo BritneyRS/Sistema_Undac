@@ -139,13 +139,13 @@ export default function Convenios({ usuario }) {
   function abrirEditar(conv)  { setConvenioEditar(conv);     setModalAbierto(true); }
   function cerrarModal()      { setModalAbierto(false);      setConvenioEditar(null); }
 
-  async function guardarConvenio(form) {
+  async function guardarConvenio(form, archivo = null, borrarDocumento = false) {
     try {
       if (convenioEditar) {
-        await conveniosAPI.actualizar(convenioEditar.id, form);
+        await conveniosAPI.actualizar(convenioEditar.id, form, archivo, borrarDocumento);
         mostrarToast("Convenio actualizado correctamente.");
       } else {
-        await conveniosAPI.crear(form);
+        await conveniosAPI.crear(form, archivo);
         mostrarToast("Convenio creado correctamente.");
       }
       cerrarModal();

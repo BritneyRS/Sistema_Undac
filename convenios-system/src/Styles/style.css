@@ -353,7 +353,23 @@
   cursor: pointer;
 }
 
-
+.td-do {
+    text-align: center;
+}
+.con-btn-doc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #25eb9f;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+.con-docnom {
+    font-size: 12px;
+    
+}
 
 /* modal convenios */
 

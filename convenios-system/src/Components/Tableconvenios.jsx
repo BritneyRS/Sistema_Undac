@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import SemaforoP from "./SemaforoP";
 import { formatearFecha } from "../utils/semaforo";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaDownload } from "react-icons/fa";
+import { conveniosAPI } from "../utils/api";
+import style from "../Styles/style.css";
 
 const OPORTUNIDADES = [
   { key: "practicas",       label: "Prácticas" },
@@ -85,7 +87,7 @@ export default function Tableconvenios({ convenios: conveniosProp, esAdmin, onEd
   const columnas = [
     "N°", "Nombre del convenio", "Convenio", "Tipo de oportunidad",
     "Tipo de convenio", "Inicio", "Fin", "Duración", "Resolución",
-    "Semáforo", "Resultados obtenidos",
+    "Semáforo", "Resultados obtenidos", "Documento",
     ...(esAdmin ? ["Acciones"] : []),
   ];
 
@@ -121,6 +123,25 @@ export default function Tableconvenios({ convenios: conveniosProp, esAdmin, onEd
                 <td className="td"><SemaforoP fechaFin={c.fin} /></td>
                 <td className="td td-resultados">
                   {c.resultados || c.Resultados || <span className="sin-registro">Sin registro</span>}
+                </td>
+                {/*Documento*/}
+                <td className="td-do">
+                  {c.documento_nombre ? (
+                    <button
+                      type="button"
+                      className="con-btn-doc"
+                      onClick={() => conveniosAPI.descargarDocumento(c.id, c.documento_nombre)}
+                      title={c.documento_nombre}
+                      
+                    >
+                      <FaDownload />
+                      <span className="con-docnom">
+                        {c.documento_nombre}
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="sin-registro">Sin archivo</span>
+                  )}
                 </td>
                 {esAdmin && (
                   <td className="td td-acciones">

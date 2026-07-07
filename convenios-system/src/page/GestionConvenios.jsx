@@ -202,7 +202,7 @@ function ModalConfirmar({ mensaje, onConfirmar, onCancelar }) {
 export default function GestionConvenios() {
   const [datos, setDatos] = useState(datosIniciales);
   const [busqueda, setBusqueda] = useState("");
-  const [modal, setModal] = useState(null); // null | { tipo: "nuevo" | "editar" | "eliminar", convenio }
+  const [modal, setModal] = useState(null); 
   const [toast, setToast] = useState(null);
 
   const datosFiltrados = datos.filter((c) =>

@@ -77,6 +77,43 @@ async function requestFormData(endpoint, method, datos, archivo1 = null, archivo
   return data;
 }
 
+async function requestFormDataSingle(endpoint, method, datos, archivo = null) {
+  const token = getToken();
+  const formData = new FormData();
+
+  Object.entries(datos).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      formData.append(key, value);
+    }
+  });
+
+  if (archivo) {
+    formData.append('documento', archivo);
+  }
+
+  const res = await fetch(BASE_URL + endpoint, {
+    method,
+    headers: {
+      ...(token ? { Authorization: 'Bearer ' + token } : {}),
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    if (token) window.location.reload();
+    throw new Error(data?.error || 'No autorizado');
+  }
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Error en la petición');
+  }
+
+  return data;
+}
+
 // Auth
 export const authAPI = {
   login: (usuario, password) =>
@@ -97,9 +134,39 @@ export const conveniosAPI = {
     return request('/convenios' + (qs ? '?' + qs : ''));
   },
   obtener:    (id)        => request('/convenios/' + id),
-  crear:      (datos)     => request('/convenios',       { method: 'POST',   body: JSON.stringify(datos) }),
-  actualizar: (id, datos) => request('/convenios/' + id, { method: 'PUT',    body: JSON.stringify(datos) }),
+  crear:      (datos, archivo = null) => requestFormDataSingle('/convenios', 'POST', datos, archivo),
+  actualizar: (id, datos, archivo = null, borrarDocumento = false) => {
+    const payload = {
+      ...datos,
+      ...(borrarDocumento ? { borrar_documento: 'true' } : {}),
+    };
+    return requestFormDataSingle('/convenios/' + id, 'PUT', payload, archivo);
+  },
   eliminar:   (id)        => request('/convenios/' + id, { method: 'DELETE' }),
+  descargarDocumento: async (id, nombreArchivo) => {
+    const token = getToken();
+    const res = await fetch(BASE_URL + '/convenios/' + id + '/documento', {
+      headers: {
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || 'Error al descargar el documento');
+    }
+
+    const blob = await res.blob();
+    const urlBlob = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = urlBlob;
+    link.download = nombreArchivo || 'documento';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(urlBlob);
+  },
+  urlDocumento: (id) => BASE_URL + '/convenios/' + id + '/documento',
 };
 
 // Movilidades
