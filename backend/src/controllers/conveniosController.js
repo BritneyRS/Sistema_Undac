@@ -216,6 +216,7 @@ exports.eliminar = async (req, res) => {
 
 exports.descargarDocumento = async (req, res) => {
   try {
+    const preview = req.query.preview === 'true' || req.query.preview === '1';
     const { rows } = await pool.query(
       'SELECT documento_nombre, documento_ruta FROM convenios WHERE id = $1',
       [req.params.id]
@@ -228,6 +229,14 @@ exports.descargarDocumento = async (req, res) => {
     const filePath = path.join(UPLOAD_DIR, rows[0].documento_ruta);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Archivo no encontrado en el servidor' });
+    }
+
+    if (preview) {
+      return res.sendFile(filePath, {
+        headers: {
+          'Content-Disposition': `inline; filename="${rows[0].documento_nombre || 'documento'}"`,
+        },
+      });
     }
 
     res.download(filePath, rows[0].documento_nombre || 'documento');

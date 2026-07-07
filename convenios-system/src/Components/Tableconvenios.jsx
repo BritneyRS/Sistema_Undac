@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SemaforoP from "./SemaforoP";
 import { formatearFecha } from "../utils/semaforo";
-import { FaEdit, FaTrash, FaDownload } from "react-icons/fa";
+import { FaEdit, FaTrash, FaDownload, FaEye } from "react-icons/fa";
 import { conveniosAPI } from "../utils/api";
 import style from "../Styles/style.css";
 
@@ -127,18 +127,29 @@ export default function Tableconvenios({ convenios: conveniosProp, esAdmin, onEd
                 {/*Documento*/}
                 <td className="td-do">
                   {c.documento_nombre ? (
-                    <button
-                      type="button"
-                      className="con-btn-doc"
-                      onClick={() => conveniosAPI.descargarDocumento(c.id, c.documento_nombre)}
-                      title={c.documento_nombre}
-                      
-                    >
-                      <FaDownload />
-                      <span className="con-docnom">
-                        {c.documento_nombre}
-                      </span>
-                    </button>
+                    
+                    <div className="docpre">
+                      <button
+                        type="button"
+                        className="con-btn-doc btn-previsualizar"
+                        onClick={() => conveniosAPI.previsualizarDocumento(c.id)}
+                        title="ver"
+                      >
+                        <FaEye className="icono-documento" />
+                        
+                      </button>
+                      <button
+                        type="button"
+                        className="con-btn-doc"
+                        onClick={() => conveniosAPI.descargarDocumento(c.id, c.documento_nombre)}
+                        title={c.documento_nombre}
+                      >
+                        <FaDownload />
+                        <span className="nombre-documento">
+                          {c.documento_nombre}
+                        </span>
+                      </button>
+                    </div>
                   ) : (
                     <span className="sin-registro">Sin archivo</span>
                   )}

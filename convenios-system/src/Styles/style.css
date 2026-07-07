@@ -360,7 +360,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: #25eb9f;
+    color: #867303;
     background: none;
     border: none;
     cursor: pointer;
@@ -369,6 +369,12 @@
 .con-docnom {
     font-size: 12px;
     
+}
+
+.docpre {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* modal convenios */
@@ -1487,9 +1493,9 @@ input[type="checkbox"] {
 }
 
 .documento-item {
-display: flex !important;
-  flex-direction: row !important; /* Fuerza a que se pongan uno al lado del otro */
-  align-items: center !important;  /* Los centra verticalmente */
+  display: flex ;
+  flex-direction: row ; 
+  align-items: center ;  
   gap: 8px;
 }
 

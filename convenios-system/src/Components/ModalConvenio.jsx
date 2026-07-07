@@ -219,6 +219,9 @@ export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
               <div className="alerta-archivo alerta-existente" style={{ marginTop: 8 }}>
                 <span>📄</span>
                 <span className="nombre-archivo-texto">{documentoExistente}</span>
+                <button type="button" className="btn-archivo btn-descargar" onClick={() => conveniosAPI.previsualizarDocumento(convenio.id)}>
+                  Previsualizar
+                </button>
                 <button type="button" className="btn-archivo btn-descargar" onClick={() => conveniosAPI.descargarDocumento(convenio.id, documentoExistente)}>
                   Descargar
                 </button>

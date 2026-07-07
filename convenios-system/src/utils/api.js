@@ -166,6 +166,24 @@ export const conveniosAPI = {
     document.body.removeChild(link);
     URL.revokeObjectURL(urlBlob);
   },
+  previsualizarDocumento: async (id) => {
+    const token = getToken();
+    const res = await fetch(BASE_URL + '/convenios/' + id + '/documento?preview=true', {
+      headers: {
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || 'Error al previsualizar el documento');
+    }
+
+    const blob = await res.blob();
+    const urlBlob = URL.createObjectURL(blob);
+    window.open(urlBlob, '_blank');
+    setTimeout(() => URL.revokeObjectURL(urlBlob), 10000);
+  },
   urlDocumento: (id) => BASE_URL + '/convenios/' + id + '/documento',
 };
 
