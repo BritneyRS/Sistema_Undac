@@ -14,8 +14,17 @@ function normalizarNombre(nombre) {
 }
 
 // ─── CONFIGURACION MULTER ────────────────────────
-const UPLOAD_DIR = path.join(__dirname, "../../uploads");
+const UPLOAD_ROOT = path.join(__dirname, "../../uploads");
+const UPLOAD_DIR = path.join(UPLOAD_ROOT, "movilidad");
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+function resolveUploadPath(filename) {
+  if (!filename) return path.join(UPLOAD_DIR, filename || "");
+  const directPath = path.join(UPLOAD_DIR, filename);
+  if (fs.existsSync(directPath)) return directPath;
+  const legacyPath = path.join(UPLOAD_ROOT, filename);
+  return fs.existsSync(legacyPath) ? legacyPath : directPath;
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
@@ -286,14 +295,14 @@ exports.actualizar = async (req, res) => {
 
     if (archivo1) {
       if (prev.documento_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev.documento_ruta);
+        const oldPath = resolveUploadPath(prev.documento_ruta);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
       documento_nombre = archivo1.originalname;
       documento_ruta = archivo1.filename;
     } else if (borrarDocumento1) {
       if (prev.documento_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev.documento_ruta);
+        const oldPath = resolveUploadPath(prev.documento_ruta);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
       documento_nombre = null;
@@ -302,14 +311,14 @@ exports.actualizar = async (req, res) => {
 
     if (archivo2) {
       if (prev.documento2_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev.documento2_ruta);
+        const oldPath = resolveUploadPath(prev.documento2_ruta);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
       documento2_nombre = archivo2.originalname;
       documento2_ruta = archivo2.filename;
     } else if (borrarDocumento2) {
       if (prev.documento2_ruta) {
-        const oldPath = path.join(UPLOAD_DIR, prev.documento2_ruta);
+        const oldPath = resolveUploadPath(prev.documento2_ruta);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
       documento2_nombre = null;
@@ -368,7 +377,7 @@ exports.eliminar = async (req, res) => {
       [req.params.id]
     );
     if (rows[0]?.documento_ruta) {
-      const filePath = path.join(UPLOAD_DIR, rows[0].documento_ruta);
+      const filePath = resolveUploadPath(rows[0].documento_ruta);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
@@ -415,7 +424,7 @@ exports.descargarDocumento = async (req, res) => {
       return res.status(404).json({ error: "No hay documento adjunto" });
     }
 
-    const filePath = path.join(UPLOAD_DIR, rows[0].documento_ruta);
+    const filePath = resolveUploadPath(rows[0].documento_ruta);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: "Archivo no encontrado en el servidor" });
