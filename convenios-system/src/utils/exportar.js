@@ -265,13 +265,86 @@ export const exportarMovilidad = (movilidades, formato = "excel") => {
         );
       },
     });
+
+    // Calcular y agregar el subtotal
+    const subtotal = movilidades.reduce((total, movilidad) => {
+      const valor = Number(
+        String(movilidad?.apoyoeconomico ?? "")
+          .replace(/[^0-9.-]/g, "")
+          .trim()
+      );
+      return total + (Number.isFinite(valor) ? valor : 0);
+    }, 0);
+
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(9);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont(undefined, "bold");
+    doc.text(
+      "SUBTOTAL: ",
+      margin,
+      finalY
+    );
+    
+    const monedaFormato = new Intl.NumberFormat("es-PE", {
+      style: "currency",
+      currency: "PEN",
+      minimumFractionDigits: 2,
+    }).format(subtotal || 0);
+    
+    doc.setTextColor(20, 20, 20);
+    doc.text(
+      monedaFormato,
+      margin + 20,
+      finalY
+    );
     
     doc.save(`movilidades_${new Date().getTime()}.pdf`);
     return;
   }
 
   const libro = XLSX.utils.book_new();
-  const hoja = XLSX.utils.json_to_sheet(crearDatosExportExcelMovilidad(movilidades));
+  const datosExcel = crearDatosExportExcelMovilidad(movilidades);
+  
+  // Calcular subtotal
+  const subtotalExcel = movilidades.reduce((total, movilidad) => {
+    const valor = Number(
+      String(movilidad?.apoyoeconomico ?? "")
+        .replace(/[^0-9.-]/g, "")
+        .trim()
+    );
+    return total + (Number.isFinite(valor) ? valor : 0);
+  }, 0);
+
+  // Agregar fila vacía y fila de subtotal
+  const monedaFormato = new Intl.NumberFormat("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+  }).format(subtotalExcel || 0);
+
+  datosExcel.push({});
+  datosExcel.push({
+    "ID": "",
+    "Apellidos y Nombres": "",
+    "Escuela": "",
+    "Semestre": "",
+    "Período": "",
+    "Celular": "",
+    "Universidad Origen": "",
+    "Ciudad Origen": "",
+    "Universidad Destino": "",
+    "Ciudad Destino": "",
+    "Beca": "",
+    "Tipo de Beca": "",
+    "Apoyo Económico": `SUBTOTAL: ${monedaFormato}`,
+    "Estado": "",
+    "Nº Expediente": "",
+    "Nº Resolución": "",
+    "Nº SIAF": "",
+  });
+
+  const hoja = XLSX.utils.json_to_sheet(datosExcel);
 
   const colWidths = [5, 25, 15, 12, 12, 15, 25, 20, 25, 20, 12, 20, 20, 15, 18, 18, 15];
   hoja["!cols"] = colWidths.map(width => ({ wch: width }));

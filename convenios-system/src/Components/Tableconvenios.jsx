@@ -3,7 +3,7 @@ import SemaforoP from "./SemaforoP";
 import { formatearFecha } from "../utils/semaforo";
 import { FaEdit, FaTrash, FaDownload, FaEye } from "react-icons/fa";
 import { conveniosAPI } from "../utils/api";
-import style from "../Styles/style.css";
+//import style from "../Styles/style.css";
 
 const OPORTUNIDADES = [
   { key: "practicas",       label: "Prácticas" },

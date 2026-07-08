@@ -35,6 +35,15 @@ export default function TableMovilidades({
     setDatos(ordenarPorPeriodo(movilidadesProp));
   }, [movilidadesProp, ordenarPorPeriodo]);
 
+  const subtotalApoyoEconomico = datos.reduce((total, movilidad) => {
+    const valor = Number(
+      String(movilidad?.apoyoeconomico ?? "")
+        .replace(/[^0-9.-]/g, "")
+        .trim()
+    );
+    return total + (Number.isFinite(valor) ? valor : 0);
+  }, 0);
+
   const columnas = [
     "N°",
     "Nombres y apellidos",
@@ -69,75 +78,76 @@ export default function TableMovilidades({
   }
 
   return (
-    <div className="wrapper">
-      <table className="tabla">
-        <thead>
-          <tr>
-            {columnas.map((col) => (
-              <th key={col} className="th">
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
+    <div className="table-container">
+      <div className="wrapper">
+        <table className="tabla">
+          <thead>
+            <tr>
+              {columnas.map((col) => (
+                <th key={col} className="th">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-        <tbody>
-          {datos.map((m, i) => (
-            <tr
-              key={m.id}
-              className={i % 2 === 0 ? "tr-par" : "tr-impar"}
-            >
-
-              <td className="td td-numero">{i + 1}</td>
-
-              <td className="td">{m.nombres}</td>
-
-              <td className="td">{m.semestre}</td>
-
-              <td className="td">{m.intercambio ? capitalizeIntercambio(m.intercambio) : "-"}</td>
-
-              <td className="td">{m.celular || "-"}</td>
-
-              <td className="td">{m.escuela || "-"}</td>
-
-              <td className="td">{m.periodo || "-"}</td>
-
-              <td className="td">{m.universidadorigen}</td>
-
-              <td className="td">{m.ciudadorigen}</td>
-
-              <td className="td">{m.universidaddestino}</td>
-
-              <td className="td">{m.ciudaddestino}</td>
-
-              {/* ── MODIFICADO: Nueva celda para el Ámbito (Nacional o Internacional) ── */}
-              <td className="td td-centro">
-              <span
-                className={`badge-ambito ${
-                  m.es_internacional
-                    ? "badge-internacional"
-                    : "badge-nacional"
-                }`}
+          <tbody>
+            {datos.map((m, i) => (
+              <tr
+                key={m.id}
+                className={i % 2 === 0 ? "tr-par" : "tr-impar"}
               >
-                {m.es_internacional ? "Internacional" : "Nacional"}
-              </span>
-            </td>
 
-              <td className="td">
-                {m.apoyoeconomico
-                  ? `S/ ${m.apoyoeconomico}`
-                  : <span className="sin-registro">Sin registro</span>}
+                <td className="td td-numero">{i + 1}</td>
+
+                <td className="td">{m.nombres}</td>
+
+                <td className="td">{m.semestre}</td>
+
+                <td className="td">{m.intercambio ? capitalizeIntercambio(m.intercambio) : "-"}</td>
+
+                <td className="td">{m.celular || "-"}</td>
+
+                <td className="td">{m.escuela || "-"}</td>
+
+                <td className="td">{m.periodo || "-"}</td>
+
+                <td className="td">{m.universidadorigen}</td>
+
+                <td className="td">{m.ciudadorigen}</td>
+
+                <td className="td">{m.universidaddestino}</td>
+
+                <td className="td">{m.ciudaddestino}</td>
+
+                {/* ── MODIFICADO: Nueva celda para el Ámbito (Nacional o Internacional) ── */}
+                <td className="td td-centro">
+                <span
+                  className={`badge-ambito ${
+                    m.es_internacional
+                      ? "badge-internacional"
+                      : "badge-nacional"
+                  }`}
+                >
+                  {m.es_internacional ? "Internacional" : "Nacional"}
+                </span>
               </td>
 
-              <td className="td">{m.beca || "-"}</td>
+                <td className="td">
+                  {m.apoyoeconomico
+                    ? `S/ ${m.apoyoeconomico}`
+                    : <span className="sin-registro">Sin registro</span>}
+                </td>
 
-              <td className="td">{m.tipobeca || "-"}</td>
+                <td className="td">{m.beca || "-"}</td>
 
-              <td className="td">
-                <EstadoBadge estado={m.estado} />
-              </td>
+                <td className="td">{m.tipobeca || "-"}</td>
 
-              <td className="td">{m.numeroexpediente || "-"}</td>
+                <td className="td">
+                  <EstadoBadge estado={m.estado} />
+                </td>
+
+                <td className="td">{m.numeroexpediente || "-"}</td>
 
               <td className="td">{m.numeroresolucion || "-"}</td>
 
@@ -234,6 +244,14 @@ export default function TableMovilidades({
           ))}
         </tbody>
       </table>
+      </div>
+
+      <div className="subtotal-row-footer">
+        <span className="subtotal-label">Subtotal</span>
+        <span className="subtotal-valor">
+          {formatearMoneda(subtotalApoyoEconomico)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -257,4 +275,12 @@ function EstadoBadge({ estado }) {
 function capitalizeIntercambio(value) {
   if (!value) return "-";
   return String(value);
+}
+
+function formatearMoneda(valor) {
+  return new Intl.NumberFormat("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+  }).format(valor || 0);
 }
