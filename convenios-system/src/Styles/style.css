@@ -219,7 +219,7 @@
 }
 
 .wrapper {
-    max-height: 600px; /* ajusta la altura */
+  max-height: 600px;
   overflow: auto;
 }
 
@@ -228,7 +228,7 @@
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 10px;
   background: #e1e2e2;
   
   border-radius: 8px;
@@ -291,6 +291,8 @@
 }
 
 .td-eco {
+  padding: 8px 10px;
+  vertical-align: top;
   text-align: center;
 }
 .tr-par {
@@ -1307,8 +1309,8 @@ input[type="checkbox"] {
 }
 
 /* Línea de color superior por tarjeta */
-.stats-tarjeta:nth-child(1)::before { background: #BA7517; } /* amber */
-.stats-tarjeta:nth-child(2)::before { background: #1D9E75; } /* teal */
+.stats-tarjeta:nth-child(1)::before { background: #BA7517; } 
+.stats-tarjeta:nth-child(2)::before { background: #1D9E75; } 
 .stats-tarjeta::before {
   content: '';
   position: absolute;
@@ -1360,7 +1362,7 @@ input[type="checkbox"] {
   gap: 20px;
 }
 
-/* Contenedor individual de cada documento (Garantiza el orden exacto) */
+/* Contenedor individual de cada documento */
 .grupo-documento {
   display: flex !important;
   flex-direction: column !important;
@@ -1368,7 +1370,7 @@ input[type="checkbox"] {
   width: 100%;
 }
 
-/* Estilos de las etiquetas de título (Documento 1, Documento 2) */
+/* Estilos de las etiquetas de título  */
 .documento-label {
   font-size: 13px;
   font-weight: 600;
@@ -1383,7 +1385,7 @@ input[type="checkbox"] {
 
 /* Estructura común para los recuadros de alertas (verdes, rojos, azules) */
 .alerta-archivo {
-  display: flex !important;
+  display: flex ;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
@@ -1500,7 +1502,7 @@ input[type="checkbox"] {
   display: block;
 }
 /*----movilidad---*/
-/* Ámbito */
+/* ambito */
 .td-centro {
   text-align: center;
 }

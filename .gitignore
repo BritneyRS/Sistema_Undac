@@ -44,3 +44,21 @@ backend/uploads/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Dependencias
+backend/node_modules/
+convenios-system/node_modules/
+
+# Variables privadas
+backend/.env
+convenios-system/.env
+
+# Archivos generados por React
+convenios-system/build/
+
+# Archivos cargados por usuarios
+backend/uploads/
+
+# Archivos del editor / sistema
+.vscode/
+.DS_Store

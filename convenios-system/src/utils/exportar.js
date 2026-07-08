@@ -6,7 +6,7 @@ import logoUndac from "../Image/undac_logo.png"; // Importación oficial del log
 
 const valorSiNo = (valor) => (valor ? "Sí" : "No");
 
-// Convierte valores de texto con símbolos de moneda a número JS.
+// Convierte valores de texto con símbolos 
 const parseToNumber = (valor) => {
   if (valor === null || valor === undefined) return "";
   let s = String(valor).replace(/\s/g, "");
