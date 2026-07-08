@@ -56,7 +56,7 @@ export default function TableMovilidades({
     "Ciudad origen",
     "Universidad destino",
     "Ciudad destino",
-    "Ámbito", // <-- MODIFICADO: Agregada cabecera de la columna
+    "Ámbito", 
     "Apoyo económico",
     "Beca",
     "Tipo de beca",
@@ -99,28 +99,16 @@ export default function TableMovilidades({
               >
 
                 <td className="td td-numero">{i + 1}</td>
-
                 <td className="td">{m.nombres}</td>
-
                 <td className="td">{m.semestre}</td>
-
                 <td className="td">{m.intercambio ? capitalizeIntercambio(m.intercambio) : "-"}</td>
-
                 <td className="td">{m.celular || "-"}</td>
-
                 <td className="td">{m.escuela || "-"}</td>
-
                 <td className="td">{m.periodo || "-"}</td>
-
                 <td className="td">{m.universidadorigen}</td>
-
                 <td className="td">{m.ciudadorigen}</td>
-
                 <td className="td">{m.universidaddestino}</td>
-
                 <td className="td">{m.ciudaddestino}</td>
-
-                {/* ── MODIFICADO: Nueva celda para el Ámbito (Nacional o Internacional) ── */}
                 <td className="td td-centro">
                 <span
                   className={`badge-ambito ${
@@ -132,25 +120,18 @@ export default function TableMovilidades({
                   {m.es_internacional ? "Internacional" : "Nacional"}
                 </span>
               </td>
-
-                <td className="td">
+                <td className="td-eco">
                   {m.apoyoeconomico
                     ? `S/ ${m.apoyoeconomico}`
                     : <span className="sin-registro">Sin registro</span>}
                 </td>
-
                 <td className="td">{m.beca || "-"}</td>
-
                 <td className="td">{m.tipobeca || "-"}</td>
-
                 <td className="td">
                   <EstadoBadge estado={m.estado} />
                 </td>
-
                 <td className="td">{m.numeroexpediente || "-"}</td>
-
               <td className="td">{m.numeroresolucion || "-"}</td>
-
               <td className="td">{m.numerosiaf || "-"}</td>
 
               {/* ── OBSERVACIÓN ── */}
@@ -189,9 +170,7 @@ export default function TableMovilidades({
                             title="Ver"
                           >
                             <FaEye className="icono-documento" />
-                            
                           </button>
-
                           <button
                             type="button"
                             className="btn-documento"

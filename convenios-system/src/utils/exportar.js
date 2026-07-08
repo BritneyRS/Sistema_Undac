@@ -6,6 +6,24 @@ import logoUndac from "../Image/undac_logo.png"; // Importación oficial del log
 
 const valorSiNo = (valor) => (valor ? "Sí" : "No");
 
+// Convierte valores de texto con símbolos de moneda a número JS.
+const parseToNumber = (valor) => {
+  if (valor === null || valor === undefined) return "";
+  let s = String(valor).replace(/\s/g, "");
+  s = s.replace(/[^0-9.,-]/g, "");
+  if (s === "" || s === "-") return "";
+  const lastDot = s.lastIndexOf('.');
+  const lastComma = s.lastIndexOf(',');
+  if (lastComma > lastDot) {
+    s = s.replace(/\./g, '');
+    s = s.replace(',', '.');
+  } else if (lastDot > lastComma) {
+    s = s.replace(/,/g, '');
+  }
+  const num = Number(s);
+  return Number.isFinite(num) ? num : "";
+};
+
 /*const capitalizeIntercambio = (value) => {
   if (!value) return "-";
   return String(value);
@@ -77,7 +95,7 @@ const crearDatosExportExcelMovilidad = (movilidades) =>
     "Ciudad Destino": m.ciudaddestino || "",
     "Beca": valorSiNo(m.beca === "si" || m.beca === true),
     "Tipo de Beca": m.tipobeca || "",
-    "Apoyo Económico": m.apoyoeconomico || "",
+    "Apoyo Económico": parseToNumber(m.apoyoeconomico),
     "Estado": m.estado || "",
     "Nº Expediente": m.numeroexpediente || "",
     "Nº Resolución": m.numeroresolucion || "",

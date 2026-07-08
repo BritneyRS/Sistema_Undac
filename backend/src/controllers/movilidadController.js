@@ -13,7 +13,7 @@ function normalizarNombre(nombre) {
     .trim();
 }
 
-// ─── CONFIGURACION MULTER ────────────────────────
+// --------CONFIGURACION MULTER ---------
 const UPLOAD_ROOT = path.join(__dirname, "../../uploads");
 const UPLOAD_DIR = path.join(UPLOAD_ROOT, "movilidad");
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
