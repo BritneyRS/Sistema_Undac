@@ -5,9 +5,11 @@ require('dotenv').config();
 const app = express();
 
 // ─── Middlewares globales ────────────────────────────────────
+const cors = require("cors");
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
+  origin: process.env.FRONTEND_URL,
+  credentials: true
 }));
 app.use(express.json());
 
