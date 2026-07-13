@@ -427,40 +427,65 @@ exports.descargarDocumento = async (req, res) => {
   try {
     const indice = Number(req.query.indice || 1);
     const preview = req.query.preview === "true" || req.query.preview === "1";
+
     if (![1, 2].includes(indice)) {
       return res.status(400).json({ error: "Índice de documento inválido" });
     }
 
     const columnas = indice === 1
-      ? "documento_nombre, documento_ruta"
-      : "documento2_nombre AS documento_nombre, documento2_ruta AS documento_ruta";
+      ? "documento_nombre, documento_ruta, documento_base64"
+      : "documento2_nombre AS documento_nombre, documento2_ruta AS documento_ruta, documento2_base64 AS documento_base64";
 
     const { rows } = await pool.query(
       `SELECT ${columnas} FROM movilidades WHERE id = $1`,
       [req.params.id]
     );
 
-    if (!rows.length || !rows[0].documento_ruta) {
-      return res.status(404).json({ error: "No hay documento adjunto" });
+    if (!rows.length) {
+      return res.status(404).json({ error: "Movilidad no encontrada" });
     }
 
-    const filePath = resolveUploadPath(rows[0].documento_ruta);
+    const documento = rows[0];
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "Archivo no encontrado en el servidor" });
+    // Abrir desde Base64
+    if (documento.documento_base64) {
+      const buffer = Buffer.from(documento.documento_base64, "base64");
+
+      res.setHeader(
+        "Content-Disposition",
+        `${preview ? "inline" : "attachment"}; filename="${documento.documento_nombre || "documento.pdf"}"`
+      );
+
+      res.setHeader("Content-Type", "application/pdf");
+
+      return res.send(buffer);
     }
 
-    if (preview) {
-      return res.sendFile(filePath, {
-        headers: {
-          "Content-Disposition": `inline; filename="${rows[0].documento_nombre}"`,
-        },
-      });
+    // Respaldo: abrir desde uploads si existe
+    if (documento.documento_ruta) {
+      const filePath = resolveUploadPath(documento.documento_ruta);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          error: "Archivo no encontrado en el servidor"
+        });
+      }
+
+      if (preview) {
+        return res.sendFile(filePath);
+      }
+
+      return res.download(filePath, documento.documento_nombre);
     }
 
-    res.download(filePath, rows[0].documento_nombre);
+    return res.status(404).json({
+      error: "No hay documento adjunto"
+    });
+
   } catch (err) {
     console.error("Error al descargar documento:", err);
-    res.status(500).json({ error: "Error al descargar documento" });
+    res.status(500).json({
+      error: "Error al descargar documento"
+    });
   }
 };
