@@ -172,6 +172,14 @@ exports.crear = async (req, res) => {
     const documento2_nombre = archivo2 ? archivo2.originalname : null;
     const documento2_ruta   = archivo2 ? archivo2.filename : null;
 
+    const documento_base64 = archivo1 
+      ? fs.readFileSync(archivo1.path).toString("base64") 
+      : null;
+
+    const documento2_base64 = archivo2
+      ? fs.readFileSync(archivo2.path).toString("base64")
+      : null;
+
     const { rows } = await pool.query(
       `
       INSERT INTO movilidades (
@@ -197,10 +205,12 @@ exports.crear = async (req, res) => {
         documento_ruta,
         documento2_nombre,
         documento2_ruta,
+        documento_base64,
+        documento2_base64,
         es_internacional 
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
       )
       RETURNING *
       `,
@@ -227,6 +237,8 @@ exports.crear = async (req, res) => {
         documento_ruta,
         documento2_nombre,
         documento2_ruta,
+        documento_base64,
+        documento2_base64,
         es_internacional === "true" || es_internacional === true, // <-- NUEVO: Convierte el valor a booleano
       ]
     );
@@ -278,7 +290,7 @@ exports.actualizar = async (req, res) => {
     const borrarDocumento2 = borrar_documento2 === "true" || borrar_documento2 === true;
 
     const { rows: prevRows } = await pool.query(
-      `SELECT documento_nombre, documento_ruta, documento2_nombre, documento2_ruta FROM movilidades WHERE id = $1`,
+      `SELECT documento_nombre, documento_ruta, documento_base64, documento2_nombre, documento2_ruta, documento2_base64 FROM movilidades WHERE id = $1`,
       [req.params.id]
     );
 
@@ -290,8 +302,10 @@ exports.actualizar = async (req, res) => {
 
     let documento_nombre = prev.documento_nombre;
     let documento_ruta = prev.documento_ruta;
+    let documento_base64 = prev.documento_base64;
     let documento2_nombre = prev.documento2_nombre;
     let documento2_ruta = prev.documento2_ruta;
+    let documento2_base64 = prev.documento2_base64;
 
     if (archivo1) {
       if (prev.documento_ruta) {
@@ -300,6 +314,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = archivo1.originalname;
       documento_ruta = archivo1.filename;
+      documento_base64 = fs.readFileSync(archivo1.path).toString("base64");
     } else if (borrarDocumento1) {
       if (prev.documento_ruta) {
         const oldPath = resolveUploadPath(prev.documento_ruta);
@@ -307,6 +322,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = null;
       documento_ruta = null;
+      documento_base64 = null;
     }
 
     if (archivo2) {
@@ -316,6 +332,7 @@ exports.actualizar = async (req, res) => {
       }
       documento2_nombre = archivo2.originalname;
       documento2_ruta = archivo2.filename;
+      documento2_base64 = fs.readFileSync(archivo2.path).toString("base64");
     } else if (borrarDocumento2) {
       if (prev.documento2_ruta) {
         const oldPath = resolveUploadPath(prev.documento2_ruta);
@@ -323,6 +340,7 @@ exports.actualizar = async (req, res) => {
       }
       documento2_nombre = null;
       documento2_ruta = null;
+      documento2_base64 = null;
     }
 
     const query = `
@@ -335,8 +353,9 @@ exports.actualizar = async (req, res) => {
         numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
         observacion = $18, documento_nombre = $19, documento_ruta = $20,
         documento2_nombre = $21, documento2_ruta = $22,
-        es_internacional = $23 -- <-- NUEVO (Parámetro $23)
-      WHERE id = $24 -- <-- Cambia a $24
+        documento_base64 = $23, documento2_base64 = $24,
+        es_internacional = $25
+      WHERE id = $26
       RETURNING *
     `;
 
@@ -348,7 +367,8 @@ exports.actualizar = async (req, res) => {
       intercambio || "1", numeroexpediente || null, numeroresolucion || null, numerosiaf || null,
       observacion || null, documento_nombre, documento_ruta,
       documento2_nombre, documento2_ruta,
-      es_internacional === "true" || es_internacional === true, // <-- NUEVO
+      documento_base64, documento2_base64,
+      es_internacional === "true" || es_internacional === true,
       req.params.id,
     ];
 
