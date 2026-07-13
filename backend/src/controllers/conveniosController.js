@@ -136,6 +136,13 @@ exports.crear = async (req, res) => {
     res.status(500).json({ error: 'Error al crear convenio' });
   }
 };
+const columnas = await pool.query(`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'convenios'
+`);
+
+console.log(columnas.rows);
 
 // ─── seccion actualizar /api/convenios/:id ──────────────────────────────────
 exports.actualizar = async (req, res) => {
