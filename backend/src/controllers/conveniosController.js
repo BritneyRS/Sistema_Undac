@@ -127,7 +127,7 @@ exports.crear = async (req, res) => {
         !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
         !!laboral, !!pasantia, !!movilidad,
         documento_nombre, documento_ruta, documento_base64,
-        req.usuario.id,
+        //req.usuario.id,
       ]
     );
     res.status(201).json(rows[0]);
