@@ -240,31 +240,68 @@ exports.eliminar = async (req, res) => {
 exports.descargarDocumento = async (req, res) => {
   try {
     const preview = req.query.preview === 'true' || req.query.preview === '1';
+
     const { rows } = await pool.query(
-      'SELECT documento_nombre, documento_ruta FROM convenios WHERE id = $1',
+      `SELECT documento_nombre, documento_ruta, documento_base64 
+       FROM convenios 
+       WHERE id = $1`,
       [req.params.id]
     );
 
-    if (!rows.length || !rows[0].documento_ruta) {
-      return res.status(404).json({ error: 'No hay documento adjunto' });
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Convenio no encontrado' });
     }
 
-    const filePath = resolveUploadPath(rows[0].documento_ruta);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Archivo no encontrado en el servidor' });
+    const documento = rows[0];
+
+    // Primero intenta abrir desde Base64 (PostgreSQL)
+    if (documento.documento_base64) {
+      const buffer = Buffer.from(documento.documento_base64, "base64");
+
+      res.setHeader(
+        "Content-Disposition",
+        `${preview ? "inline" : "attachment"}; filename="${documento.documento_nombre || "documento.pdf"}"`
+      );
+
+      // Para PDF
+      res.setHeader("Content-Type", "application/pdf");
+
+      return res.send(buffer);
     }
 
-    if (preview) {
-      return res.sendFile(filePath, {
-        headers: {
-          'Content-Disposition': `inline; filename="${rows[0].documento_nombre || 'documento'}"`,
-        },
-      });
+    // Si no hay Base64, busca el archivo físico en uploads
+    if (documento.documento_ruta) {
+
+      const filePath = resolveUploadPath(documento.documento_ruta);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          error: 'Archivo no encontrado en el servidor'
+        });
+      }
+
+      if (preview) {
+        return res.sendFile(filePath, {
+          headers: {
+            'Content-Disposition': `inline; filename="${documento.documento_nombre || 'documento'}"`,
+          },
+        });
+      }
+
+      return res.download(
+        filePath,
+        documento.documento_nombre || 'documento'
+      );
     }
 
-    res.download(filePath, rows[0].documento_nombre || 'documento');
+    return res.status(404).json({
+      error: 'No hay documento adjunto'
+    });
+
   } catch (err) {
     console.error('Error al descargar documento:', err);
-    res.status(500).json({ error: 'Error al descargar documento' });
+    res.status(500).json({
+      error: 'Error al descargar documento'
+    });
   }
 };
