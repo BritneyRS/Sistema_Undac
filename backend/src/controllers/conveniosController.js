@@ -5,6 +5,12 @@ const fs = require('fs');
 
 const UPLOAD_ROOT = path.join(__dirname, '../../uploads');
 const UPLOAD_DIR = path.join(UPLOAD_ROOT, 'convenios');
+
+function convertirABase64(rutaArchivo) {
+    const archivo = fs.readFileSync(rutaArchivo);
+    return archivo.toString("base64");
+}
+
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 function resolveUploadPath(filename) {
@@ -104,19 +110,23 @@ exports.crear = async (req, res) => {
     const documento_nombre = archivo ? archivo.originalname : null;
     const documento_ruta = archivo ? archivo.filename : null;
 
+    const documento_base64 = archivo
+    ? convertirABase64(archivo.path)
+    : null;
+
     const { rows } = await pool.query(
       `INSERT INTO convenios
         (nombre, ambito, tipo, inicio, fin, duracion, resolucion, resultados, otros,
          practicas, investigaciones, proyeccion, capacitacion, laboral, pasantia, movilidad,
-         documento_nombre, documento_ruta, creado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+         documento_nombre, documento_ruta, documento_base64, creado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
        RETURNING *`,
       [
         nombre, ambito, tipo || null, inicio, fin,
         duracion || null, resolucion || null, resultados || null, otros || null,
         !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
         !!laboral, !!pasantia, !!movilidad,
-        documento_nombre, documento_ruta,
+        documento_nombre, documento_ruta, documento_base64,
         req.usuario.id,
       ]
     );
