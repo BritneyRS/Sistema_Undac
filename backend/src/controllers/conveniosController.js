@@ -156,7 +156,7 @@ exports.actualizar = async (req, res) => {
     const borrarDocumento = borrar_documento === 'true' || borrar_documento === true;
 
     const { rows: prevRows } = await pool.query(
-      'SELECT documento_nombre, documento_ruta FROM convenios WHERE id = $1',
+      'SELECT documento_nombre, documento_ruta, documento_base64 FROM convenios WHERE id = $1',
       [req.params.id]
     );
 
@@ -165,6 +165,7 @@ exports.actualizar = async (req, res) => {
     const prev = prevRows[0];
     let documento_nombre = prev.documento_nombre;
     let documento_ruta = prev.documento_ruta;
+    let documento_base64 = prev.documento_base64;
 
     if (archivo) {
       if (prev.documento_ruta) {
@@ -173,6 +174,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = archivo.originalname;
       documento_ruta = archivo.filename;
+      documento_base64 = convertirABase64(archivo.path);
     } else if (borrarDocumento) {
       if (prev.documento_ruta) {
         const oldPath = resolveUploadPath(prev.documento_ruta);
@@ -180,6 +182,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = null;
       documento_ruta = null;
+      documento_base64 = null;
     }
 
     const { rows } = await pool.query(
@@ -188,16 +191,16 @@ exports.actualizar = async (req, res) => {
         duracion=$6, resolucion=$7, resultados=$8, otros=$9,
         practicas=$10, investigaciones=$11, proyeccion=$12, capacitacion=$13,
         laboral=$14, pasantia=$15, movilidad=$16,
-        documento_nombre=$17, documento_ruta=$18,
+        documento_nombre=$17, documento_ruta=$18, documento_base64=$19,
         actualizado_en=NOW()
-       WHERE id=$19
+       WHERE id=$20
        RETURNING *`,
       [
         nombre, ambito, tipo || null, inicio, fin,
         duracion || null, resolucion || null, resultados || null, otros || null,
         !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
         !!laboral, !!pasantia, !!movilidad,
-        documento_nombre, documento_ruta,
+        documento_nombre, documento_ruta, documento_base64,
         req.params.id,
       ]
     );
