@@ -22,12 +22,20 @@ function sanitizeFileName(name) {
 function createCloudinaryStorage(folder) {
   return new CloudinaryStorage({
     cloudinary,
-    params: async (_req, file) => ({
-      folder,
-      resource_type: "auto", // ◄— Cloudinary detectará automáticamente si es imagen o documento
-      public_id: `${Date.now()}-${sanitizeFileName(file.originalname)}`,
-      // ◄— Eliminamos "allowed_formats" de aquí para evitar el error con PDFs/Word docs.
-    }),
+    params: async (_req, file) => {
+      // Extraemos la extensión (.pdf, .doc, etc) del nombre original
+      const ext = path.extname(file.originalname);
+      // Obtenemos el nombre base sin la extensión
+      const baseName = path.basename(file.originalname, ext);
+      // Limpiamos caracteres extraños del nombre base
+      const cleanName = sanitizeFileName(baseName);
+
+      return {
+        folder,
+        resource_type: "auto",
+        public_id: `${Date.now()}-${cleanName}`, // ID final sin la extensión
+      };
+    },
   });
 }
 
