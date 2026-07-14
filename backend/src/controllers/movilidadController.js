@@ -289,7 +289,10 @@ exports.actualizar = async (req, res) => {
     const borrarDocumento2 = borrar_documento2 === "true" || borrar_documento2 === true;
 
     const { rows: prevRows } = await pool.query(
-      `SELECT documento_nombre, documento_ruta, documento2_nombre, documento2_ruta, documento2_base64 FROM movilidades WHERE id = $1`,
+      `SELECT documento_nombre, documento_ruta, documento2_nombre, documento2_ruta,
+       es_internacional
+       FROM movilidades
+       WHERE id = $1`,
       [req.params.id]
     );
 
