@@ -1,7 +1,7 @@
 const pool = require("../config/db");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
+const { createCloudinaryStorage, deleteFromCloudinaryByUrl } = require("../config/cloudinary");
 
 
 //-------PRUEBA-------------
@@ -14,27 +14,6 @@ function normalizarNombre(nombre) {
 }
 
 // --------CONFIGURACION MULTER ---------
-const UPLOAD_ROOT = path.join(__dirname, "../../uploads");
-const UPLOAD_DIR = path.join(UPLOAD_ROOT, "movilidad");
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-function resolveUploadPath(filename) {
-  if (!filename) return path.join(UPLOAD_DIR, filename || "");
-  const directPath = path.join(UPLOAD_DIR, filename);
-  if (fs.existsSync(directPath)) return directPath;
-  const legacyPath = path.join(UPLOAD_ROOT, filename);
-  return fs.existsSync(legacyPath) ? legacyPath : directPath;
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  filename: (_req, file, cb) => {
-  const nombreLimpio = file.originalname.replace(/\s+/g, "_");
-  const unique = Math.floor(Math.random() * 100000);
-  cb(null, `${unique}-${nombreLimpio}`);
-  },
-});
-
 const fileFilter = (_req, file, cb) => {
   const allowed = [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"];
   const ext = path.extname(file.originalname).toLowerCase();
@@ -43,7 +22,7 @@ const fileFilter = (_req, file, cb) => {
 };
 
 exports.upload = multer({
-  storage,
+  storage: createCloudinaryStorage("movilidad"),
   fileFilter,
   limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
 });
@@ -168,9 +147,9 @@ exports.crear = async (req, res) => {
     const archivo1 = req.files?.documento1?.[0] || null;
     const archivo2 = req.files?.documento2?.[0] || null;
     const documento_nombre = archivo1 ? archivo1.originalname : null;
-    const documento_ruta = archivo1 ? archivo1.filename : null;
+    const documento_ruta = archivo1 ? archivo1.path : null;
     const documento2_nombre = archivo2 ? archivo2.originalname : null;
-    const documento2_ruta = archivo2 ? archivo2.filename : null;
+    const documento2_ruta = archivo2 ? archivo2.path : null;
 
     const { rows } = await pool.query(
       `
@@ -299,15 +278,13 @@ exports.actualizar = async (req, res) => {
 
     if (archivo1) {
       if (prev.documento_ruta) {
-        const oldPath = resolveUploadPath(prev.documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento_ruta);
       }
       documento_nombre = archivo1.originalname;
-      documento_ruta = archivo1.filename;
+      documento_ruta = archivo1.path;
     } else if (borrarDocumento1) {
       if (prev.documento_ruta) {
-        const oldPath = resolveUploadPath(prev.documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento_ruta);
       }
       documento_nombre = null;
       documento_ruta = null;
@@ -315,15 +292,13 @@ exports.actualizar = async (req, res) => {
 
     if (archivo2) {
       if (prev.documento2_ruta) {
-        const oldPath = resolveUploadPath(prev.documento2_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento2_ruta);
       }
       documento2_nombre = archivo2.originalname;
-      documento2_ruta = archivo2.filename;
+      documento2_ruta = archivo2.path;
     } else if (borrarDocumento2) {
       if (prev.documento2_ruta) {
-        const oldPath = resolveUploadPath(prev.documento2_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento2_ruta);
       }
       documento2_nombre = null;
       documento2_ruta = null;
@@ -378,12 +353,14 @@ exports.eliminar = async (req, res) => {
   try {
     // Borrar archivo adjunto si existe
     const { rows } = await pool.query(
-      `SELECT documento_ruta FROM movilidades WHERE id = $1`,
+      `SELECT documento_ruta, documento2_ruta FROM movilidades WHERE id = $1`,
       [req.params.id]
     );
     if (rows[0]?.documento_ruta) {
-      const filePath = resolveUploadPath(rows[0].documento_ruta);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await deleteFromCloudinaryByUrl(rows[0].documento_ruta);
+    }
+    if (rows[0]?.documento2_ruta) {
+      await deleteFromCloudinaryByUrl(rows[0].documento2_ruta);
     }
 
     const { rowCount } = await pool.query(
@@ -432,15 +409,12 @@ exports.descargarDocumento = async (req, res) => {
 
     const documento = rows[0];
 
-    // Abrir desde uploads si existe
-    if (documento.documento_ruta) {
-      const filePath = resolveUploadPath(documento.documento_ruta);
+    if (documento.documento_ruta && /^https?:\/\//i.test(documento.documento_ruta)) {
+      return res.redirect(documento.documento_ruta);
+    }
 
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({
-          error: "Archivo no encontrado en el servidor"
-        });
-      }
+    if (documento.documento_ruta) {
+      const filePath = documento.documento_ruta;
 
       if (preview) {
         return res.sendFile(filePath);

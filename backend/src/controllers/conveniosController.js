@@ -1,38 +1,11 @@
 const pool = require('../config/db');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
-
-const UPLOAD_ROOT = path.join(__dirname, '../../uploads');
-const UPLOAD_DIR = path.join(UPLOAD_ROOT, 'convenios');
+const { createCloudinaryStorage, deleteFromCloudinaryByUrl } = require('../config/cloudinary');
 
 function toBoolean(value) {
   return value === true || value === 1 || value === '1' || value === 'true' || value === 'TRUE' || value === 'si' || value === 'sí' || value === 'Si' || value === 'Sí';
 }
-
-/*function convertirABase64(rutaArchivo) {
-    const archivo = fs.readFileSync(rutaArchivo);
-    return archivo.toString("base64");
-}*/
-
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-function resolveUploadPath(filename) {
-  if (!filename) return path.join(UPLOAD_DIR, filename || '');
-  const directPath = path.join(UPLOAD_DIR, filename);
-  if (fs.existsSync(directPath)) return directPath;
-  const legacyPath = path.join(UPLOAD_ROOT, filename);
-  return fs.existsSync(legacyPath) ? legacyPath : directPath;
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  filename: (_req, file, cb) => {
-    const nombreLimpio = file.originalname.replace(/\s+/g, '_');
-    const unique = Math.floor(Math.random() * 100000);
-    cb(null, `${unique}-${nombreLimpio}`);
-  },
-});
 
 const fileFilter = (_req, file, cb) => {
   const allowed = ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'];
@@ -42,7 +15,7 @@ const fileFilter = (_req, file, cb) => {
 };
 
 exports.upload = multer({
-  storage,
+  storage: createCloudinaryStorage('convenios'),
   fileFilter,
   limits: { fileSize: 100 * 1024 * 1024 },
 });
@@ -112,7 +85,7 @@ exports.crear = async (req, res) => {
   try {
     const archivo = req.file || null;
     const documento_nombre = archivo ? archivo.originalname : null;
-    const documento_ruta = archivo ? archivo.filename : null;
+    const documento_ruta = archivo ? archivo.path : null;
     const practicasValue = toBoolean(practicas);
     const investigacionesValue = toBoolean(investigaciones);
     const proyeccionValue = toBoolean(proyeccion);
@@ -180,20 +153,16 @@ exports.actualizar = async (req, res) => {
 
     if (archivo) {
       if (prev.documento_ruta) {
-        const oldPath = resolveUploadPath(prev.documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento_ruta);
       }
       documento_nombre = archivo.originalname;
-      documento_ruta = archivo.filename;
-      /*documento_base64 = convertirABase64(archivo.path);*/
+      documento_ruta = archivo.path;
     } else if (borrarDocumento) {
       if (prev.documento_ruta) {
-        const oldPath = resolveUploadPath(prev.documento_ruta);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        await deleteFromCloudinaryByUrl(prev.documento_ruta);
       }
       documento_nombre = null;
       documento_ruta = null;
-      /*documento_base64 = null;*/
     }
 
     const practicasValue = toBoolean(practicas);
@@ -240,8 +209,7 @@ exports.eliminar = async (req, res) => {
     );
 
     if (rows[0]?.documento_ruta) {
-      const filePath = resolveUploadPath(rows[0].documento_ruta);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await deleteFromCloudinaryByUrl(rows[0].documento_ruta);
     }
 
     const { rowCount } = await pool.query(
@@ -271,16 +239,12 @@ exports.descargarDocumento = async (req, res) => {
 
     const documento = rows[0];
 
-    // Busca el archivo físico en uploads
+    if (documento.documento_ruta && /^https?:\/\//i.test(documento.documento_ruta)) {
+      return res.redirect(documento.documento_ruta);
+    }
+
     if (documento.documento_ruta) {
-
-      const filePath = resolveUploadPath(documento.documento_ruta);
-
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({
-          error: 'Archivo no encontrado en el servidor'
-        });
-      }
+      const filePath = documento.documento_ruta;
 
       if (preview) {
         return res.sendFile(filePath, {
@@ -290,10 +254,7 @@ exports.descargarDocumento = async (req, res) => {
         });
       }
 
-      return res.download(
-        filePath,
-        documento.documento_nombre || 'documento'
-      );
+      return res.download(filePath, documento.documento_nombre || 'documento');
     }
 
     return res.status(404).json({
