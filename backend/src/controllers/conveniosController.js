@@ -6,10 +6,10 @@ const fs = require('fs');
 const UPLOAD_ROOT = path.join(__dirname, '../../uploads');
 const UPLOAD_DIR = path.join(UPLOAD_ROOT, 'convenios');
 
-function convertirABase64(rutaArchivo) {
+/*function convertirABase64(rutaArchivo) {
     const archivo = fs.readFileSync(rutaArchivo);
     return archivo.toString("base64");
-}
+}*/
 
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -110,23 +110,23 @@ exports.crear = async (req, res) => {
     const documento_nombre = archivo ? archivo.originalname : null;
     const documento_ruta = archivo ? archivo.filename : null;
 
-    const documento_base64 = archivo
+    /*const documento_base64 = archivo
     ? convertirABase64(archivo.path)
-    : null;
+    : null;*/
 
     const { rows } = await pool.query(
       `INSERT INTO convenios
         (nombre, ambito, tipo, inicio, fin, duracion, resolucion, resultados, otros,
          practicas, investigaciones, proyeccion, capacitacion, laboral, pasantia, movilidad,
-         documento_nombre, documento_ruta, documento_base64, creado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+         documento_nombre, documento_ruta, creado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
        RETURNING *`,
       [
         nombre, ambito, tipo || null, inicio, fin,
         duracion || null, resolucion || null, resultados || null, otros || null,
         !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
         !!laboral, !!pasantia, !!movilidad,
-        documento_nombre, documento_ruta, documento_base64,
+        documento_nombre, documento_ruta,
         req.usuario.id,
       ]
     );
@@ -155,17 +155,17 @@ exports.actualizar = async (req, res) => {
     const archivo = req.file || null;
     const borrarDocumento = borrar_documento === 'true' || borrar_documento === true;
 
-    const { rows: prevRows } = await pool.query(
+    /*const { rows: prevRows } = await pool.query(
       'SELECT documento_nombre, documento_ruta, documento_base64 FROM convenios WHERE id = $1',
       [req.params.id]
-    );
+    );*/
 
     if (!prevRows.length) return res.status(404).json({ error: 'Convenio no encontrado' });
 
     const prev = prevRows[0];
     let documento_nombre = prev.documento_nombre;
     let documento_ruta = prev.documento_ruta;
-    let documento_base64 = prev.documento_base64;
+    /*let documento_base64 = prev.documento_base64;*/
 
     if (archivo) {
       if (prev.documento_ruta) {
@@ -174,7 +174,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = archivo.originalname;
       documento_ruta = archivo.filename;
-      documento_base64 = convertirABase64(archivo.path);
+      /*documento_base64 = convertirABase64(archivo.path);*/
     } else if (borrarDocumento) {
       if (prev.documento_ruta) {
         const oldPath = resolveUploadPath(prev.documento_ruta);
@@ -182,7 +182,7 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = null;
       documento_ruta = null;
-      documento_base64 = null;
+      /*documento_base64 = null;*/
     }
 
     const { rows } = await pool.query(
@@ -191,7 +191,7 @@ exports.actualizar = async (req, res) => {
         duracion=$6, resolucion=$7, resultados=$8, otros=$9,
         practicas=$10, investigaciones=$11, proyeccion=$12, capacitacion=$13,
         laboral=$14, pasantia=$15, movilidad=$16,
-        documento_nombre=$17, documento_ruta=$18, documento_base64=$19,
+        documento_nombre=$17, documento_ruta=$18,
         actualizado_en=NOW()
        WHERE id=$20
        RETURNING *`,
@@ -200,7 +200,7 @@ exports.actualizar = async (req, res) => {
         duracion || null, resolucion || null, resultados || null, otros || null,
         !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
         !!laboral, !!pasantia, !!movilidad,
-        documento_nombre, documento_ruta, documento_base64,
+        documento_nombre, documento_ruta,
         req.params.id,
       ]
     );
@@ -241,12 +241,12 @@ exports.descargarDocumento = async (req, res) => {
   try {
     const preview = req.query.preview === 'true' || req.query.preview === '1';
 
-    const { rows } = await pool.query(
+    /*const { rows } = await pool.query(
       `SELECT documento_nombre, documento_ruta, documento_base64 
        FROM convenios 
        WHERE id = $1`,
       [req.params.id]
-    );
+    );*/
 
     if (!rows.length) {
       return res.status(404).json({ error: 'Convenio no encontrado' });
@@ -255,7 +255,7 @@ exports.descargarDocumento = async (req, res) => {
     const documento = rows[0];
 
     // Primero intenta abrir desde Base64 (PostgreSQL)
-    if (documento.documento_base64) {
+    /*if (documento.documento_base64) {
       const buffer = Buffer.from(documento.documento_base64, "base64");
 
       res.setHeader(
@@ -267,7 +267,7 @@ exports.descargarDocumento = async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
 
       return res.send(buffer);
-    }
+    }*/
 
     // Si no hay Base64, busca el archivo físico en uploads
     if (documento.documento_ruta) {
