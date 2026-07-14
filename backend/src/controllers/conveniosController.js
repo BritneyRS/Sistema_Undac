@@ -6,6 +6,10 @@ const fs = require('fs');
 const UPLOAD_ROOT = path.join(__dirname, '../../uploads');
 const UPLOAD_DIR = path.join(UPLOAD_ROOT, 'convenios');
 
+function toBoolean(value) {
+  return value === true || value === 1 || value === '1' || value === 'true' || value === 'TRUE' || value === 'si' || value === 'sí' || value === 'Si' || value === 'Sí';
+}
+
 /*function convertirABase64(rutaArchivo) {
     const archivo = fs.readFileSync(rutaArchivo);
     return archivo.toString("base64");
@@ -109,6 +113,13 @@ exports.crear = async (req, res) => {
     const archivo = req.file || null;
     const documento_nombre = archivo ? archivo.originalname : null;
     const documento_ruta = archivo ? archivo.filename : null;
+    const practicasValue = toBoolean(practicas);
+    const investigacionesValue = toBoolean(investigaciones);
+    const proyeccionValue = toBoolean(proyeccion);
+    const capacitacionValue = toBoolean(capacitacion);
+    const laboralValue = toBoolean(laboral);
+    const pasantiaValue = toBoolean(pasantia);
+    const movilidadValue = toBoolean(movilidad);
 
     /*const documento_base64 = archivo
     ? convertirABase64(archivo.path)
@@ -124,8 +135,8 @@ exports.crear = async (req, res) => {
       [
         nombre, ambito, tipo || null, inicio, fin,
         duracion || null, resolucion || null, resultados || null, otros || null,
-        !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
-        !!laboral, !!pasantia, !!movilidad,
+        practicasValue, investigacionesValue, proyeccionValue, capacitacionValue,
+        laboralValue, pasantiaValue, movilidadValue,
         documento_nombre, documento_ruta,
         req.usuario.id,
       ]
@@ -155,10 +166,10 @@ exports.actualizar = async (req, res) => {
     const archivo = req.file || null;
     const borrarDocumento = borrar_documento === 'true' || borrar_documento === true;
 
-    /*const { rows: prevRows } = await pool.query(
-      'SELECT documento_nombre, documento_ruta, documento_base64 FROM convenios WHERE id = $1',
+    const { rows: prevRows } = await pool.query(
+      'SELECT documento_nombre, documento_ruta FROM convenios WHERE id = $1',
       [req.params.id]
-    );*/
+    );
 
     if (!prevRows.length) return res.status(404).json({ error: 'Convenio no encontrado' });
 
@@ -185,6 +196,14 @@ exports.actualizar = async (req, res) => {
       /*documento_base64 = null;*/
     }
 
+    const practicasValue = toBoolean(practicas);
+    const investigacionesValue = toBoolean(investigaciones);
+    const proyeccionValue = toBoolean(proyeccion);
+    const capacitacionValue = toBoolean(capacitacion);
+    const laboralValue = toBoolean(laboral);
+    const pasantiaValue = toBoolean(pasantia);
+    const movilidadValue = toBoolean(movilidad);
+
     const { rows } = await pool.query(
       `UPDATE convenios SET
         nombre=$1, ambito=$2, tipo=$3, inicio=$4, fin=$5,
@@ -193,13 +212,13 @@ exports.actualizar = async (req, res) => {
         laboral=$14, pasantia=$15, movilidad=$16,
         documento_nombre=$17, documento_ruta=$18,
         actualizado_en=NOW()
-       WHERE id=$20
+       WHERE id=$19
        RETURNING *`,
       [
         nombre, ambito, tipo || null, inicio, fin,
         duracion || null, resolucion || null, resultados || null, otros || null,
-        !!practicas, !!investigaciones, !!proyeccion, !!capacitacion,
-        !!laboral, !!pasantia, !!movilidad,
+        practicasValue, investigacionesValue, proyeccionValue, capacitacionValue,
+        laboralValue, pasantiaValue, movilidadValue,
         documento_nombre, documento_ruta,
         req.params.id,
       ]
@@ -241,12 +260,10 @@ exports.descargarDocumento = async (req, res) => {
   try {
     const preview = req.query.preview === 'true' || req.query.preview === '1';
 
-    /*const { rows } = await pool.query(
-      `SELECT documento_nombre, documento_ruta, documento_base64 
-       FROM convenios 
-       WHERE id = $1`,
+    const { rows } = await pool.query(
+      'SELECT documento_nombre, documento_ruta FROM convenios WHERE id = $1',
       [req.params.id]
-    );*/
+    );
 
     if (!rows.length) {
       return res.status(404).json({ error: 'Convenio no encontrado' });
@@ -254,22 +271,7 @@ exports.descargarDocumento = async (req, res) => {
 
     const documento = rows[0];
 
-    // Primero intenta abrir desde Base64 (PostgreSQL)
-    /*if (documento.documento_base64) {
-      const buffer = Buffer.from(documento.documento_base64, "base64");
-
-      res.setHeader(
-        "Content-Disposition",
-        `${preview ? "inline" : "attachment"}; filename="${documento.documento_nombre || "documento.pdf"}"`
-      );
-
-      // Para PDF
-      res.setHeader("Content-Type", "application/pdf");
-
-      return res.send(buffer);
-    }*/
-
-    // Si no hay Base64, busca el archivo físico en uploads
+    // Busca el archivo físico en uploads
     if (documento.documento_ruta) {
 
       const filePath = resolveUploadPath(documento.documento_ruta);
