@@ -214,7 +214,7 @@ exports.crear = async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error("Error al crear movilidad:", err);
-    res.status(500).json({ error: "Error al crear movilidad" });
+    res.status(500).json({ error: "Error al crear movilidad", details: err.message });
   }
 };
 
@@ -343,7 +343,7 @@ exports.actualizar = async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error("Error al actualizar movilidad:", err);
-    res.status(500).json({ error: "Error al actualizar movilidad" });
+    res.status(500).json({ error: "Error al actualizar movilidad", details: err.message });
   }
 };
 

@@ -117,7 +117,7 @@ exports.crear = async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error('Error al crear convenio:', err);
-    res.status(500).json({ error: 'Error al crear convenio' });
+    res.status(500).json({ error: 'Error al crear convenio', details: err.message });
   }
 };
 
@@ -196,7 +196,7 @@ exports.actualizar = async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error('Error al actualizar convenio:', err);
-    res.status(500).json({ error: 'Error al actualizar convenio' });
+    res.status(500).json({ error: 'Error al actualizar convenio', details: err.message });
   }
 };
 
