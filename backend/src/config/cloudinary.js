@@ -24,9 +24,9 @@ function createCloudinaryStorage(folder) {
     cloudinary,
     params: async (_req, file) => ({
       folder,
-      resource_type: "auto",
+      resource_type: "auto", // ◄— Cloudinary detectará automáticamente si es imagen o documento
       public_id: `${Date.now()}-${sanitizeFileName(file.originalname)}`,
-      allowed_formats: ["jpg", "jpeg", "png", "pdf", "doc", "docx"],
+      // ◄— Eliminamos "allowed_formats" de aquí para evitar el error con PDFs/Word docs.
     }),
   });
 }
@@ -46,7 +46,16 @@ function getPublicIdFromUrl(url) {
       withoutVersion.shift();
     }
 
-    return withoutVersion.join("/");
+    let publicId = withoutVersion.join("/");
+
+    // Corrección para borrado de imágenes:
+    // Si NO es un archivo raw (PDF, Word), Cloudinary requiere que le quitemos la extensión al public_id
+    const isRaw = url.includes("/raw/");
+    if (!isRaw) {
+      publicId = publicId.split('.').slice(0, -1).join('.');
+    }
+
+    return publicId;
   } catch {
     return null;
   }
