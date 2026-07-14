@@ -168,17 +168,9 @@ exports.crear = async (req, res) => {
     const archivo1 = req.files?.documento1?.[0] || null;
     const archivo2 = req.files?.documento2?.[0] || null;
     const documento_nombre = archivo1 ? archivo1.originalname : null;
-    const documento_ruta   = archivo1 ? archivo1.filename : null;
+    const documento_ruta = archivo1 ? archivo1.filename : null;
     const documento2_nombre = archivo2 ? archivo2.originalname : null;
-    const documento2_ruta   = archivo2 ? archivo2.filename : null;
-
-    /*const documento_base64 = archivo1 
-      ? fs.readFileSync(archivo1.path).toString("base64") 
-      : null;
-
-    const documento2_base64 = archivo2
-      ? fs.readFileSync(archivo2.path).toString("base64")
-      : null;*/
+    const documento2_ruta = archivo2 ? archivo2.filename : null;
 
     const { rows } = await pool.query(
       `
@@ -236,8 +228,6 @@ exports.crear = async (req, res) => {
         documento_ruta,
         documento2_nombre,
         documento2_ruta,
-        /*documento_base64,
-        documento2_base64,*/
         es_internacional === "true" || es_internacional === true, // <-- NUEVO: Convierte el valor a booleano
       ]
     );
@@ -304,10 +294,8 @@ exports.actualizar = async (req, res) => {
 
     let documento_nombre = prev.documento_nombre;
     let documento_ruta = prev.documento_ruta;
-    /*let documento_base64 = prev.documento_base64;*/
     let documento2_nombre = prev.documento2_nombre;
     let documento2_ruta = prev.documento2_ruta;
-    /*let documento2_base64 = prev.documento2_base64;*/
 
     if (archivo1) {
       if (prev.documento_ruta) {
@@ -316,7 +304,6 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = archivo1.originalname;
       documento_ruta = archivo1.filename;
-     /* documento_base64 = fs.readFileSync(archivo1.path).toString("base64");*/
     } else if (borrarDocumento1) {
       if (prev.documento_ruta) {
         const oldPath = resolveUploadPath(prev.documento_ruta);
@@ -324,7 +311,6 @@ exports.actualizar = async (req, res) => {
       }
       documento_nombre = null;
       documento_ruta = null;
-      /*documento_base64 = null;*/
     }
 
     if (archivo2) {
@@ -334,7 +320,6 @@ exports.actualizar = async (req, res) => {
       }
       documento2_nombre = archivo2.originalname;
       documento2_ruta = archivo2.filename;
-      /*documento2_base64 = fs.readFileSync(archivo2.path).toString("base64");*/
     } else if (borrarDocumento2) {
       if (prev.documento2_ruta) {
         const oldPath = resolveUploadPath(prev.documento2_ruta);
@@ -342,7 +327,6 @@ exports.actualizar = async (req, res) => {
       }
       documento2_nombre = null;
       documento2_ruta = null;
-      /*documento2_base64 = null;*/
     }
 
     const query = `
@@ -355,9 +339,8 @@ exports.actualizar = async (req, res) => {
         numeroexpediente = $15, numeroresolucion = $16, numerosiaf = $17,
         observacion = $18, documento_nombre = $19, documento_ruta = $20,
         documento2_nombre = $21, documento2_ruta = $22,
-        
-        es_internacional = $25
-      WHERE id = $26
+        es_internacional = $23
+      WHERE id = $24
       RETURNING *
     `;
 
@@ -434,9 +417,9 @@ exports.descargarDocumento = async (req, res) => {
       return res.status(400).json({ error: "Índice de documento inválido" });
     }
 
-    /*const columnas = indice === 1
-      ? "documento_nombre, documento_ruta, documento_base64"
-      : "documento2_nombre AS documento_nombre, documento2_ruta AS documento_ruta, documento2_base64 AS documento_base64";*/
+    const columnas = indice === 1
+      ? "documento_nombre, documento_ruta"
+      : "documento2_nombre AS documento_nombre, documento2_ruta AS documento_ruta";
 
     const { rows } = await pool.query(
       `SELECT ${columnas} FROM movilidades WHERE id = $1`,
@@ -449,21 +432,7 @@ exports.descargarDocumento = async (req, res) => {
 
     const documento = rows[0];
 
-    // Abrir desde Base64
-    /*if (documento.documento_base64) {
-      const buffer = Buffer.from(documento.documento_base64, "base64");
-
-      res.setHeader(
-        "Content-Disposition",
-        `${preview ? "inline" : "attachment"}; filename="${documento.documento_nombre || "documento.pdf"}"`
-      );
-
-      res.setHeader("Content-Type", "application/pdf");
-
-      return res.send(buffer);
-    }*/
-
-    // Respaldo: abrir desde uploads si existe
+    // Abrir desde uploads si existe
     if (documento.documento_ruta) {
       const filePath = resolveUploadPath(documento.documento_ruta);
 
