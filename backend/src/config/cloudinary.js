@@ -3,13 +3,22 @@ const dotenv = require("dotenv");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+const envPath = path.resolve(__dirname, "../../.env");
+dotenv.config({ path: envPath });
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (cloudName && apiKey && apiSecret) {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  });
+} else {
+  console.warn("Cloudinary no está configurado correctamente. Revisa las variables CLOUDINARY_* en el archivo .env.");
+}
 
 function sanitizeFileName(name) {
   return name
