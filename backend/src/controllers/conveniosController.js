@@ -240,7 +240,31 @@ exports.descargarDocumento = async (req, res) => {
     const documento = rows[0];
 
     if (documento.documento_ruta && /^https?:\/\//i.test(documento.documento_ruta)) {
-      return res.redirect(documento.documento_ruta);
+      try {
+        const response = await fetch(documento.documento_ruta);
+        if (!response.ok) {
+          throw new Error(`Error al obtener de Cloudinary: ${response.statusText}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (contentType) {
+          res.setHeader('Content-Type', contentType);
+        }
+
+        const encodedName = encodeURIComponent(documento.documento_nombre || 'documento');
+        if (preview) {
+          res.setHeader('Content-Disposition', `inline; filename="${encodedName}"; filename*=UTF-8''${encodedName}`);
+        } else {
+          res.setHeader('Content-Disposition', `attachment; filename="${encodedName}"; filename*=UTF-8''${encodedName}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        return res.send(buffer);
+      } catch (cloudinaryErr) {
+        console.error('Error al descargar desde Cloudinary:', cloudinaryErr);
+        return res.status(500).json({ error: 'Error al recuperar el archivo desde Cloudinary' });
+      }
     }
 
     if (documento.documento_ruta) {
