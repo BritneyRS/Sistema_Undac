@@ -243,7 +243,7 @@ exports.descargarDocumento = async (req, res) => {
       try {
         const response = await fetch(documento.documento_ruta);
         if (!response.ok) {
-          throw new Error(`Error al obtener de Cloudinary: ${response.statusText}`);
+          throw new Error(`Código HTTP ${response.status}: ${response.statusText}`);
         }
 
         const contentType = response.headers.get('content-type');
@@ -263,7 +263,9 @@ exports.descargarDocumento = async (req, res) => {
         return res.send(buffer);
       } catch (cloudinaryErr) {
         console.error('Error al descargar desde Cloudinary:', cloudinaryErr);
-        return res.status(500).json({ error: 'Error al recuperar el archivo desde Cloudinary' });
+        return res.status(500).json({
+          error: `Error al recuperar el archivo de Cloudinary. Motivo: ${cloudinaryErr.message}. URL: ${documento.documento_ruta}`
+        });
       }
     }
 
