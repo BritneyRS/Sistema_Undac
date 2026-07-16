@@ -17,7 +17,7 @@ const fileFilter = (_req, file, cb) => {
 exports.upload = multer({
   storage: createCloudinaryStorage('convenios'),
   fileFilter,
-  limits: { fileSize: 100 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 // ─── seccion listar /api/convenios ──────────────────────────────────────

@@ -24,7 +24,7 @@ const fileFilter = (_req, file, cb) => {
 exports.upload = multer({
   storage: createCloudinaryStorage("movilidad"),
   fileFilter,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
 });
 
 

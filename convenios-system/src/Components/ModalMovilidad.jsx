@@ -90,7 +90,7 @@ const SEDES_MAP = EFP_PARSED.reduce((acc, p) => {
 // TIPOS DE ARCHIVO PERMITIDOS (para mostrar al usuario)
 // ──────────────────────────────────────────────────────────────
 const TIPOS_PERMITIDOS = ".pdf,.doc,.docx,.png,.jpg,.jpeg";
-const MAX_MB = 100;
+const MAX_MB = 10;
 
 export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerrar }) {
   const registroActual = registro ?? movilidad;

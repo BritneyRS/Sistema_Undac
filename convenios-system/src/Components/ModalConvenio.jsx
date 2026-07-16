@@ -33,7 +33,7 @@ const vacioConvenio = {
 };
 
 const TIPOS_PERMITIDOS = ".pdf,.doc,.docx,.png,.jpg,.jpeg";
-const MAX_MB = 100;
+const MAX_MB = 10;
 
 export default function ModalConvenio({ convenio, onGuardar, onCerrar }) {
   const [form, setForm] = useState(vacioConvenio);
