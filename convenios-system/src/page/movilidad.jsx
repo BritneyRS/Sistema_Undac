@@ -49,7 +49,7 @@ const EFP_RAW = [
   "E.F.P. De Educación Secundaria Especialidad de Biologia y Química - Pasco",
   "E.F.P. De Educación Secundaria Especialidad de Matematica y Física - Pasco",
   "E.F.P. De Educación Secundaria Especialidad de Historia, Ciencias Sociales y Turismo - Pasco",
-  "E.F.P. De Educación Secundaria Especialidad de Comuniccación y Literatura - Pasco",
+  "E.F.P. De Educación Secundaria Especialidad de Comunicación y Literatura - Pasco",
   "E.F.P. De Educación Primaria - Oxapampa",
   "E.F.P. De Educación Primaria - Yanahuanca",
   "E.F.P. De Educación Primaria - Pasco",
