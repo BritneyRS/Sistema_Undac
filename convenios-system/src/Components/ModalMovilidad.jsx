@@ -503,7 +503,7 @@ export default function ModalMovilidad({ registro, movilidad, onGuardar, onCerra
           </Campo>
 
           {/* Campo documento */}
-          <Campo label={<strong>Adjuntar documentos (PDF, Word, imagen — máx. 100 MB cada uno)</strong>}>
+          <Campo label={<strong>Adjuntar documentos (PDF, Word, imagen — máx. 10 MB cada uno)</strong>}>
             <div className="contenedor-documentos-global">
               
               {/* ================= GRUPO DOCUMENTO 1 ================= */}
